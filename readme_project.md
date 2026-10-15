@@ -312,4 +312,4 @@ US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelan
 
 ## 7. Pull Requests
 
-No hay pull requests abiertos. El 1 se cerró porque su commit ya estaba en `main`. El 2 se fusionó en `main`: https://github.com/rfonseca079/ProyectoInnovacion/pull/2. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
+No hay pull requests abiertos. El 1 se cerró porque su commit ya estaba en `main`. Se fusionaron el 2 (https://github.com/rfonseca079/ProyectoInnovacion/pull/2), el 3 (https://github.com/rfonseca079/ProyectoInnovacion/pull/3) y el 4 (https://github.com/rfonseca079/ProyectoInnovacion/pull/4). El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
