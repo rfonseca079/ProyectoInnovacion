@@ -260,6 +260,8 @@ paths:
         generate-week-sessions, duplicate-structure.
         generate-implications replaces implication-manipulatives, implication-scaffolding,
         and implication-differentiation together.
+        regenerate-mediation, fit-40-minutes, and simplify-materials each replace the visible
+        mediation text and set it back to SUGGESTED.
       operationId: runStoredAction
       parameters:
         - $ref: '#/components/parameters/PlanId'

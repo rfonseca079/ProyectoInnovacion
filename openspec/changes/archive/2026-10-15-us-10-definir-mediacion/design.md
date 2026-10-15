@@ -18,8 +18,10 @@ See proposal.md. Juanita's seed opens on this step, so the mathematics week 2 ro
 ## Decisions
 
 - Store in-class rows as JSON on `mediation-in-class` and out-of-class items on `mediation-outside`.
-- Actions `regenerate-mediation`, `fit-40-minutes`, and `simplify-materials` each have their own variant list. They overwrite the visible body and set status to `SUGGESTED`.
-- The 40-minute variant is data: 8, 14, 12, and 6. The domain does not scale the previous times.
+- Actions `regenerate-mediation`, `fit-40-minutes`, and `simplify-materials` each have their own variant list. `regenerate-mediation` overwrites both mediation blocks and sets them to `SUGGESTED`. `fit-40-minutes` and `simplify-materials` overwrite the in-class table and set that block to `SUGGESTED`.
+- A field save already in flight finishes before the action request, and its later screen update must not put the pre-action text back.
+- Two overlapping calls claim the next stored set once. The first call may create the cursor; a lost create retries.
+- The 40-minute variant is data: 8, 14, 12, and 6. The domain does not scale the previous times. The fourth call from the initial cursor returns to that set.
 - Continue checks that at least one row exists and every row has `minutes`.
 
 Alternative considered: one action parameter for "mode". Rejected so each button maps to the action key already named in `docs/api-spec.yml`.

@@ -38,15 +38,24 @@ describe("continue step", () => {
     return login.headers["set-cookie"];
   }
 
-  it("returns 422 for an invalid step and does not raise highestVisitedStep", async () => {
+  it("returns 422 when an in-class row has no time and does not raise highestVisitedStep", async () => {
     const juanita = await cookie("juanita.perez@demo.mep.cr");
-    const blocked = await request(app).post(`/api/plans/${juanitaPlanId}/steps/4/continue`).set("Cookie", juanita);
-    expect(blocked.status).toBe(422);
-    expect(blocked.body.message).toBe("Complete los campos de este paso antes de continuar.");
-
-    const stored = await prisma.plan.findUniqueOrThrow({ where: { id: juanitaPlanId } });
-    expect(stored.highestVisitedStep).toBe(4);
-    expect(stored.currentStep).toBe(4);
+    const block = await prisma.planBlock.findUniqueOrThrow({
+      where: { planId_blockKey: { planId: juanitaPlanId, blockKey: "mediation-in-class" } },
+    });
+    const rows = JSON.parse(block.body) as { minutes: number }[];
+    rows[0].minutes = 0;
+    await prisma.planBlock.update({ where: { id: block.id }, data: { body: JSON.stringify(rows) } });
+    try {
+      const blocked = await request(app).post(`/api/plans/${juanitaPlanId}/steps/4/continue`).set("Cookie", juanita);
+      expect(blocked.status).toBe(422);
+      expect(blocked.body.message).toBe("Complete el tiempo de cada actividad.");
+      const stored = await prisma.plan.findUniqueOrThrow({ where: { id: juanitaPlanId } });
+      expect(stored.highestVisitedStep).toBe(4);
+      expect(stored.currentStep).toBe(4);
+    } finally {
+      await prisma.planBlock.update({ where: { id: block.id }, data: { body: block.body } });
+    }
   });
 
   it("returns 422 when the evaluation percentages do not sum to 100", async () => {

@@ -13,6 +13,11 @@ vi.mock("../services/suggestionService", () => ({
   reanalyzeProgram: vi.fn(),
   acceptSuggestion: vi.fn(),
   regenerateSuggestion: vi.fn(),
+  redistributeEvaluation: vi.fn(),
+  generateImplications: vi.fn(),
+  regenerateMediation: vi.fn(),
+  fitFortyMinutes: vi.fn(),
+  simplifyMaterials: vi.fn(),
 }));
 
 const planId = "11111111-1111-4111-8111-111111111111";

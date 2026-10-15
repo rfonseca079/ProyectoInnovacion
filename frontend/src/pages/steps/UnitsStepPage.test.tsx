@@ -15,6 +15,10 @@ vi.mock("../../services/suggestionService", () => ({
   acceptSuggestion: vi.fn(),
   regenerateSuggestion: vi.fn(),
   redistributeEvaluation: vi.fn(),
+  generateImplications: vi.fn(),
+  regenerateMediation: vi.fn(),
+  fitFortyMinutes: vi.fn(),
+  simplifyMaterials: vi.fn(),
 }));
 
 const weeks = [
