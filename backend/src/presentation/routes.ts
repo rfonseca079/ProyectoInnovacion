@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { currentTeacher, loginTeacher } from "../application/loginTeacher";
+import { continueStep } from "../application/continueStep";
 import { createPlan, updatePlanConfiguration } from "../application/createPlan";
 import { getPlan, listPlans } from "../application/listPlans";
 import { logoutTeacher } from "../application/logoutTeacher";
@@ -59,6 +60,15 @@ export function apiRouter(prisma: PrismaClient): Router {
   router.get("/plans", async (req, res, next) => {
     try {
       res.json(await listPlans(prisma, readSessionId(req)));
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/plans/:planId/steps/:step/continue", async (req, res, next) => {
+    try {
+      const plan = await continueStep(prisma, readSessionId(req), String(req.params.planId), String(req.params.step));
+      res.json(plan);
     } catch (error) {
       next(error);
     }

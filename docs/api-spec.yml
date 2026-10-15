@@ -171,13 +171,26 @@ paths:
             maximum: 7
       responses:
         '200':
-          description: Next step visited and, on the first visit, filled from variant 1
+          description: Next step becomes current and is marked visited. Step content is unchanged.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlanDetail'
         '422':
-          description: Required field empty, or evaluation percentages do not sum to 100
+          description: Required field empty, the step has no validator yet, or evaluation percentages do not sum to 100
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                stepNotReady:
+                  value:
+                    code: VALIDATION
+                    message: Complete los campos de este paso antes de continuar.
+                rubric:
+                  value:
+                    code: VALIDATION
+                    message: Los porcentajes de la evaluación deben sumar 100.
   /api/plans/{planId}/blocks/{blockKey}/accept:
     post:
       tags: [Suggestions]

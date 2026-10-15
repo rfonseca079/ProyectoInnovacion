@@ -50,7 +50,7 @@ Cada docente entra con correo y contraseña de una cuenta ya creada. Ve solo sus
 
 ### 1.2. Características y funcionalidades principales
 
-Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento y el borrador automático. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior. Las propuestas US-06 a US-16 siguen en implementación.
+Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento, el borrador automático y el recorrido del wizard. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior. Las propuestas US-07 a US-16 siguen en implementación.
 
 1. Inicio y cierre de sesión, sin registro ni recuperación de contraseña.
 2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado. «Aún no tiene planeamientos.» aparece solo cuando la consulta terminó y no hay filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.»
@@ -199,7 +199,7 @@ No hay registro público, segundo factor ni envío de correo. El aviso a direcci
 
 #### Cobertura actual por capa
 
-El acceso, el cierre, la lista, la creación y el borrador tienen pruebas Jest, Testing Library y Playwright en escritorio de 1440 px. Las propuestas US-06 a US-16 todavía no.
+El acceso, el cierre, la lista, la creación, el borrador y el recorrido del wizard tienen pruebas Jest, Testing Library y Playwright en escritorio de 1440 px. Las propuestas US-07 a US-16 todavía no.
 
 #### Organización y ejecución de las suites
 
@@ -211,7 +211,7 @@ Cada cambio de OpenSpec deja sus pruebas junto al comportamiento que agrega. Ant
 
 #### Limitaciones y consideraciones actuales
 
-Las suites de US-01 a US-05 ya se ejecutaron. US-06 a US-16 todavía no tienen implementación que cubrir.
+Las suites de US-01 a US-06 ya se ejecutaron. US-07 a US-16 todavía no tienen implementación que cubrir.
 
 ---
 
@@ -282,7 +282,7 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 | US-03 | Ver mis planeamientos | `openspec/changes/archive/2026-10-15-us-03-listar-planeamientos` |
 | US-04 | Crear un planeamiento | `openspec/changes/archive/2026-10-15-us-04-crear-planeamiento` |
 | US-05 | Guardar el borrador | `openspec/changes/archive/2026-10-15-us-05-guardar-borrador` |
-| US-06 | Recorrer el wizard | `openspec/changes/us-06-recorrer-el-wizard` |
+| US-06 | Recorrer el wizard | `openspec/changes/archive/2026-10-15-us-06-recorrer-el-wizard` |
 | US-07 | Programa y calendario | `openspec/changes/us-07-revisar-programa-y-calendario` |
 | US-08 | Unidades y evaluación | `openspec/changes/us-08-organizar-unidades-y-evaluacion` |
 | US-09 | Diagnóstico del grupo | `openspec/changes/us-09-registrar-diagnostico-del-grupo` |
@@ -306,7 +306,7 @@ Tres tickets representativos del corte previsto:
 2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
 3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
-US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelante siguen sin implementar. El trabajo publicado está en `main`.
+US-04, US-05 y US-06 también quedaron implementados. Las propuestas de US-07 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-05.
 
 ---
 

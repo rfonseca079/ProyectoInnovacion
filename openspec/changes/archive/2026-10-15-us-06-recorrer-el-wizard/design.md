@@ -17,10 +17,10 @@ See proposal.md. Steps are a single plan field pair, `currentStep` and `highestV
 
 ## Decisions
 
-- Routes are `/plans`, `/plans/new`, and `/plans/:planId/steps/:step`.
-- The bar enables steps `0..highestVisitedStep` inclusive. Atrás and those clicks do not call continue.
+- The plan list is `/planeamientos`. New-plan and step routes are `/plans/new` and `/plans/:planId/steps/:step`.
+- The bar enables steps `0..highestVisitedStep` inclusive, and only those indexes from 0 through 8. An address outside that range returns to `highestVisitedStep`. Atrás and visited clicks do not call continue. Another teacher's continue returns 404.
 - Continue returns 422 with the missing-field message and does not increment `highestVisitedStep`. Success sets `currentStep` to the next step, raises `highestVisitedStep`, and saves.
-- Step 2's validator requires the rubric total to be 100. Step 8 has no Continuar control. Step 0 Atrás navigates to `/plans`.
+- Step 2's validator requires the rubric total to be 100. Step 8 has no Continuar control. Step 0 Atrás navigates to `/planeamientos`. An empty teacher name and an empty school are separate messages.
 - Chrome is one component so later step pages do not redraw the header.
 
 Alternative considered: storing a boolean per step. Rejected because the product rule is a single visited prefix, not arbitrary holes.

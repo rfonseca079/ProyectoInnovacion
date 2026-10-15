@@ -104,6 +104,65 @@ input {
   gap: 16px;
 }
 
+.topbar a {
+  color: #ffffff;
+}
+
+.plan-context {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+}
+
+.step-bar {
+  padding: 16px 32px 0;
+  background: #ffffff;
+  border-bottom: 1px solid #d5ddd8;
+}
+
+.step-bar ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step-bar a,
+.step-bar span {
+  display: inline-block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #e7eeeb;
+  color: inherit;
+  text-decoration: none;
+}
+
+.step-bar span {
+  color: #7b878c;
+}
+
+.wizard-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 24px 32px 32px;
+}
+
+.wizard-footer a,
+.wizard-footer button {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: 1px solid #0f3d4c;
+  background: #ffffff;
+  color: #0f3d4c;
+  text-decoration: none;
+  line-height: 40px;
+  cursor: pointer;
+}
+
 .topbar button {
   height: 36px;
   padding: 0 14px;

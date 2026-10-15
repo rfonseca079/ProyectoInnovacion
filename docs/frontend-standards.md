@@ -33,7 +33,7 @@ frontend/src/
 ```
 
 - `services/` is the only place that calls the API.
-- Pages own the wizard step they render.
+- Pages own the wizard step they render. Step addresses are `/plans/:planId/steps/:step`. The plan list stays at `/planeamientos`.
 - Shared chrome (header, step bar, footer, primary and secondary buttons) lives in `components/` and matches US-06.
 
 ## Product UI
@@ -54,12 +54,12 @@ frontend/src/
 - Show "Aún no tiene planeamientos." only after a successful list response with no rows. A failed load shows "No se pudieron cargar los planeamientos."
 - Opening another teacher's plan address shows "No tiene acceso a este planeamiento." and does not render that plan.
 - Autosave when the teacher leaves a changed field. A second leave waits until the running save finishes, then stores the newer text. The success sentence clears when the field changes again. Later actions that accept, edit, regenerate, change the rubric, toggle notifications, apply adjustments, or change step must use that same save when those screens exist.
-- **Continuar** stays disabled until the step's required fields are valid. Back and already visited steps stay available.
+- **Continuar** calls `POST /api/plans/:planId/steps/:step/continue`. A 422 names the missing field and leaves the step unvisited. Atrás and already visited steps move without that request.
 - **Descargar PDF** and **Exportar semana** download the file returned by the API. They do not build a fake PDF in the browser from a static asset.
 - Keep session handling on the cookie. Do not store the password or a token in `localStorage`.
 
 ## Testing
 
-- Component tests cover disabled continue, the 100% rubric message, and the fallback notice.
+- Component tests cover the nine step labels, the hidden indicator on configuration, the visited-step limits, and the 100% rubric message.
 - Playwright covers login failure, Juanita opening step 4, and one regenerate that changes the stored variant text.
 - Run the browser checks at a desktop viewport. A narrow screenshot is not the product.
