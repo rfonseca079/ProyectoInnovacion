@@ -9,7 +9,8 @@ import { createPlan, listPlans } from "./services/planService";
 
 export function App() {
   const [teacher, setTeacher] = useState<TeacherProfile | null | undefined>(undefined);
-  const [plans, setPlans] = useState<PlanSummary[]>([]);
+  const [plans, setPlans] = useState<PlanSummary[] | null>(null);
+  const [plansError, setPlansError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,14 +23,29 @@ export function App() {
     if (!teacher) {
       return;
     }
+    let active = true;
+    setPlans(null);
+    setPlansError("");
     listPlans()
-      .then(setPlans)
-      .catch(() => setPlans([]));
+      .then((rows) => {
+        if (active) {
+          setPlans(rows);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setPlansError("No se pudieron cargar los planeamientos.");
+        }
+      });
+    return () => {
+      active = false;
+    };
   }, [teacher]);
 
   async function handleLogout() {
     await logout();
-    setPlans([]);
+    setPlans(null);
+    setPlansError("");
     setTeacher(null);
     navigate("/login", { replace: true });
   }
@@ -47,7 +63,7 @@ export function App() {
           path="/planeamientos"
           element={
             teacher ? (
-              <PlanListPage teacherName={teacher.fullName} onLogout={handleLogout} plans={plans} />
+              <PlanListPage teacherName={teacher.fullName} onLogout={handleLogout} plans={plans} loadError={plansError} />
             ) : (
               <Navigate to="/login" replace />
             )

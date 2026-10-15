@@ -15,6 +15,20 @@ const juanita: PlanSummary = {
   updatedAt: "2026-03-10T18:00:00.000Z",
 };
 
+const ready: PlanSummary = {
+  ...juanita,
+  id: "22222222-2222-4222-8222-222222222222",
+  status: "READY_FOR_DELIVERY",
+  currentStep: 7,
+};
+
+const adjusted: PlanSummary = {
+  ...juanita,
+  id: "33333333-3333-4333-8333-333333333333",
+  status: "ADJUSTED",
+  currentStep: 8,
+};
+
 describe("PlanListPage", () => {
   it("renders Juanita's draft label and the empty state", () => {
     const { rerender } = render(
@@ -25,6 +39,14 @@ describe("PlanListPage", () => {
     expect(screen.getByText(/Borrador · Paso 4 de 8/)).toBeInTheDocument();
     expect(screen.getByText(/10 de marzo de 2026/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Nuevo planeamiento" })).toBeInTheDocument();
+
+    rerender(
+      <MemoryRouter>
+        <PlanListPage teacherName="Carlos Mora" onLogout={() => undefined} plans={[ready, adjusted]} />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText(/Listo para entrega/)).toBeInTheDocument();
+    expect(screen.getByText(/Ajustado/)).toBeInTheDocument();
 
     rerender(
       <MemoryRouter>

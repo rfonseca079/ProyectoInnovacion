@@ -53,7 +53,7 @@ Cada docente entra con correo y contraseña de una cuenta ya creada. Ve solo sus
 Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento y el borrador automático. Al salir de un campo, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Las propuestas US-06 a US-16 siguen en implementación.
 
 1. Inicio y cierre de sesión, sin registro ni recuperación de contraseña.
-2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado.
+2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado. «Aún no tiene planeamientos.» aparece solo cuando la consulta terminó y no hay filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.»
 3. Configuración de un planeamiento nuevo y elección del escenario guardado. Si la combinación no existe, se usan las sugerencias de Matemática, 4.° año, marzo 2026, y la pantalla lo indica.
 4. Borrador automático.
 5. Wizard con avance solo si el paso es válido, y reapertura de los pasos ya visitados.
@@ -279,7 +279,7 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 | --- | --- | --- |
 | US-01 | Iniciar sesión | `openspec/changes/archive/2026-10-15-us-01-iniciar-sesion` |
 | US-02 | Cerrar sesión | `openspec/changes/archive/2026-10-15-us-02-cerrar-sesion` |
-| US-03 | Ver mis planeamientos | `openspec/changes/us-03-listar-planeamientos` |
+| US-03 | Ver mis planeamientos | `openspec/changes/archive/2026-10-15-us-03-listar-planeamientos` |
 | US-04 | Crear un planeamiento | `openspec/changes/us-04-crear-planeamiento` |
 | US-05 | Guardar el borrador | `openspec/changes/us-05-guardar-borrador` |
 | US-06 | Recorrer el wizard | `openspec/changes/us-06-recorrer-el-wizard` |
@@ -303,7 +303,7 @@ Cada propuesta es el ticket de esa historia. Dentro tiene `proposal.md` (por qu�
 Tres tickets representativos del corte previsto:
 
 1. **Backend, US-01.** Acceso con cuentas sembradas, cookie de sesión y el mismo error para correo desconocido y contraseña incorrecta. Cambio: `us-01-iniciar-sesion`. Implementado.
-2. **Frontend, US-03.** Lista con el estado en español y reapertura en el paso guardado. Cambio: `us-03-listar-planeamientos`. Implementado.
+2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
 3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
 US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelante siguen sin implementar. El cierre de sesión está en la rama `feature/us-02-cerrar-sesion`. El primer commit está en `feature/us-01-iniciar-sesion`.
@@ -312,4 +312,4 @@ US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelan
 
 ## 7. Pull Requests
 
-Todavía no hay pull requests. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion. La primera rama publicada, `feature/us-01-iniciar-sesion`, quedó como rama predeterminada, así que no había una base contra la cual abrir el pull request.
+Hay un pull request abierto: https://github.com/rfonseca079/ProyectoInnovacion/pull/1. Compara `feature/us-02-cerrar-sesion` contra `feature/us-01-iniciar-sesion`. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.

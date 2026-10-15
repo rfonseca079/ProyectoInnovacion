@@ -2,7 +2,7 @@
 
 ## 1. Branch
 
-- [ ] 1.1 Create and switch to `feature/us-03-listar-planeamientos` before any code change, and verify `git status` shows that branch
+- [x] 1.1 Create and switch to `feature/us-03-listar-planeamientos` before any code change, and verify `git status` shows that branch
 
 ## 2. Plan list
 
@@ -10,6 +10,7 @@
 - [x] 2.2 Implement `GET /api/plans` and `GET /api/plans/:planId` scoped by the session teacher, and verify a test hides another teacher's plan with 404
 - [x] 2.3 Build `PlanListPage` with the Spanish status labels, empty state, and Nuevo planeamiento, and verify a component test renders Juanita's "Borrador · Paso 4 de 8"
 - [x] 2.4 Point the list columns at `docs/api-spec.yml` `PlanSummary`, and verify every rendered column exists on that schema
+- [x] 2.5 Show "Aún no tiene planeamientos." only after a successful empty list, show "No se pudieron cargar los planeamientos." when the request fails, and verify both with tests. Assert Carlos's and María's lists each contain one row
 
 ## 3. Mandatory verification
 
