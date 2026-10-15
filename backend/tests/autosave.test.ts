@@ -33,6 +33,13 @@ describe("autosave", () => {
     expect(patched.body.section).toBe("4.° B");
     expect(new Date(patched.body.updatedAt).getTime()).toBeGreaterThan(before.updatedAt.getTime());
 
+    const stored = await prisma.plan.findUniqueOrThrow({
+      where: { id: juanitaPlanId },
+      include: { rubricItems: true },
+    });
+    expect(stored.notifyEvaluationChanges).toBe(true);
+    expect(stored.rubricItems).toEqual([expect.objectContaining({ name: "Tareas", percentage: 100 })]);
+
     const again = await request(app).get(`/api/plans/${juanitaPlanId}`).set("Cookie", juanita);
     expect(again.body.section).toBe("4.° B");
 

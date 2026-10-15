@@ -43,7 +43,7 @@ frontend/src/
 - Header: wordmark **Planificador AI**, plan context, **Mis planeamientos**, and **Cerrar sesión**.
 - Steps 1–7 show **Atrás** and **Continuar**. Step 8 uses the adjustment actions from US-15.
 - A step that has not been visited is visible and not clickable.
-- The footer shows **Borrador guardado automáticamente** after a successful save, and the failure sentence from US-05 when the save fails.
+- The page footer shows **Borrador guardado automáticamente** after a successful save, and the failure sentence from US-05 when the save fails.
 - When `usedFallback` is true, every step shows the fallback sentence from US-16.
 
 ## Behavior
@@ -53,7 +53,7 @@ frontend/src/
 - Logout clears the plan list held in memory, so the next teacher does not see the previous rows while their own list is loading.
 - Show "Aún no tiene planeamientos." only after a successful list response with no rows. A failed load shows "No se pudieron cargar los planeamientos."
 - Opening another teacher's plan address shows "No tiene acceso a este planeamiento." and does not render that plan.
-- Autosave on field blur, accept, edit, named actions, and step changes.
+- Autosave when the teacher leaves a changed field. A second leave waits until the running save finishes, then stores the newer text. The success sentence clears when the field changes again. Later actions that accept, edit, regenerate, change the rubric, toggle notifications, apply adjustments, or change step must use that same save when those screens exist.
 - **Continuar** stays disabled until the step's required fields are valid. Back and already visited steps stay available.
 - **Descargar PDF** and **Exportar semana** download the file returned by the API. They do not build a fake PDF in the browser from a static asset.
 - Keep session handling on the cookie. Do not store the password or a token in `localStorage`.
