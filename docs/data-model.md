@@ -123,6 +123,12 @@ For `mat-4-marzo-2026`: 6 March suspended (teachers' council), 13 and 27 March a
 
 `esp-2-abril-2026` stores 6 April 2026 as a teaching day. `cie-7-febrero-2026` stores 6 February 2026 as a teaching day. Those rows are stored marks, not a holiday calculation.
 
+## Group profile
+
+Step 3 stores six required blocks: `prior-knowledge`, `difficulties`, `resources`, `pace`, `supports`, and `teacher-notes`. Continue names the first empty field, for example "Complete el campo Observaciones de la docente." Supports stay general classroom help. The step does not store a formal accommodation section or student identifiers.
+
+The implication cards are `implication-manipulatives`, `implication-scaffolding`, and `implication-differentiation`. `generate-implications` writes the next stored set into all three and marks them `SUGGESTED`. It claims the current set before writing, so two overlapping calls do not apply the same set twice. Regenerating one card cycles only that key. Saving one profile field does not replace unsaved text in the other fields. The mathematics set 2 includes "Iniciar la recta numérica solo después de la representación concreta." The science set 1 includes "Observar células en láminas o imágenes antes de copiar el esquema."
+
 ## RubricItem
 
 Rows of the evaluation table, stored as `position`, `name`, `count`, and `percentage`. Each percentage is an integer from 0 through 100. A value outside that range is rejected with "Cada porcentaje debe ser un entero entre 0 y 100." and the stored rows stay. The stored distributions for the initial five mathematics rows already sum to 100. `add-item` inserts a row at 0. `remove-item` cannot delete the last row. Continue on step 2 is allowed only when the percentages sum to 100, every percentage is inside that range, and every row and week has a name.

@@ -6,7 +6,8 @@ import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
 import { continuePlan, getPlan, patchPlan, PlanDetail } from "../services/planService";
-import { acceptSuggestion, reanalyzeProgram, redistributeEvaluation, regenerateSuggestion } from "../services/suggestionService";
+import { acceptSuggestion, generateImplications, reanalyzeProgram, redistributeEvaluation, regenerateSuggestion } from "../services/suggestionService";
+import { GroupStepPage, isGroupStepReady } from "./steps/GroupStepPage";
 import { isProgramStepReady, ProgramStepPage } from "./steps/ProgramStepPage";
 import { isUnitsStepReady, UnitsStepPage } from "./steps/UnitsStepPage";
 
@@ -85,9 +86,13 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const [continueMessage, setContinueMessage] = useState("");
   const [actionMessage, setActionMessage] = useState("");
   const [unitsReady, setUnitsReady] = useState<boolean | null>(null);
+  const [groupReady, setGroupReady] = useState<boolean | null>(null);
   const pendingSave = useRef(Promise.resolve());
   const reportUnitsReady = useCallback((ready: boolean) => {
     setUnitsReady(ready);
+  }, []);
+  const reportGroupReady = useCallback((ready: boolean) => {
+    setGroupReady(ready);
   }, []);
 
   function trackSave(work: Promise<void>): Promise<void> {
@@ -156,7 +161,8 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
       onLogout={onLogout}
       continueDisabled={
         (step === 1 && !isProgramStepReady(plan.blocks)) ||
-        (step === 2 && !(unitsReady ?? isUnitsStepReady(plan.weeks ?? [], plan.rubric ?? [])))
+        (step === 2 && !(unitsReady ?? isUnitsStepReady(plan.weeks ?? [], plan.rubric ?? []))) ||
+        (step === 3 && !(groupReady ?? isGroupStepReady(plan.blocks)))
       }
       continueMessage={continueMessage}
       onContinue={() => {
@@ -173,7 +179,66 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
         );
       }}
     >
-      {step === 2 ? (
+      {step === 3 ? (
+        <GroupStepPage
+          blocks={plan.blocks}
+          onSaveField={(blockKey, body) =>
+            trackSave(
+              patchPlan(planId, { blocks: [{ blockKey, body }] })
+                .then(() => {
+                  setPlan((current) =>
+                    current
+                      ? {
+                          ...current,
+                          blocks: current.blocks.map((block) =>
+                            block.blockKey === blockKey ? { ...block, body, status: "EDITED" } : block,
+                          ),
+                        }
+                      : current,
+                  );
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onReadyChange={reportGroupReady}
+          actionMessage={actionMessage}
+          onGenerate={() =>
+            generateImplications(planId)
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudieron generar las implicaciones.");
+              })
+          }
+          onAccept={(blockKey) => {
+            void acceptSuggestion(planId, blockKey).then((saved) => {
+              setPlan((current) =>
+                current
+                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
+                  : current,
+              );
+            });
+          }}
+          onEdit={(blockKey, body) => {
+            void saveBlock(blockKey, body);
+          }}
+          onRegenerate={(blockKey) => {
+            void regenerateSuggestion(planId, blockKey).then((saved) => {
+              setPlan((current) =>
+                current
+                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
+                  : current,
+              );
+            });
+          }}
+          notice={notice}
+        />
+      ) : step === 2 ? (
         <UnitsStepPage
           weeks={plan.weeks ?? []}
           rubric={plan.rubric ?? []}

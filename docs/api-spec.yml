@@ -258,6 +258,8 @@ paths:
         Known keys: reanalyze-program, redistribute-evaluation, generate-implications,
         regenerate-mediation, fit-40-minutes, simplify-materials, balance-assessment-load,
         generate-week-sessions, duplicate-structure.
+        generate-implications replaces implication-manipulatives, implication-scaffolding,
+        and implication-differentiation together.
       operationId: runStoredAction
       parameters:
         - $ref: '#/components/parameters/PlanId'

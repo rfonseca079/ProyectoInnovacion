@@ -97,6 +97,23 @@ async function copyStepOne(prisma: PrismaClient, planId: string, scenarioId: str
   }
 }
 
+async function copyGroup(prisma: PrismaClient, planId: string, scenarioId: string): Promise<void> {
+  const variants = await prisma.suggestionVariant.findMany({
+    where: { scenarioId, step: 3, variant: 1 },
+  });
+  for (const variant of variants) {
+    await prisma.planBlock.create({
+      data: {
+        planId,
+        blockKey: variant.blockKey,
+        status: "SUGGESTED",
+        variant: 1,
+        body: variant.body,
+      },
+    });
+  }
+}
+
 async function copyUnits(prisma: PrismaClient, planId: string, scenarioId: string): Promise<void> {
   const units = scenarioUnits[scenarioId];
   if (!units) {
@@ -147,6 +164,7 @@ export async function createPlan(prisma: PrismaClient, sessionId: string | undef
   });
   await copyStepOne(prisma, plan.id, scenario.scenarioId);
   await copyUnits(prisma, plan.id, scenario.scenarioId);
+  await copyGroup(prisma, plan.id, scenario.scenarioId);
   return getPlan(prisma, sessionId, plan.id);
 }
 
