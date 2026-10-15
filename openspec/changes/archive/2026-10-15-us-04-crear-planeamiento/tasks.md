@@ -2,14 +2,14 @@
 
 ## 1. Branch
 
-- [ ] 1.1 Create and switch to `feature/us-04-crear-planeamiento` before any code change, and verify `git status` shows that branch
+- [x] 1.1 Create and switch to `feature/us-04-crear-planeamiento` before any code change, and verify `git status` shows that branch
 
 ## 2. New plan
 
 - [x] 2.1 Implement scenario lookup and the mathematics fallback, and verify a Jest test maps Juanita's March mathematics input to `mat-4-marzo-2026` and Estudios Sociales to the fallback flag
 - [x] 2.2 Implement `POST /api/plans` validation for grade, cycle, and positive counts, and verify a test returns the Spanish cycle message for grade 4 in diversified education
-- [x] 2.3 Build `PlanConfigPage` with account prefill, chips, and a disabled start button, and verify a component test keeps the button disabled while month is empty
-- [x] 2.4 On a later match-key patch, reload only `SUGGESTED` blocks, and verify a test keeps an `ACCEPTED` block's text
+- [x] 2.3 Build `PlanConfigPage` with account prefill, chips, and a disabled start button, and verify a component test keeps the button disabled while month is empty, shows "Seleccione un nivel del ciclo elegido." when grade 4 remains selected after switching to Educación Diversificada, and creates only one plan when the button is clicked again before the request finishes
+- [x] 2.4 On a later match-key patch, reload only `SUGGESTED` blocks, and verify a test keeps an `EDITED` block's text and an `ACCEPTED` block's text
 - [x] 2.5 Update `docs/data-model.md` scenario rules if the match key differs, and verify the documented key is year, subject, grade, and month
 
 ## 3. Mandatory verification

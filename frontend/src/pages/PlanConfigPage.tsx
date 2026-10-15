@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { AppHeader } from "../components/AppHeader";
 import { TeacherProfile } from "../services/authService";
 
@@ -77,6 +77,8 @@ export function PlanConfigPage({
     teacherName: teacher.fullName,
   });
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const valid = isPlanDraftValid(draft);
   const cycleMessage =
     draft.cycle !== "" && draft.gradeLevel !== "" && !(grades[draft.cycle]?.includes(Number(draft.gradeLevel)) ?? false)
@@ -89,14 +91,19 @@ export function PlanConfigPage({
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!valid) {
+    if (!valid || submittingRef.current) {
       return;
     }
+    submittingRef.current = true;
+    setSubmitting(true);
     setError("");
     try {
       await onCreate(draft);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No se pudo crear el planeamiento.");
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   }
 
@@ -212,7 +219,7 @@ export function PlanConfigPage({
           <p className="chips">{chips.join(" · ")}</p>
           {cycleMessage ? <p role="alert">{cycleMessage}</p> : null}
           {error ? <p role="alert">{error}</p> : null}
-          <button className="primary" type="submit" disabled={!valid}>
+          <button className="primary" type="submit" disabled={!valid || submitting}>
             Iniciar planeamiento con IA
           </button>
         </form>

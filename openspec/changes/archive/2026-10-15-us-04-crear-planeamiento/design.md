@@ -19,6 +19,8 @@ Depends on the signed-in teacher from US-01 and the list from US-03. See proposa
 
 - Prefill `teacherName`, `schoolName`, and `regionalDirectorate` from `GET /api/auth/me`. Other fields start empty.
 - `POST /api/plans` checks grade against cycle (`I_II` 1–6, `III` 7–9, `DIVERSIFIED` 10–11) and requires `studentCount` and `weeklyLessons` greater than zero.
+- The grade list offers only the grades of the selected cycle. If a grade from the previous cycle is still selected, the form shows "Seleccione un nivel del ciclo elegido." and keeps Iniciar planeamiento con IA disabled.
+- While `POST /api/plans` is in flight, the start button stays disabled and a second click does not send another request.
 - Match `schoolYear + subject + gradeLevel + month`. No row means `scenarioId = mat-4-marzo-2026` and `usedFallback = true`.
 - On a later `PATCH` of the match key, reload only `PlanBlock` rows whose status is `SUGGESTED`.
 

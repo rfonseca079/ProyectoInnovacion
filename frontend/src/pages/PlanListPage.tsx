@@ -132,13 +132,3 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   );
 }
 
-export function NewPlanPage({ teacherName, onLogout }: { teacherName: string; onLogout: () => void }) {
-  return (
-    <>
-      <AppHeader teacherName={teacherName} onLogout={onLogout} />
-      <main className="page">
-        <h2>Nuevo planeamiento</h2>
-      </main>
-    </>
-  );
-}

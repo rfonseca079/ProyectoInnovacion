@@ -48,6 +48,7 @@ frontend/src/
 
 ## Behavior
 
+- Nuevo planeamiento prefills the account name, school, and regional directorate. The grade list offers only grades of the selected cycle. If a previous grade stays selected outside that cycle, show "Seleccione un nivel del ciclo elegido." and keep Iniciar planeamiento con IA disabled. A second click while creation is still running does not create another plan.
 - After login, open the plan list. A signed-in teacher who opens login returns to that list.
 - Logout clears the plan list held in memory, so the next teacher does not see the previous rows while their own list is loading.
 - Show "Aún no tiene planeamientos." only after a successful list response with no rows. A failed load shows "No se pudieron cargar los planeamientos."

@@ -80,15 +80,42 @@ describe("plan creation", () => {
       where: { planId_blockKey: { planId: created.body.id, blockKey: "month-objectives" } },
       data: { status: "ACCEPTED", body: "Texto aceptado por la docente" },
     });
-    const updated = await request(app)
-      .patch(`/api/plans/${created.body.id}`)
-      .set("Cookie", session)
-      .send({ subject: "SPANISH", gradeLevel: 2, month: 4 });
-    const accepted = updated.body.blocks.find((block: { blockKey: string }) => block.blockKey === "month-objectives");
-    const suggested = updated.body.blocks.find((block: { blockKey: string }) => block.blockKey === "program-extract");
-    expect(accepted.body).toBe("Texto aceptado por la docente");
-    expect(accepted.status).toBe("ACCEPTED");
-    expect(suggested.body).toContain("narrativos");
-    expect(updated.body.scenarioId).toBe("esp-2-abril-2026");
+    await prisma.planBlock.create({
+      data: {
+        planId: created.body.id,
+        blockKey: "teacher-note",
+        status: "EDITED",
+        variant: 1,
+        body: "Texto editado por la docente",
+      },
+    });
+    await prisma.suggestionVariant.create({
+      data: {
+        scenarioId: "esp-2-abril-2026",
+        blockKey: "teacher-note",
+        step: 1,
+        variant: 1,
+        body: "Variante que no debe reemplazar el texto editado",
+      },
+    });
+    try {
+      const updated = await request(app)
+        .patch(`/api/plans/${created.body.id}`)
+        .set("Cookie", session)
+        .send({ subject: "SPANISH", gradeLevel: 2, month: 4 });
+      const accepted = updated.body.blocks.find((block: { blockKey: string }) => block.blockKey === "month-objectives");
+      const edited = updated.body.blocks.find((block: { blockKey: string }) => block.blockKey === "teacher-note");
+      const suggested = updated.body.blocks.find((block: { blockKey: string }) => block.blockKey === "program-extract");
+      expect(accepted.body).toBe("Texto aceptado por la docente");
+      expect(accepted.status).toBe("ACCEPTED");
+      expect(edited.body).toBe("Texto editado por la docente");
+      expect(edited.status).toBe("EDITED");
+      expect(suggested.body).toContain("narrativos");
+      expect(updated.body.scenarioId).toBe("esp-2-abril-2026");
+    } finally {
+      await prisma.suggestionVariant.deleteMany({
+        where: { scenarioId: "esp-2-abril-2026", blockKey: "teacher-note" },
+      });
+    }
   });
 });
