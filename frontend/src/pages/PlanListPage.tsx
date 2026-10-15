@@ -6,8 +6,9 @@ import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
 import { continuePlan, getPlan, patchPlan, PlanDetail } from "../services/planService";
-import { acceptSuggestion, generateImplications, reanalyzeProgram, redistributeEvaluation, regenerateSuggestion } from "../services/suggestionService";
+import { acceptSuggestion, fitFortyMinutes, generateImplications, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
 import { GroupStepPage, isGroupStepReady } from "./steps/GroupStepPage";
+import { isMediationStepReady, MediationStepPage } from "./steps/MediationStepPage";
 import { isProgramStepReady, ProgramStepPage } from "./steps/ProgramStepPage";
 import { isUnitsStepReady, UnitsStepPage } from "./steps/UnitsStepPage";
 
@@ -87,12 +88,16 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const [actionMessage, setActionMessage] = useState("");
   const [unitsReady, setUnitsReady] = useState<boolean | null>(null);
   const [groupReady, setGroupReady] = useState<boolean | null>(null);
+  const [mediationReady, setMediationReady] = useState<boolean | null>(null);
   const pendingSave = useRef(Promise.resolve());
   const reportUnitsReady = useCallback((ready: boolean) => {
     setUnitsReady(ready);
   }, []);
   const reportGroupReady = useCallback((ready: boolean) => {
     setGroupReady(ready);
+  }, []);
+  const reportMediationReady = useCallback((ready: boolean) => {
+    setMediationReady(ready);
   }, []);
 
   function trackSave(work: Promise<void>): Promise<void> {
@@ -162,7 +167,8 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
       continueDisabled={
         (step === 1 && !isProgramStepReady(plan.blocks)) ||
         (step === 2 && !(unitsReady ?? isUnitsStepReady(plan.weeks ?? [], plan.rubric ?? []))) ||
-        (step === 3 && !(groupReady ?? isGroupStepReady(plan.blocks)))
+        (step === 3 && !(groupReady ?? isGroupStepReady(plan.blocks))) ||
+        (step === 4 && !(mediationReady ?? isMediationStepReady(plan.blocks)))
       }
       continueMessage={continueMessage}
       onContinue={() => {
@@ -331,6 +337,89 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
               );
             });
           }}
+          notice={notice}
+        />
+      ) : step === 4 ? (
+        <MediationStepPage
+          blocks={plan.blocks}
+          weeks={plan.weeks ?? []}
+          onSaveInClass={(body) =>
+            trackSave(
+              patchPlan(planId, { blocks: [{ blockKey: "mediation-in-class", body }] })
+                .then(() => {
+                  setPlan((current) =>
+                    current
+                      ? {
+                          ...current,
+                          blocks: current.blocks.map((block) =>
+                            block.blockKey === "mediation-in-class" ? { ...block, body, status: "EDITED" } : block,
+                          ),
+                        }
+                      : current,
+                  );
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onSaveOutside={(body) =>
+            trackSave(
+              patchPlan(planId, { blocks: [{ blockKey: "mediation-outside", body }] })
+                .then(() => {
+                  setPlan((current) =>
+                    current
+                      ? {
+                          ...current,
+                          blocks: current.blocks.map((block) =>
+                            block.blockKey === "mediation-outside" ? { ...block, body, status: "EDITED" } : block,
+                          ),
+                        }
+                      : current,
+                  );
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onReadyChange={reportMediationReady}
+          onRegenerate={() =>
+            pendingSave.current
+              .then(() => regenerateMediation(planId))
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudo regenerar la mediación.");
+              })
+          }
+          onFit40={() =>
+            pendingSave.current
+              .then(() => fitFortyMinutes(planId))
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudo ajustar el tiempo.");
+              })
+          }
+          onSimplify={() =>
+            pendingSave.current
+              .then(() => simplifyMaterials(planId))
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudieron simplificar los materiales.");
+              })
+          }
+          actionMessage={actionMessage}
           notice={notice}
         />
       ) : (

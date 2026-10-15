@@ -86,7 +86,27 @@ function validationProblem(plan: PlanWithRubric, step: number): string | null {
   if (step === 3) {
     return groupStepProblem(plan.blocks);
   }
+  if (step === 4) {
+    return mediationStepProblem(plan.blocks);
+  }
   return STEP_NOT_READY;
+}
+
+type MediationRow = { minutes?: number };
+
+export function mediationStepProblem(blocks: { blockKey: string; body: string }[]): string | null {
+  let rows: MediationRow[] = [];
+  try {
+    const parsed = JSON.parse(blockText(blocks, "mediation-in-class")) as MediationRow[];
+    rows = Array.isArray(parsed) ? parsed : [];
+  } catch {
+    rows = [];
+  }
+  if (rows.length === 0) {
+    return "Agregue al menos una actividad dentro del aula.";
+  }
+  const missingTime = rows.some((row) => !Number.isInteger(row.minutes) || (row.minutes as number) <= 0);
+  return missingTime ? "Complete el tiempo de cada actividad." : null;
 }
 
 const groupFields = [

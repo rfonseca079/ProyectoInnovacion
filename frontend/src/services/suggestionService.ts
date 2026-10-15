@@ -25,6 +25,18 @@ export function generateImplications(planId: string): Promise<PlanDetail> {
   return postJson<PlanDetail>(`/api/plans/${planId}/actions/generate-implications`);
 }
 
+export function regenerateMediation(planId: string): Promise<PlanDetail> {
+  return postJson<PlanDetail>(`/api/plans/${planId}/actions/regenerate-mediation`);
+}
+
+export function fitFortyMinutes(planId: string): Promise<PlanDetail> {
+  return postJson<PlanDetail>(`/api/plans/${planId}/actions/fit-40-minutes`);
+}
+
+export function simplifyMaterials(planId: string): Promise<PlanDetail> {
+  return postJson<PlanDetail>(`/api/plans/${planId}/actions/simplify-materials`);
+}
+
 export function acceptSuggestion(planId: string, blockKey: string): Promise<PlanBlock> {
   return postJson<PlanBlock>(`/api/plans/${planId}/blocks/${blockKey}/accept`);
 }

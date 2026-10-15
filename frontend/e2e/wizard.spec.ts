@@ -23,8 +23,4 @@ test("visited steps open and an unvisited step stays closed", async ({ page }) =
 
   await page.goto(`/plans/${planId}/steps/5`);
   await expect(page).toHaveURL(new RegExp(`/plans/${planId}/steps/4$`));
-
-  await page.getByRole("button", { name: "Continuar" }).click();
-  await expect(page.getByText("Complete los campos de este paso antes de continuar.")).toBeVisible();
-  await expect(page).toHaveURL(new RegExp(`/plans/${planId}/steps/4$`));
 });

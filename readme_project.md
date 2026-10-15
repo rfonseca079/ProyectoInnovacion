@@ -50,7 +50,7 @@ Cada docente entra con correo y contraseña de una cuenta ya creada. Ve solo sus
 
 ### 1.2. Características y funcionalidades principales
 
-Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento, el borrador automático, el recorrido del wizard, la revisión del programa con el calendario del mes, la organización de unidades con la rúbrica y el diagnóstico del grupo. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior. Las propuestas US-10 a US-16 siguen en implementación.
+Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento, el borrador automático, el recorrido del wizard, la revisión del programa con el calendario del mes, la organización de unidades con la rúbrica el diagnóstico del grupo y la mediación de la semana. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior. Las propuestas US-11 a US-16 siguen en implementación.
 
 1. Inicio y cierre de sesión, sin registro ni recuperación de contraseña.
 2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado. «Aún no tiene planeamientos.» aparece solo cuando la consulta terminó y no hay filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.»
@@ -155,7 +155,7 @@ PostgreSQL, la API y la aplicación web. No hay despliegue publicado.
 
 #### Proceso de despliegue actual
 
-No hay proceso de despliegue. El repositorio está en GitHub. El acceso, el cierre, la lista, la creación, el borrador, el wizard, el programa, las unidades y el diagnóstico del grupo ya están en el código; US-10 a US-16 siguen como propuestas.
+No hay proceso de despliegue. El repositorio está en GitHub. El acceso, el cierre, la lista, la creación, el borrador, el wizard, el programa, las unidades, el diagnóstico del grupo y la mediación ya están en el código; US-11 a US-16 siguen como propuestas.
 
 #### Separación entre desarrollo y producción
 
@@ -199,7 +199,7 @@ No hay registro público, segundo factor ni envío de correo. El aviso a direcci
 
 #### Cobertura actual por capa
 
-El acceso, el cierre, la lista, la creación, el borrador, el recorrido del wizard, el programa con calendario, las unidades con la rúbrica y el diagnóstico del grupo tienen pruebas Jest, Testing Library y Playwright en escritorio de 1440 px. Las propuestas US-10 a US-16 todavía no.
+El acceso, el cierre, la lista, la creación, el borrador, el recorrido del wizard, el programa con calendario, las unidades con la rúbrica el diagnóstico del grupo y la mediación tienen pruebas Jest, Testing Library y Playwright en escritorio de 1440 px. Las propuestas US-11 a US-16 todavía no.
 
 #### Organización y ejecución de las suites
 
@@ -211,7 +211,7 @@ Cada cambio de OpenSpec deja sus pruebas junto al comportamiento que agrega. Ant
 
 #### Limitaciones y consideraciones actuales
 
-Las suites de US-01 a US-09 ya se ejecutaron. US-10 a US-16 todavía no tienen implementación que cubrir.
+Las suites de US-01 a US-10 ya se ejecutaron. US-11 a US-16 todavía no tienen implementación que cubrir.
 
 ---
 
@@ -286,7 +286,7 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 | US-07 | Programa y calendario | `openspec/changes/archive/2026-10-15-us-07-revisar-programa-y-calendario` |
 | US-08 | Unidades y evaluación | `openspec/changes/archive/2026-10-15-us-08-organizar-unidades-y-evaluacion` |
 | US-09 | Diagnóstico del grupo | `openspec/changes/archive/2026-10-15-us-09-registrar-diagnostico-del-grupo` |
-| US-10 | Mediación | `openspec/changes/us-10-definir-mediacion` |
+| US-10 | Mediación | `openspec/changes/archive/2026-10-15-us-10-definir-mediacion` |
 | US-11 | Evidencias | `openspec/changes/us-11-definir-evidencias` |
 | US-12 | Sesiones | `openspec/changes/us-12-preparar-sesiones` |
 | US-13 | Formato MEP | `openspec/changes/us-13-consolidar-formato-mep` |
@@ -306,7 +306,7 @@ Tres tickets representativos del corte previsto:
 2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
 3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
-US-04, US-05, US-06, US-07, US-08 y US-09 también quedaron implementados. Las propuestas de US-10 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-09.
+US-04, US-05, US-06, US-07, US-08, US-09 y US-10 también quedaron implementados. Las propuestas de US-11 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-09.
 
 ---
 

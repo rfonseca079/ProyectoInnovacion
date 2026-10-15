@@ -390,6 +390,197 @@ const scenarios = [
   },
 ];
 
+export type MediationRow = {
+  activity: string;
+  teacherRole: string;
+  studentRole: string;
+  minutes: number;
+  materials: string;
+};
+
+export type OutsideTask = {
+  task: string;
+  purpose: string;
+  estimatedDuration: string;
+};
+
+export const mediationVisibleKeys = ["mediation-in-class", "mediation-outside"] as const;
+
+function withMinutes(rows: MediationRow[], minutes: number[]): MediationRow[] {
+  return rows.map((row, index) => ({ ...row, minutes: minutes[index] ?? row.minutes }));
+}
+
+function withMaterials(rows: MediationRow[], materials: string[]): MediationRow[] {
+  return rows.map((row, index) => ({ ...row, materials: materials[index] ?? row.materials }));
+}
+
+const mathInClass: MediationRow[] = [
+  {
+    activity: "Activación con fichas",
+    teacherRole: "Modela",
+    studentRole: "Manipulan y verbalizan",
+    minutes: 10,
+    materials: "Círculos fraccionarios",
+  },
+  {
+    activity: "Construcción de equivalentes",
+    teacherRole: "Guía preguntas",
+    studentRole: "Representan 1/2 = 2/4 = 3/6",
+    minutes: 25,
+    materials: "Fichas y mini pizarras",
+  },
+  {
+    activity: "Práctica guiada",
+    teacherRole: "Monitorea",
+    studentRole: "Resuelven en parejas",
+    minutes: 20,
+    materials: "Hoja de práctica",
+  },
+  {
+    activity: "Cierre",
+    teacherRole: "Sintetiza",
+    studentRole: "Comparten una regla en una frase",
+    minutes: 5,
+    materials: "Pizarra",
+  },
+];
+
+const mathOutside: OutsideTask[] = [
+  {
+    task: "Buscar 3 ejemplos de fracciones equivalentes en empaques de la casa.",
+    purpose: "Reconocer equivalencias en situaciones cotidianas.",
+    estimatedDuration: "15 a 20 minutos",
+  },
+  {
+    task: "Práctica breve de cuaderno con 6 ítems.",
+    purpose: "Fijar la representación simbólica trabajada en clase.",
+    estimatedDuration: "15 minutos",
+  },
+];
+
+const spanishInClass: MediationRow[] = [
+  {
+    activity: "Lectura en voz alta",
+    teacherRole: "Lee el cuento",
+    studentRole: "Escuchan y señalan personajes",
+    minutes: 15,
+    materials: "Cuento impreso",
+  },
+  {
+    activity: "Preguntas del cuento",
+    teacherRole: "Pregunta",
+    studentRole: "Responden sobre lo escuchado",
+    minutes: 15,
+    materials: "Pizarra",
+  },
+  {
+    activity: "Relectura",
+    teacherRole: "Acompaña",
+    studentRole: "Leen una parte en voz alta",
+    minutes: 15,
+    materials: "Cuento impreso",
+  },
+  {
+    activity: "Cierre del cuento",
+    teacherRole: "Sintetiza",
+    studentRole: "Dicen una frase del cuento",
+    minutes: 10,
+    materials: "Cuaderno",
+  },
+];
+
+const spanishOutside: OutsideTask[] = [
+  {
+    task: "Llevar un cuento de la casa.",
+    purpose: "Compartir una historia conocida con el grupo.",
+    estimatedDuration: "15 minutos",
+  },
+  {
+    task: "Dibujar el personaje principal.",
+    purpose: "Recordar el cuento leído en clase.",
+    estimatedDuration: "10 minutos",
+  },
+];
+
+const scienceInClass: MediationRow[] = [
+  {
+    activity: "Observación de imágenes",
+    teacherRole: "Muestra láminas de la célula",
+    studentRole: "Observan y nombran las partes",
+    minutes: 15,
+    materials: "Láminas de la célula",
+  },
+  {
+    activity: "Comparación de células",
+    teacherRole: "Guía la comparación",
+    studentRole: "Comparan la célula animal y la vegetal",
+    minutes: 20,
+    materials: "Esquema",
+  },
+  {
+    activity: "Registro",
+    teacherRole: "Monitorea",
+    studentRole: "Anotan lo observado",
+    minutes: 15,
+    materials: "Cuaderno",
+  },
+  {
+    activity: "Cierre",
+    teacherRole: "Sintetiza",
+    studentRole: "Dicen una diferencia entre las células",
+    minutes: 10,
+    materials: "Pizarra",
+  },
+];
+
+const scienceOutside: OutsideTask[] = [
+  {
+    task: "Rotular un esquema de la célula.",
+    purpose: "Reconocer las partes trabajadas en clase.",
+    estimatedDuration: "20 minutos",
+  },
+  {
+    task: "Repasar la diferencia entre célula animal y vegetal.",
+    purpose: "Fijar la comparación observada.",
+    estimatedDuration: "10 minutos",
+  },
+];
+
+function mediationSet(rows: MediationRow[], outside: OutsideTask[], secondActivity: string) {
+  const second = rows.map((row, index) => (index === 0 ? { ...row, activity: secondActivity } : row));
+  const notebook = rows.map((row, index) =>
+    index === 2
+      ? { ...row, studentRole: "Resuelven en el cuaderno, sin hoja impresa", materials: "Cuaderno" }
+      : row,
+  );
+  const simple = ["Papel y lápiz", "Cuaderno", "Pizarra", "Pizarra"];
+  const fit40Minutes = [
+    [8, 14, 12, 6],
+    [10, 10, 10, 10],
+    [5, 15, 15, 5],
+  ];
+  return {
+    inClass: [JSON.stringify(rows), JSON.stringify(second), JSON.stringify(notebook)],
+    outside: [
+      JSON.stringify(outside),
+      JSON.stringify(outside.map((item, index) => (index === 0 ? { ...item, task: `${item.task} Variante 2.` } : item))),
+      JSON.stringify(outside.map((item, index) => (index === 0 ? { ...item, task: `${item.task} Variante 3.` } : item))),
+    ],
+    fit40: fit40Minutes.map((minutes) => JSON.stringify(withMinutes(rows, minutes))),
+    simplified: [
+      JSON.stringify(withMaterials(rows, simple)),
+      JSON.stringify(withMaterials(rows, ["Cuaderno", "Cuaderno", "Cuaderno", "Cuaderno"])),
+      JSON.stringify(withMaterials(rows, ["Pizarra", "Pizarra", "Pizarra", "Pizarra"])),
+    ],
+  };
+}
+
+export const scenarioMediation: Record<string, ReturnType<typeof mediationSet>> = {
+  "mat-4-marzo-2026": mediationSet(mathInClass, mathOutside, "Relato corto de una pizza repartida"),
+  "esp-2-abril-2026": mediationSet(spanishInClass, spanishOutside, "Lectura en voz alta de otro cuento"),
+  "cie-7-febrero-2026": mediationSet(scienceInClass, scienceOutside, "Observación de imágenes de otra célula"),
+};
+
 const seededPlans = [
   {
     id: "11111111-1111-4111-8111-111111111111",
@@ -516,6 +707,36 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
         });
       }
     }
+    const mediation = scenarioMediation[scenario.id];
+    const stepFourBlocks: Record<string, string[]> = {
+      "mediation-in-class": mediation.inClass,
+      "mediation-outside": mediation.outside,
+      "fit-40-minutes": mediation.fit40,
+      "simplify-materials": mediation.simplified,
+    };
+    for (const blockKey of Object.keys(stepFourBlocks)) {
+      const bodies = stepFourBlocks[blockKey];
+      for (let index = 0; index < bodies.length; index += 1) {
+        const variant = index + 1;
+        await prisma.suggestionVariant.upsert({
+          where: {
+            scenarioId_blockKey_variant: {
+              scenarioId: scenario.id,
+              blockKey,
+              variant,
+            },
+          },
+          update: { body: bodies[index], step: 4 },
+          create: {
+            scenarioId: scenario.id,
+            blockKey,
+            step: 4,
+            variant,
+            body: bodies[index],
+          },
+        });
+      }
+    }
     const group = scenarioGroup[scenario.id];
     for (const blockKey of Object.keys(group)) {
       const bodies = group[blockKey];
@@ -607,6 +828,22 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       where: { scenarioId: plan.scenarioId, step: 2, variant: 1 },
     });
     for (const variant of stepTwo) {
+      await prisma.planBlock.upsert({
+        where: { planId_blockKey: { planId: plan.id, blockKey: variant.blockKey } },
+        update: { body: variant.body, variant: 1, status: "SUGGESTED" },
+        create: {
+          planId: plan.id,
+          blockKey: variant.blockKey,
+          status: "SUGGESTED",
+          variant: 1,
+          body: variant.body,
+        },
+      });
+    }
+    const stepFour = await prisma.suggestionVariant.findMany({
+      where: { scenarioId: plan.scenarioId, step: 4, variant: 1, blockKey: { in: [...mediationVisibleKeys] } },
+    });
+    for (const variant of stepFour) {
       await prisma.planBlock.upsert({
         where: { planId_blockKey: { planId: plan.id, blockKey: variant.blockKey } },
         update: { body: variant.body, variant: 1, status: "SUGGESTED" },
