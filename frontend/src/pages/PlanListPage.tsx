@@ -6,6 +6,8 @@ import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
 import { continuePlan, getPlan, patchPlan, PlanDetail } from "../services/planService";
+import { acceptSuggestion, reanalyzeProgram, regenerateSuggestion } from "../services/suggestionService";
+import { isProgramStepReady, ProgramStepPage } from "./steps/ProgramStepPage";
 
 export function PlanListPage({
   teacherName,
@@ -115,6 +117,20 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
     return <Navigate to={`/plans/${planId}/steps/${plan.highestVisitedStep}`} replace />;
   }
 
+  async function saveBlock(blockKey: string, body: string) {
+    await patchPlan(planId, { blocks: [{ blockKey, body }] });
+    setPlan((current) =>
+      current
+        ? {
+            ...current,
+            blocks: current.blocks.map((block) =>
+              block.blockKey === blockKey ? { ...block, body, status: "EDITED" } : block,
+            ),
+          }
+        : current,
+    );
+  }
+
   return (
     <WizardChrome
       planId={planId}
@@ -125,6 +141,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
       schoolName={plan.schoolName}
       teacherName={plan.teacherName || teacherName}
       onLogout={onLogout}
+      continueDisabled={step === 1 && !isProgramStepReady(plan.blocks)}
       continueMessage={continueMessage}
       onContinue={() => {
         setContinueMessage("");
@@ -138,22 +155,55 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
           });
       }}
     >
-      <main className="page">
-        {plan.section ? (
-          <AutosaveField
-            key={plan.section}
-            initialValue={plan.section}
-            onStatus={setSaveState}
-            onSave={async (value) => {
-              await patchPlan(planId, { section: value });
-            }}
-          />
-        ) : null}
-        {notice ? <p>{notice}</p> : null}
-        {plan.blocks.map((block) => (
-          <p key={block.blockKey}>{block.body}</p>
-        ))}
-      </main>
+      {step === 1 ? (
+        <ProgramStepPage
+          schoolYear={plan.schoolYear}
+          month={plan.month}
+          blocks={plan.blocks}
+          calendarDays={plan.calendarDays ?? []}
+          onStatus={setSaveState}
+          onSaveBlock={saveBlock}
+          onReanalyze={() => {
+            void reanalyzeProgram(planId).then(setPlan);
+          }}
+          onAccept={(blockKey) => {
+            void acceptSuggestion(planId, blockKey).then((saved) => {
+              setPlan((current) =>
+                current
+                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
+                  : current,
+              );
+            });
+          }}
+          onRegenerate={(blockKey) => {
+            void regenerateSuggestion(planId, blockKey).then((saved) => {
+              setPlan((current) =>
+                current
+                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
+                  : current,
+              );
+            });
+          }}
+          notice={notice}
+        />
+      ) : (
+        <main className="page">
+          {plan.section ? (
+            <AutosaveField
+              key={plan.section}
+              initialValue={plan.section}
+              onStatus={setSaveState}
+              onSave={async (value) => {
+                await patchPlan(planId, { section: value });
+              }}
+            />
+          ) : null}
+          {notice ? <p>{notice}</p> : null}
+          {plan.blocks.map((block) => (
+            <p key={block.blockKey}>{block.body}</p>
+          ))}
+        </main>
+      )}
       <SaveFooter state={saveState} />
     </WizardChrome>
   );

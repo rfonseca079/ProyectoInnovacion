@@ -60,5 +60,17 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
       variant: block.variant,
       body: block.body,
     })),
+    calendarDays: (
+      plan.scenarioId
+        ? await prisma.calendarDay.findMany({
+            where: { scenarioId: plan.scenarioId },
+            orderBy: { date: "asc" },
+          })
+        : []
+    ).map((day) => ({
+      date: day.date.toISOString().slice(0, 10),
+      kind: day.kind,
+      label: day.label,
+    })),
   };
 }

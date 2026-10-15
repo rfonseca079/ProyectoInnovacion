@@ -19,7 +19,8 @@ See proposal.md. Calendar marks and program text are `SuggestionVariant` and `Ca
 
 - Block keys: `program-extract`, `available-time`, `calendar-restrictions`, `month-objectives`, `month-contents`, `calendar-risks`.
 - Reanalizar programa calls the named action `reanalyze-program`, which replaces `program-extract` and sets it back to `SUGGESTED`.
-- Card Regenerar uses the shared regenerate route and stays inside that block key.
+- Card Regenerar uses the shared regenerate route and stays inside that block key. A suggested card shows the next stored text. An edited card keeps the teacher's text until accept.
+- A calendar cell shows Lectivo, Feriado, Suspendido, or Evaluación only when that day has a stored mark. Editar focuses the card text.
 - Time and restriction edits use the autosave patch.
 - Continue checks those fields are non-empty before step 2.
 

@@ -49,6 +49,13 @@ enum BlockStatus {
   EDITED
 }
 
+enum DayKind {
+  TEACHING
+  HOLIDAY
+  SUSPENDED
+  ASSESSMENT
+}
+
 model Plan {
   id                   String     @id @default(uuid())
   teacherId            String
@@ -93,8 +100,20 @@ model Scenario {
   month       Int
   variants    SuggestionVariant[]
   plans       Plan[]
+  calendarDays CalendarDay[]
 
   @@unique([schoolYear, subject, gradeLevel, month])
+}
+
+model CalendarDay {
+  id         String   @id @default(uuid())
+  scenarioId String
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  date       DateTime @db.Date
+  kind       DayKind
+  label      String
+
+  @@unique([scenarioId, date])
 }
 
 model SuggestionVariant {

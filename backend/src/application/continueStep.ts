@@ -7,7 +7,38 @@ export const RUBRIC_NOT_100 = "Los porcentajes de la evaluación deben sumar 100
 export const STEP_OUT_OF_RANGE = "Seleccione un paso del 0 al 7.";
 export const STEP_NOT_VISITED = "Ese paso todavía no está disponible.";
 
-type PlanWithRubric = Plan & { rubricItems: RubricItem[] };
+type PlanWithRubric = Plan & { rubricItems: RubricItem[]; blocks: { blockKey: string; body: string }[] };
+
+function blockText(blocks: { blockKey: string; body: string }[], blockKey: string): string {
+  return blocks.find((block) => block.blockKey === blockKey)?.body.trim() ?? "";
+}
+
+export function programStepProblem(blocks: { blockKey: string; body: string }[]): string | null {
+  let plannableLessons = "";
+  let affectedLessons = "";
+  try {
+    const parsed = JSON.parse(blockText(blocks, "available-time")) as {
+      plannableLessons?: string;
+      affectedLessons?: string;
+    };
+    plannableLessons = parsed.plannableLessons?.trim() ?? "";
+    affectedLessons = parsed.affectedLessons?.trim() ?? "";
+  } catch {
+    plannableLessons = "";
+    affectedLessons = "";
+  }
+  if (
+    !blockText(blocks, "program-extract") ||
+    !plannableLessons ||
+    !affectedLessons ||
+    !blockText(blocks, "month-objectives") ||
+    !blockText(blocks, "month-contents") ||
+    !blockText(blocks, "calendar-risks")
+  ) {
+    return STEP_NOT_READY;
+  }
+  return null;
+}
 
 function configurationProblem(plan: Plan): string | null {
   if (plan.section.trim().length === 0) {
@@ -35,6 +66,9 @@ function validationProblem(plan: PlanWithRubric, step: number): string | null {
   if (step === 0) {
     return configurationProblem(plan);
   }
+  if (step === 1) {
+    return programStepProblem(plan.blocks);
+  }
   if (step === 2) {
     const total = plan.rubricItems.reduce((sum, item) => sum + item.percentage, 0);
     return total === 100 ? null : RUBRIC_NOT_100;
@@ -55,7 +89,7 @@ export async function continueStep(
   }
   const plan = await prisma.plan.findFirst({
     where: { id: planId },
-    include: { rubricItems: true },
+    include: { rubricItems: true, blocks: true },
   });
   if (!plan) {
     throw new AppError(404, "NOT_FOUND", PLAN_FORBIDDEN);

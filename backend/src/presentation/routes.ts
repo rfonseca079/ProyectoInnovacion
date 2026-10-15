@@ -5,6 +5,8 @@ import { continueStep } from "../application/continueStep";
 import { createPlan, updatePlanConfiguration } from "../application/createPlan";
 import { getPlan, listPlans } from "../application/listPlans";
 import { logoutTeacher } from "../application/logoutTeacher";
+import { acceptBlock, regenerateBlock } from "../application/regenerateBlock";
+import { runStoredAction } from "../application/runStoredAction";
 import { readSessionId, SESSION_COOKIE, sessionCookieOptions } from "./http";
 
 export function apiRouter(prisma: PrismaClient): Router {
@@ -69,6 +71,43 @@ export function apiRouter(prisma: PrismaClient): Router {
     try {
       const plan = await continueStep(prisma, readSessionId(req), String(req.params.planId), String(req.params.step));
       res.json(plan);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/plans/:planId/actions/:actionKey", async (req, res, next) => {
+    try {
+      const plan = await runStoredAction(
+        prisma,
+        readSessionId(req),
+        String(req.params.planId),
+        String(req.params.actionKey),
+      );
+      res.json(plan);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/plans/:planId/blocks/:blockKey/accept", async (req, res, next) => {
+    try {
+      const block = await acceptBlock(prisma, readSessionId(req), String(req.params.planId), String(req.params.blockKey));
+      res.json(block);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/plans/:planId/blocks/:blockKey/regenerate", async (req, res, next) => {
+    try {
+      const block = await regenerateBlock(
+        prisma,
+        readSessionId(req),
+        String(req.params.planId),
+        String(req.params.blockKey),
+      );
+      res.json(block);
     } catch (error) {
       next(error);
     }

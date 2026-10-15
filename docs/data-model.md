@@ -103,6 +103,8 @@ The teacher's current content for one block.
 | `variant` | Variant currently shown |
 | `body` | Current saved content |
 
+Step 1 block keys, matching the seed: `program-extract`, `available-time`, `calendar-restrictions`, `month-objectives`, `month-contents`, and `calendar-risks`. `available-time` stores JSON with `plannableLessons` and `affectedLessons`. The other five store Spanish text.
+
 The first visit to a step creates these rows from variant 1 and saves them as the draft.
 
 ## Week and Session
@@ -117,7 +119,9 @@ Scenario A week 2 is 9–13 March 2026. Monday and Wednesday start expanded. Thu
 
 Stored marks for the month. Kinds: `TEACHING`, `HOLIDAY`, `SUSPENDED`, `ASSESSMENT`. The app does not calculate Costa Rican holidays at runtime.
 
-For `mat-4-marzo-2026`: 6 March suspended (teachers' council), 13 and 27 March assessment, 30 and 31 March holiday.
+For `mat-4-marzo-2026`: 6 March suspended (teachers' council), 13 and 27 March assessment, 30 and 31 March holiday. A day without a stored row is shown without a kind label.
+
+`esp-2-abril-2026` stores 6 April 2026 as a teaching day. `cie-7-febrero-2026` stores 6 February 2026 as a teaching day. Those rows are stored marks, not a holiday calculation.
 
 ## RubricItem
 

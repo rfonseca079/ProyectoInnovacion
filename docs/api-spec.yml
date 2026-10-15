@@ -480,6 +480,20 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/PlanBlock'
+            calendarDays:
+              type: array
+              items:
+                type: object
+                required: [date, kind, label]
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  kind:
+                    type: string
+                    enum: [TEACHING, HOLIDAY, SUSPENDED, ASSESSMENT]
+                  label:
+                    type: string
     ErrorResponse:
       type: object
       required: [code, message]
