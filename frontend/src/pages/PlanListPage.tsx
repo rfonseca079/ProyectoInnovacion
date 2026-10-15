@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
 import { AutosaveField, SaveFooter } from "../components/AutosaveField";
+import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
-import { planRowText, PlanSummary } from "../services/planLabels";
-import { getPlan, patchPlan } from "../services/planService";
+import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
+import { continuePlan, getPlan, patchPlan, PlanDetail } from "../services/planService";
 
 export function PlanListPage({
   teacherName,
@@ -71,24 +72,20 @@ export function PlanAccessPage({
 }
 
 export function StepPage({ teacherName, onLogout }: { teacherName: string; onLogout: () => void }) {
-  const { planId = "" } = useParams();
-  const [section, setSection] = useState("");
+  const { planId = "", step: stepText = "0" } = useParams();
+  const step = Number(stepText);
+  const navigate = useNavigate();
+  const [plan, setPlan] = useState<PlanDetail | null>(null);
   const [deniedMessage, setDeniedMessage] = useState("");
-  const [blocks, setBlocks] = useState<string[]>([]);
-  const [heading, setHeading] = useState("");
   const [notice, setNotice] = useState("");
   const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
+  const [continueMessage, setContinueMessage] = useState("");
 
   useEffect(() => {
     getPlan(planId)
-      .then((plan) => {
-        const subject =
-          { MATH: "Matemática", SPANISH: "Español", SCIENCE: "Ciencias", SOCIAL_STUDIES: "Estudios Sociales" }[plan.subject] ??
-          plan.subject;
-        setSection(plan.section ?? "");
-        setHeading(`${subject} · ${plan.gradeLevel}.° año · ${plan.schoolName} · ${plan.teacherName}`);
-        setBlocks(plan.blocks.map((block) => block.body));
-        if (plan.usedFallback) {
+      .then((loaded) => {
+        setPlan(loaded);
+        if (loaded.usedFallback) {
           setNotice(
             "No hay un escenario específico para esta combinación. Las sugerencias corresponden a Matemática, 4.° año, marzo 2026.",
           );
@@ -110,15 +107,42 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
     );
   }
 
+  if (!plan) {
+    return null;
+  }
+
+  if (!isOpenableWizardStep(step, plan.highestVisitedStep)) {
+    return <Navigate to={`/plans/${planId}/steps/${plan.highestVisitedStep}`} replace />;
+  }
+
   return (
-    <>
-      <AppHeader teacherName={teacherName} onLogout={onLogout} />
+    <WizardChrome
+      planId={planId}
+      step={step}
+      highestVisitedStep={plan.highestVisitedStep}
+      subjectLabel={subjectLabel(plan.subject)}
+      gradeLevel={plan.gradeLevel}
+      schoolName={plan.schoolName}
+      teacherName={plan.teacherName || teacherName}
+      onLogout={onLogout}
+      continueMessage={continueMessage}
+      onContinue={() => {
+        setContinueMessage("");
+        continuePlan(planId, step)
+          .then((saved) => {
+            setPlan(saved);
+            navigate(`/plans/${planId}/steps/${saved.currentStep}`);
+          })
+          .catch((error: unknown) => {
+            setContinueMessage(error instanceof Error ? error.message : "No se pudo continuar.");
+          });
+      }}
+    >
       <main className="page">
-        <p>{heading}</p>
-        {section ? (
+        {plan.section ? (
           <AutosaveField
-            key={section}
-            initialValue={section}
+            key={plan.section}
+            initialValue={plan.section}
             onStatus={setSaveState}
             onSave={async (value) => {
               await patchPlan(planId, { section: value });
@@ -126,12 +150,12 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
           />
         ) : null}
         {notice ? <p>{notice}</p> : null}
-        {blocks.map((body) => (
-          <p key={body}>{body}</p>
+        {plan.blocks.map((block) => (
+          <p key={block.blockKey}>{block.body}</p>
         ))}
       </main>
       <SaveFooter state={saveState} />
-    </>
+    </WizardChrome>
   );
 }
 

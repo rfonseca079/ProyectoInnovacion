@@ -34,6 +34,10 @@ const months = [
   "Diciembre",
 ];
 
+export function subjectLabel(subject: string): string {
+  return subjects[subject] ?? subject;
+}
+
 export function statusLabel(status: PlanSummary["status"], currentStep: number): string {
   if (status === "DRAFT") {
     return `Borrador · Paso ${currentStep} de 8`;
@@ -52,7 +56,7 @@ export function planRowText(plan: PlanSummary): string {
     timeZone: "America/Costa_Rica",
   }).format(new Date(plan.updatedAt));
   return [
-    subjects[plan.subject] ?? plan.subject,
+    subjectLabel(plan.subject),
     `${plan.gradeLevel}.° año`,
     `${months[plan.month]} ${plan.schoolYear}`,
     plan.schoolName,

@@ -25,7 +25,7 @@ The planning flow is a fixed sequence of steps. Teachers must move forward only 
 
 ## Impact
 
-- Routes `/plans`, `/plans/new`, and `/plans/:planId/steps/:step`.
+- Routes `/planeamientos`, `/plans/new`, and `/plans/:planId/steps/:step`.
 - `POST /api/plans/{planId}/steps/{step}/continue`.
 - `frontend/src/components/WizardChrome.tsx` and `backend/src/application/continueStep.ts`.
 - Desktop width 1440px. No mobile layout.

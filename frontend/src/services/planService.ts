@@ -31,6 +31,18 @@ export async function patchPlan(planId: string, body: Record<string, unknown>): 
   }
 }
 
+export async function continuePlan(planId: string, step: number): Promise<PlanDetail> {
+  const response = await fetch(`${apiUrl}/api/plans/${planId}/steps/${step}/continue`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const body = (await response.json()) as { message?: string };
+    throw new Error(body.message ?? "No se pudo continuar.");
+  }
+  return response.json() as Promise<PlanDetail>;
+}
+
 export async function getPlan(planId: string): Promise<PlanDetail> {
   const response = await fetch(`${apiUrl}/api/plans/${planId}`, { credentials: "include" });
   if (!response.ok) {
