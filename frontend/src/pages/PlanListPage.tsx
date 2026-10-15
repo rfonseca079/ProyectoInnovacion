@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
-import { AutosaveField } from "../components/AutosaveField";
+import { AutosaveField, SaveFooter } from "../components/AutosaveField";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary } from "../services/planLabels";
 import { getPlan, patchPlan } from "../services/planService";
@@ -77,6 +77,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const [blocks, setBlocks] = useState<string[]>([]);
   const [heading, setHeading] = useState("");
   const [notice, setNotice] = useState("");
+  const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
 
   useEffect(() => {
     getPlan(planId)
@@ -118,6 +119,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
           <AutosaveField
             key={section}
             initialValue={section}
+            onStatus={setSaveState}
             onSave={async (value) => {
               await patchPlan(planId, { section: value });
             }}
@@ -128,6 +130,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
           <p key={body}>{body}</p>
         ))}
       </main>
+      <SaveFooter state={saveState} />
     </>
   );
 }

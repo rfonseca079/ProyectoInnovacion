@@ -50,7 +50,7 @@ Cada docente entra con correo y contraseña de una cuenta ya creada. Ve solo sus
 
 ### 1.2. Características y funcionalidades principales
 
-Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento y el borrador automático. Al salir de un campo, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Las propuestas US-06 a US-16 siguen en implementación.
+Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento y el borrador automático. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior. Las propuestas US-06 a US-16 siguen en implementación.
 
 1. Inicio y cierre de sesión, sin registro ni recuperación de contraseña.
 2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado. «Aún no tiene planeamientos.» aparece solo cuando la consulta terminó y no hay filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.»
@@ -281,7 +281,7 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 | US-02 | Cerrar sesión | `openspec/changes/archive/2026-10-15-us-02-cerrar-sesion` |
 | US-03 | Ver mis planeamientos | `openspec/changes/archive/2026-10-15-us-03-listar-planeamientos` |
 | US-04 | Crear un planeamiento | `openspec/changes/archive/2026-10-15-us-04-crear-planeamiento` |
-| US-05 | Guardar el borrador | `openspec/changes/us-05-guardar-borrador` |
+| US-05 | Guardar el borrador | `openspec/changes/archive/2026-10-15-us-05-guardar-borrador` |
 | US-06 | Recorrer el wizard | `openspec/changes/us-06-recorrer-el-wizard` |
 | US-07 | Programa y calendario | `openspec/changes/us-07-revisar-programa-y-calendario` |
 | US-08 | Unidades y evaluación | `openspec/changes/us-08-organizar-unidades-y-evaluacion` |
