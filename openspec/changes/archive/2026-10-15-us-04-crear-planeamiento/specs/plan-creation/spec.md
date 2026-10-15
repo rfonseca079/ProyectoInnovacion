@@ -11,13 +11,17 @@ The system SHALL show Nuevo planeamiento with the support sentence from US-04, w
 
 #### Scenario: Prefill from the account
 - **WHEN** Juanita opens a new plan
-- **THEN** her name, Escuela República de Arabia Saudita, and San José are filled, and cycle, grade, subject, modality, year, month, section, student count, and weekly lessons are empty
+- **THEN** her name, Escuela República de Arabia Saudita, and Dirección Regional San José are filled, and cycle, grade, subject, modality, year, month, section, student count, and weekly lessons are empty
 
 ### Requirement: Required configuration
-The system SHALL enable Iniciar planeamiento con IA only when cycle, grade, subject, modality, school year, month, school, regional directorate, teacher name, section, student count, and weekly lessons are valid. Student count and weekly lessons MUST be integers greater than zero. A grade outside the selected cycle MUST show "Seleccione un nivel del ciclo elegido." Periodicity MUST be monthly.
+The system SHALL enable Iniciar planeamiento con IA only when cycle, grade, subject, modality, school year, month, school, regional directorate, teacher name, section, student count, and weekly lessons are valid. Student count and weekly lessons MUST be integers greater than zero. A grade outside the selected cycle MUST show "Seleccione un nivel del ciclo elegido." The button MUST stay disabled while the create request is still running, and a second click MUST NOT create another plan. Periodicity MUST be monthly.
+
+#### Scenario: Second click while creating
+- **WHEN** the teacher starts a valid plan and clicks Iniciar planeamiento con IA again before the request finishes
+- **THEN** the button stays disabled and only one plan is created
 
 #### Scenario: Grade outside the cycle
-- **WHEN** the teacher selects Educación Diversificada and grade 4
+- **WHEN** the teacher selects grade 4 under I y II Ciclos and then changes the cycle to Educación Diversificada
 - **THEN** the start button stays disabled and the message "Seleccione un nivel del ciclo elegido." is shown
 
 ### Requirement: Scenario on create
@@ -31,5 +35,5 @@ The system SHALL save the plan, attach the scenario for school year, subject, gr
 When the teacher later changes school year, subject, grade, or month, the system SHALL select the scenario again. Blocks still suggested MUST show variant 1 of the new scenario. Accepted or edited blocks MUST keep their text. Modality, school, and group MUST NOT change the scenario.
 
 #### Scenario: Edited block survives a subject change
-- **WHEN** the teacher changes the subject after editing one suggested card and leaving another accepted
-- **THEN** the suggested card reloads from the new scenario and the accepted card keeps the teacher's text
+- **WHEN** the teacher changes the subject after editing one card, accepting another, and leaving a third suggested
+- **THEN** the edited card and the accepted card keep the teacher's text, and the suggested card reloads from the new scenario

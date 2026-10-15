@@ -54,7 +54,7 @@ Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implemen
 
 1. Inicio y cierre de sesión, sin registro ni recuperación de contraseña.
 2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado. «Aún no tiene planeamientos.» aparece solo cuando la consulta terminó y no hay filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.»
-3. Configuración de un planeamiento nuevo y elección del escenario guardado. Si la combinación no existe, se usan las sugerencias de Matemática, 4.° año, marzo 2026, y la pantalla lo indica.
+3. Configuración de un planeamiento nuevo y elección del escenario guardado. Si el nivel queda fuera del ciclo, se muestra «Seleccione un nivel del ciclo elegido.» y el inicio sigue deshabilitado. Un segundo clic mientras se crea no abre otro planeamiento. Si la combinación no existe, se usan las sugerencias de Matemática, 4.° año, marzo 2026, y la pantalla lo indica. Un cambio de asignatura recarga solo las tarjetas sugeridas; las aceptadas y las editadas conservan su texto.
 4. Borrador automático.
 5. Wizard con avance solo si el paso es válido, y reapertura de los pasos ya visitados.
 6. Programa, tiempo disponible y calendario del mes.
@@ -280,7 +280,7 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 | US-01 | Iniciar sesión | `openspec/changes/archive/2026-10-15-us-01-iniciar-sesion` |
 | US-02 | Cerrar sesión | `openspec/changes/archive/2026-10-15-us-02-cerrar-sesion` |
 | US-03 | Ver mis planeamientos | `openspec/changes/archive/2026-10-15-us-03-listar-planeamientos` |
-| US-04 | Crear un planeamiento | `openspec/changes/us-04-crear-planeamiento` |
+| US-04 | Crear un planeamiento | `openspec/changes/archive/2026-10-15-us-04-crear-planeamiento` |
 | US-05 | Guardar el borrador | `openspec/changes/us-05-guardar-borrador` |
 | US-06 | Recorrer el wizard | `openspec/changes/us-06-recorrer-el-wizard` |
 | US-07 | Programa y calendario | `openspec/changes/us-07-revisar-programa-y-calendario` |
