@@ -262,7 +262,8 @@ input {
 
 .extract,
 .suggestion-card textarea,
-.program-step textarea {
+.program-step textarea,
+.group-step textarea {
   width: 100%;
   min-height: 72px;
 }

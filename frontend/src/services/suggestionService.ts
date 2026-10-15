@@ -21,6 +21,10 @@ export function redistributeEvaluation(planId: string): Promise<PlanDetail> {
   return postJson<PlanDetail>(`/api/plans/${planId}/actions/redistribute-evaluation`);
 }
 
+export function generateImplications(planId: string): Promise<PlanDetail> {
+  return postJson<PlanDetail>(`/api/plans/${planId}/actions/generate-implications`);
+}
+
 export function acceptSuggestion(planId: string, blockKey: string): Promise<PlanBlock> {
   return postJson<PlanBlock>(`/api/plans/${planId}/blocks/${blockKey}/accept`);
 }

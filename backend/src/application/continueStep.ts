@@ -83,7 +83,24 @@ function validationProblem(plan: PlanWithRubric, step: number): string | null {
     const percentagesInRange = plan.rubricItems.every((item) => item.percentage >= 0 && item.percentage <= 100);
     return total === 100 && namesExist && percentagesInRange ? null : RUBRIC_NOT_100;
   }
+  if (step === 3) {
+    return groupStepProblem(plan.blocks);
+  }
   return STEP_NOT_READY;
+}
+
+const groupFields = [
+  { key: "prior-knowledge", label: "Conocimientos previos" },
+  { key: "difficulties", label: "Áreas de dificultad" },
+  { key: "resources", label: "Recursos del aula" },
+  { key: "pace", label: "Ritmo del grupo" },
+  { key: "supports", label: "Apoyos requeridos" },
+  { key: "teacher-notes", label: "Observaciones de la docente" },
+];
+
+export function groupStepProblem(blocks: { blockKey: string; body: string }[]): string | null {
+  const missing = groupFields.find((field) => blockText(blocks, field.key).length === 0);
+  return missing ? `Complete el campo ${missing.label}.` : null;
 }
 
 export async function continueStep(

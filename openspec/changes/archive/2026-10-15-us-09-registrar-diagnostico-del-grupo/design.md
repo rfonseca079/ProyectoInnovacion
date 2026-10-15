@@ -18,9 +18,10 @@ See proposal.md. Implication cards are stored sets. Generating them does not rea
 ## Decisions
 
 - Block keys: `prior-knowledge`, `difficulties`, `resources`, `pace`, `supports`, `teacher-notes`, `implication-manipulatives`, `implication-scaffolding`, `implication-differentiation`.
-- `generate-implications` advances a set index and writes all three cards as `SUGGESTED`.
+- `generate-implications` advances a set index and writes all three cards as `SUGGESTED`. It claims that set before writing, so two overlapping calls do not apply the same set twice.
 - Regenerar on one card uses the shared per-block cycle.
 - Continue returns 422 naming the empty field. Success sets `highestVisitedStep` to at least 4.
+- Saving one profile field does not replace unsaved text in the other fields. A failed generate shows its message on the step.
 
 Alternative considered: hiding implication cards until the button is pressed. Rejected because the first visit already shows variant 1, and the button moves to the next set.
 
