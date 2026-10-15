@@ -21,12 +21,20 @@ The system SHALL show a draft as "Borrador · Paso N de 8" using the saved step,
 - **THEN** her row shows Borrador · Paso 4 de 8 and the date 10 de marzo de 2026
 
 ### Requirement: Resume and create
-The system SHALL open a plan on its last saved step, with already visited steps available and unvisited steps closed. Nuevo planeamiento MUST open plan configuration. An empty list MUST show "Aún no tiene planeamientos." and Nuevo planeamiento.
+The system SHALL open a plan at the address of its last saved step. Nuevo planeamiento MUST open plan configuration. After a successful list response with no rows, the list MUST show "Aún no tiene planeamientos." and Nuevo planeamiento. That sentence MUST NOT appear while the list request is still running or when the request fails. A failed request MUST show "No se pudieron cargar los planeamientos." Which of those steps can be opened after the address loads belongs to wizard navigation.
 
 #### Scenario: Carlos resumes on the document
 - **WHEN** Carlos opens his plan
-- **THEN** the system opens step 7, steps 0 through 7 are available, and step 8 is not
+- **THEN** the address is that plan at step 7
 
 #### Scenario: Empty list
-- **WHEN** a teacher has no plans
+- **WHEN** the list request finishes and the teacher has no plans
 - **THEN** the list shows "Aún no tiene planeamientos." and Nuevo planeamiento
+
+#### Scenario: List still loading
+- **WHEN** the teacher is signed in and the list request has not finished
+- **THEN** the list does not show "Aún no tiene planeamientos."
+
+#### Scenario: List request fails
+- **WHEN** the list request fails
+- **THEN** the list does not show "Aún no tiene planeamientos." and shows "No se pudieron cargar los planeamientos."

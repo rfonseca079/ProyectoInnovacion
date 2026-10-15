@@ -10,10 +10,12 @@ export function PlanListPage({
   teacherName,
   onLogout,
   plans,
+  loadError = "",
 }: {
   teacherName: string;
   onLogout: () => void;
-  plans: PlanSummary[];
+  plans: PlanSummary[] | null;
+  loadError?: string;
 }) {
   return (
     <>
@@ -25,9 +27,10 @@ export function PlanListPage({
             Nuevo planeamiento
           </Link>
         </div>
-        {plans.length === 0 ? <p>Aún no tiene planeamientos.</p> : null}
+        {loadError ? <p role="alert">{loadError}</p> : null}
+        {!loadError && plans && plans.length === 0 ? <p>Aún no tiene planeamientos.</p> : null}
         <ul className="plan-list">
-          {plans.map((plan) => (
+          {(plans ?? []).map((plan) => (
             <li key={plan.id}>
               <Link to={`/plans/${plan.id}/steps/${plan.currentStep}`}>{planRowText(plan)}</Link>
             </li>

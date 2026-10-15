@@ -44,11 +44,13 @@ describe("plan list", () => {
     expect(hidden.body.message).toBe("No tiene acceso a este planeamiento.");
 
     const carlosList = await request(app).get("/api/plans").set("Cookie", carlos);
+    expect(carlosList.body).toHaveLength(1);
     expect(carlosList.body[0].status).toBe("READY_FOR_DELIVERY");
     expect(carlosList.body[0].currentStep).toBe(7);
 
     const maria = await login("maria.solis@demo.mep.cr");
     const mariaList = await request(app).get("/api/plans").set("Cookie", maria);
+    expect(mariaList.body).toHaveLength(1);
     expect(mariaList.body[0].currentStep).toBe(8);
     expect(mariaList.body[0].status).toBe("READY_FOR_DELIVERY");
   });

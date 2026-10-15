@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { App } from "./App";
 
-const { session, carlos } = vi.hoisted(() => {
+const { session, carlos, juanita } = vi.hoisted(() => {
   const juanita = {
     id: "juanita",
     fullName: "Juanita Pérez",
@@ -30,7 +30,13 @@ const { session, carlos } = vi.hoisted(() => {
   };
   return {
     carlos,
-    session: { teacher: juanita as typeof juanita | typeof carlos | null, listCount: 0, juanitaPlan },
+    juanita,
+    session: {
+      teacher: juanita as typeof juanita | typeof carlos | null,
+      listCount: 0,
+      listMode: "hang" as "hang" | "fail",
+      juanitaPlan,
+    },
   };
 });
 
@@ -52,12 +58,21 @@ vi.mock("./services/planService", () => ({
     if (session.listCount === 1) {
       return Promise.resolve([session.juanitaPlan]);
     }
+    if (session.listMode === "fail") {
+      return Promise.reject(new Error("list failed"));
+    }
     return new Promise(() => undefined);
   },
   createPlan: () => Promise.resolve(session.juanitaPlan),
 }));
 
 describe("App logout", () => {
+  beforeEach(() => {
+    session.teacher = juanita;
+    session.listCount = 0;
+    session.listMode = "hang";
+  });
+
   it("does not show the previous teacher's plans while the next list is still loading", async () => {
     render(
       <MemoryRouter initialEntries={["/planeamientos"]}>
@@ -75,6 +90,26 @@ describe("App logout", () => {
 
     expect(await screen.findByRole("heading", { name: "Mis planeamientos" })).toBeInTheDocument();
     expect(screen.queryByText(/Escuela República de Arabia Saudita/)).not.toBeInTheDocument();
-    expect(screen.getByText("Aún no tiene planeamientos.")).toBeInTheDocument();
+    expect(screen.queryByText("Aún no tiene planeamientos.")).not.toBeInTheDocument();
+  });
+
+  it("does not use the empty-list sentence when the next list request fails", async () => {
+    session.listMode = "fail";
+    render(
+      <MemoryRouter initialEntries={["/planeamientos"]}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText(/Escuela República de Arabia Saudita/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar sesión" }));
+    expect(await screen.findByRole("button", { name: "Entrar" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Correo"), { target: { value: carlos.email } });
+    fireEvent.change(screen.getByLabelText("Contraseña"), { target: { value: "Demo2026" } });
+    fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("No se pudieron cargar los planeamientos.");
+    expect(screen.queryByText("Aún no tiene planeamientos.")).not.toBeInTheDocument();
   });
 });
