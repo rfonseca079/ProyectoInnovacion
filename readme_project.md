@@ -155,7 +155,7 @@ PostgreSQL, la API y la aplicación web. No hay despliegue publicado.
 
 #### Proceso de despliegue actual
 
-No hay proceso de despliegue. El repositorio está en GitHub. El acceso, el cierre, la lista, la creación y el borrador ya están en el código; US-06 a US-16 siguen como propuestas.
+No hay proceso de despliegue. El repositorio está en GitHub. El acceso, el cierre, la lista, la creación, el borrador, el wizard, el programa, las unidades y el diagnóstico del grupo ya están en el código; US-10 a US-16 siguen como propuestas.
 
 #### Separación entre desarrollo y producción
 
@@ -306,10 +306,10 @@ Tres tickets representativos del corte previsto:
 2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
 3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
-US-04, US-05, US-06, US-07, US-08 y US-09 también quedaron implementados. Las propuestas de US-10 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-06 hasta que este cambio se fusione.
+US-04, US-05, US-06, US-07, US-08 y US-09 también quedaron implementados. Las propuestas de US-10 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-09.
 
 ---
 
 ## 7. Pull Requests
 
-No hay pull requests abiertos. El 1 se cerró porque su commit ya estaba en `main`. Se fusionaron el 2 (https://github.com/rfonseca079/ProyectoInnovacion/pull/2), el 3 (https://github.com/rfonseca079/ProyectoInnovacion/pull/3), el 4 (https://github.com/rfonseca079/ProyectoInnovacion/pull/4), el 5 (https://github.com/rfonseca079/ProyectoInnovacion/pull/5) y el 6 (https://github.com/rfonseca079/ProyectoInnovacion/pull/6). El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
+No hay pull requests abiertos. El 1 se cerró porque su commit ya estaba en `main`. Se fusionaron el 2 (https://github.com/rfonseca079/ProyectoInnovacion/pull/2), el 3 (https://github.com/rfonseca079/ProyectoInnovacion/pull/3), el 4 (https://github.com/rfonseca079/ProyectoInnovacion/pull/4), el 5 (https://github.com/rfonseca079/ProyectoInnovacion/pull/5), el 6 (https://github.com/rfonseca079/ProyectoInnovacion/pull/6), el 7 (https://github.com/rfonseca079/ProyectoInnovacion/pull/7), el 8 (https://github.com/rfonseca079/ProyectoInnovacion/pull/8) y el 9 (https://github.com/rfonseca079/ProyectoInnovacion/pull/9). El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
