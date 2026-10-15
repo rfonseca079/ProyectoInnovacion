@@ -306,10 +306,10 @@ Tres tickets representativos del corte previsto:
 2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
 3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
-US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelante siguen sin implementar. El cierre de sesión está en la rama `feature/us-02-cerrar-sesion`. El primer commit está en `feature/us-01-iniciar-sesion`.
+US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelante siguen sin implementar. El trabajo publicado está en `main`.
 
 ---
 
 ## 7. Pull Requests
 
-Hay un pull request abierto: https://github.com/rfonseca079/ProyectoInnovacion/pull/1. Compara `feature/us-02-cerrar-sesion` contra `feature/us-01-iniciar-sesion`. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
+No hay pull requests abiertos. El 1 se cerró porque su commit ya estaba en `main`. El 2 se fusionó en `main`: https://github.com/rfonseca079/ProyectoInnovacion/pull/2. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
