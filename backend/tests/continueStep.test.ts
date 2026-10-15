@@ -1,5 +1,6 @@
 import request from "supertest";
 import { PrismaClient } from "@prisma/client";
+import { scenarioUnits } from "../prisma/seedData";
 import { createApp } from "../src/app";
 
 const prisma = new PrismaClient();
@@ -8,10 +9,25 @@ const juanitaPlanId = "11111111-1111-4111-8111-111111111111";
 
 describe("continue step", () => {
   afterAll(async () => {
+    const units = scenarioUnits["mat-4-marzo-2026"];
+    await prisma.week.deleteMany({ where: { planId: juanitaPlanId } });
+    await prisma.week.createMany({
+      data: units.weeks.map((title, index) => ({ planId: juanitaPlanId, position: index + 1, title })),
+    });
     await prisma.rubricItem.deleteMany({ where: { planId: juanitaPlanId } });
+    await prisma.rubricItem.createMany({
+      data: units.rubric.map((item, index) => ({ planId: juanitaPlanId, position: index + 1, ...item })),
+    });
     await prisma.plan.update({
       where: { id: juanitaPlanId },
-      data: { currentStep: 4, highestVisitedStep: 4, section: "A", teacherName: "Juanita Pérez", schoolName: "Escuela República de Arabia Saudita" },
+      data: {
+        currentStep: 4,
+        highestVisitedStep: 4,
+        section: "A",
+        teacherName: "Juanita Pérez",
+        schoolName: "Escuela República de Arabia Saudita",
+        updatedAt: new Date("2026-03-10T18:00:00.000Z"),
+      },
     });
     await prisma.session.deleteMany();
     await prisma.$disconnect();
@@ -38,7 +54,7 @@ describe("continue step", () => {
     await prisma.rubricItem.create({ data: { planId: juanitaPlanId, name: "Tareas", percentage: 40 } });
     const blocked = await request(app).post(`/api/plans/${juanitaPlanId}/steps/2/continue`).set("Cookie", juanita);
     expect(blocked.status).toBe(422);
-    expect(blocked.body.message).toBe("Los porcentajes de la evaluación deben sumar 100.");
+    expect(blocked.body.message).toBe("La distribución debe sumar 100 %.");
     const stored = await prisma.plan.findUniqueOrThrow({ where: { id: juanitaPlanId } });
     expect(stored.highestVisitedStep).toBe(4);
   });

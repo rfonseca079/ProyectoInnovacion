@@ -8,6 +8,8 @@ export type PlanDetail = PlanSummary & {
   highestVisitedStep: number;
   blocks: { blockKey: string; status: string; variant: number; body: string }[];
   calendarDays?: { date: string; kind: string; label: string }[];
+  weeks?: { position: number; title: string }[];
+  rubric?: { name: string; count: number; percentage: number }[];
 };
 
 const apiUrl = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;

@@ -109,7 +109,7 @@ The first visit to a step creates these rows from variant 1 and saves them as th
 
 ## Week and Session
 
-Each scenario stores the weeks of its month. The active week has five sessions, Monday to Friday. Each session stores day, date, expected learning, 40-minute duration, start, development, close, materials, formative evidence, and optional homework.
+Step 2 stores four `Week` rows on the plan, with `position` and `title`. Each scenario stores the weeks of its month. The active week has five sessions, Monday to Friday. Each session stores day, date, expected learning, 40-minute duration, start, development, close, materials, formative evidence, and optional homework.
 
 Scenario A week 2 is 9–13 March 2026. Monday and Wednesday start expanded. Thursday includes the stored plan B.
 
@@ -125,7 +125,11 @@ For `mat-4-marzo-2026`: 6 March suspended (teachers' council), 13 and 27 March a
 
 ## RubricItem
 
-Rows of the evaluation table: name, count, and percentage. The stored distributions for the initial five rows already sum to 100. `add-item` inserts a row at 0. `remove-item` cannot delete the last row. Continue on step 2 is allowed only when the percentages sum to 100 and every row and week has a name.
+Rows of the evaluation table, stored as `position`, `name`, `count`, and `percentage`. Each percentage is an integer from 0 through 100. A value outside that range is rejected with "Cada porcentaje debe ser un entero entre 0 y 100." and the stored rows stay. The stored distributions for the initial five mathematics rows already sum to 100. `add-item` inserts a row at 0. `remove-item` cannot delete the last row. Continue on step 2 is allowed only when the percentages sum to 100, every percentage is inside that range, and every row and week has a name.
+
+`redistribute-evaluation` writes the next stored percentage vector with the same row count and leaves names unchanged. It claims the current variant before writing, so two overlapping calls do not apply the same vector twice. If none matches, the response is 409 with "No hay una distribución guardada para esta cantidad de rubros."
+
+Mathematics variant 1 is 30, 20, 15, 20, 15. Variant 2 is 25, 15, 20, 25, 15. Variant 3 is 20, 20, 10, 30, 20. Spanish and science each store three distributions for their own four-row rubrics. Those rows are stored content for the demo, not a calculated split.
 
 ## Evidence
 

@@ -82,13 +82,26 @@ model Plan {
   updatedAt            DateTime   @default(now())
   blocks               PlanBlock[]
   rubricItems          RubricItem[]
+  weeks                Week[]
+}
+
+model Week {
+  id       String @id @default(uuid())
+  planId   String
+  plan     Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  position Int
+  title    String
+
+  @@unique([planId, position])
 }
 
 model RubricItem {
   id         String @id @default(uuid())
   planId     String
   plan       Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  position   Int    @default(0)
   name       String
+  count      Int    @default(1)
   percentage Int
 }
 

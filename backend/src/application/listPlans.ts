@@ -41,7 +41,11 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
   const teacher = await currentTeacher(prisma, sessionId);
   const plan = await prisma.plan.findFirst({
     where: { id: planId, teacherId: teacher.id },
-    include: { blocks: true },
+    include: {
+      blocks: true,
+      weeks: { orderBy: { position: "asc" } },
+      rubricItems: { orderBy: { position: "asc" } },
+    },
   });
   if (!plan) {
     throw new AppError(404, "NOT_FOUND", PLAN_FORBIDDEN);
@@ -59,6 +63,12 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
       status: block.status,
       variant: block.variant,
       body: block.body,
+    })),
+    weeks: plan.weeks.map((week) => ({ position: week.position, title: week.title })),
+    rubric: plan.rubricItems.map((item) => ({
+      name: item.name,
+      count: item.count,
+      percentage: item.percentage,
     })),
     calendarDays: (
       plan.scenarioId

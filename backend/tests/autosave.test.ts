@@ -1,5 +1,6 @@
 import request from "supertest";
 import { PrismaClient } from "@prisma/client";
+import { scenarioUnits } from "../prisma/seedData";
 import { createApp } from "../src/app";
 
 const prisma = new PrismaClient();
@@ -8,10 +9,18 @@ const juanitaPlanId = "11111111-1111-4111-8111-111111111111";
 
 describe("autosave", () => {
   afterAll(async () => {
+    const units = scenarioUnits["mat-4-marzo-2026"];
     await prisma.rubricItem.deleteMany({ where: { planId: juanitaPlanId } });
+    await prisma.rubricItem.createMany({
+      data: units.rubric.map((item, index) => ({ planId: juanitaPlanId, position: index + 1, ...item })),
+    });
     await prisma.plan.update({
       where: { id: juanitaPlanId },
-      data: { section: "A", notifyEvaluationChanges: false },
+      data: {
+        section: "A",
+        notifyEvaluationChanges: false,
+        updatedAt: new Date("2026-03-10T18:00:00.000Z"),
+      },
     });
     await prisma.session.deleteMany();
     await prisma.$disconnect();
