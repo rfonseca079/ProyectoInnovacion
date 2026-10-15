@@ -1,0 +1,10 @@
+.DS_Store
+.worktrees/
+node_modules/
+dist/
+coverage/
+.env
+*.tsbuildinfo
+playwright-report/
+test-results/
+blob-report/

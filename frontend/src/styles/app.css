@@ -1,0 +1,155 @@
+:root {
+  color: #1c2428;
+  background: #f3f5f4;
+  font-family: "Segoe UI", "Source Sans 3", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 1440px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.desktop-frame {
+  width: 1440px;
+  min-height: 100vh;
+}
+
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 420px;
+  padding: 40px;
+  background: #ffffff;
+  border: 1px solid #d5ddd8;
+  border-radius: 8px;
+}
+
+.wordmark {
+  margin: 0 0 8px;
+  color: #0f3d4c;
+  font-size: 28px;
+}
+
+.lede {
+  margin: 0 0 28px;
+  color: #4d5b61;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.field span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field input {
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #c5d0cb;
+  border-radius: 6px;
+}
+
+.primary {
+  width: 100%;
+  height: 44px;
+  border: 0;
+  border-radius: 6px;
+  background: #0f3d4c;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.form-error {
+  margin: 0 0 16px;
+  color: #8a2b2b;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+  padding: 0 32px;
+  background: #0f3d4c;
+  color: #ffffff;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar button {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #ffffff;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.page {
+  padding: 32px;
+}
+
+.page h2 {
+  margin-top: 0;
+}
+
+.list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  padding: 0 16px;
+  text-decoration: none;
+}
+
+.plan-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-list a {
+  display: block;
+  margin-bottom: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #d5ddd8;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+}

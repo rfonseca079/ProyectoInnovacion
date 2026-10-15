@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Teacher {
+  id                   String    @id @default(uuid())
+  fullName             String
+  email                String    @unique
+  passwordHash         String
+  schoolName           String
+  regionalDirectorate  String
+  sessions             Session[]
+  plans                Plan[]
+}
+
+enum Cycle {
+  I_II
+  III
+  DIVERSIFIED
+}
+
+enum Subject {
+  MATH
+  SPANISH
+  SCIENCE
+  SOCIAL_STUDIES
+}
+
+enum Modality {
+  IN_PERSON
+  VIRTUAL
+  HYBRID
+}
+
+enum PlanStatus {
+  DRAFT
+  READY_FOR_DELIVERY
+  ADJUSTED
+}
+
+enum BlockStatus {
+  SUGGESTED
+  ACCEPTED
+  EDITED
+}
+
+model Plan {
+  id                   String     @id @default(uuid())
+  teacherId            String
+  teacher              Teacher    @relation(fields: [teacherId], references: [id])
+  cycle                Cycle
+  gradeLevel           Int
+  subject              Subject
+  modality             Modality
+  schoolYear           Int
+  month                Int
+  schoolName           String
+  regionalDirectorate  String
+  teacherName          String
+  section              String
+  studentCount         Int
+  weeklyLessons        Int
+  status               PlanStatus
+  currentStep          Int
+  highestVisitedStep   Int
+  scenarioId           String?
+  scenario             Scenario?  @relation(fields: [scenarioId], references: [id])
+  usedFallback         Boolean    @default(false)
+  notifyEvaluationChanges Boolean @default(false)
+  updatedAt            DateTime   @default(now())
+  blocks               PlanBlock[]
+  rubricItems          RubricItem[]
+}
+
+model RubricItem {
+  id         String @id @default(uuid())
+  planId     String
+  plan       Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  name       String
+  percentage Int
+}
+
+model Scenario {
+  id          String              @id
+  schoolYear  Int
+  subject     Subject
+  gradeLevel  Int
+  month       Int
+  variants    SuggestionVariant[]
+  plans       Plan[]
+
+  @@unique([schoolYear, subject, gradeLevel, month])
+}
+
+model SuggestionVariant {
+  id         String   @id @default(uuid())
+  scenarioId String
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  blockKey   String
+  step       Int
+  variant    Int
+  body       String
+
+  @@unique([scenarioId, blockKey, variant])
+}
+
+model PlanBlock {
+  id       String      @id @default(uuid())
+  planId   String
+  plan     Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  blockKey String
+  status   BlockStatus @default(SUGGESTED)
+  variant  Int
+  body     String
+
+  @@unique([planId, blockKey])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  teacherId String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}

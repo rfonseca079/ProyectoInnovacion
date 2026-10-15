@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-planificador}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-planificador}
+      POSTGRES_DB: ${POSTGRES_DB:-planificador}
+    ports:
+      - "55432:5432"
+    volumes:
+      - planificador_pg:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/01-test-db.sql
+
+volumes:
+  planificador_pg:

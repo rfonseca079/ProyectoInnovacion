@@ -1,0 +1,42 @@
+schema: spec-driven
+
+context: |
+  Language: en
+  OpenSpec artifacts stay in English. Keep structural headings and SHALL/MUST keywords in English.
+  Teacher-facing product copy and the stories in UserStories/ stay in Costa Rican Spanish.
+
+  Product: Planificador AI, a desktop-first web demo for primary and secondary teachers in Costa Rica (MEP).
+  Repository: https://github.com/rfonseca079/ProyectoInnovacion
+  The demo does not call a language model. Every AI action reads suggestion variants stored in PostgreSQL.
+  Accounts are seeded. There is no self-registration and no password recovery.
+  Layout reference: 1440px. Do not add a mobile layout.
+
+  Tech stack: TypeScript, React, Vite, React Router, Node.js, Express, Prisma, PostgreSQL.
+  Architecture: Express API with presentation, application, domain, and infrastructure layers. React UI with a service layer.
+  We use conventional commits.
+
+  Product requirements: UserStories/US-01 through US-16. Visual structure: stitch.md.
+  Course report skeleton: readme_project.md. Specboot's own guide remains README.md.
+
+  Project specs, single source of truth for implementation:
+  - docs/base-standards.md — principles, language split, links to the other standards
+  - docs/backend-standards.md — API, database, testing, security
+  - docs/frontend-standards.md — React UI and desktop layout
+  - docs/api-spec.yml — HTTP contracts
+  - docs/data-model.md — entities and scenario rules
+  - docs/documentation-standards.md — how to maintain these docs
+  - docs/development_guide.md — local setup once the apps exist
+  - docs/openspec-tasks-mandatory-steps.md — required task checklist
+  For implementation, adopt ai-specs/agents/backend-developer.md or ai-specs/agents/frontend-developer.md. Use ai-specs/skills/ for workflow guidance.
+
+rules:
+  _global:
+    - Before creating any artifact, read and apply docs/base-standards.md
+    - Do not add an LLM client, a registration flow, or a mobile layout
+    - For backend artifacts, read docs/backend-standards.md and ai-specs/agents/backend-developer.md
+    - For frontend artifacts, read docs/frontend-standards.md and ai-specs/agents/frontend-developer.md
+    - Keep docs/api-spec.yml and docs/data-model.md consistent with any behavior change
+    - Treat UserStories/ as the product behavior source
+  tasks:
+    - Include the mandatory steps in docs/openspec-tasks-mandatory-steps.md
+    - Break work into small, testable steps

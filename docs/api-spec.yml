@@ -1,0 +1,477 @@
+openapi: 3.0.3
+info:
+  title: Planificador AI API
+  description: |
+    HTTP API for the Planificador AI demo.
+    Suggestion endpoints return rows stored in PostgreSQL. This API does not call a language model.
+    Teacher-facing messages are Costa Rican Spanish. Field names and error codes are English.
+  version: 0.1.0
+servers:
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: Auth
+  - name: Plans
+  - name: Suggestions
+  - name: Documents
+paths:
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Start a session
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Session cookie set. Cookie is httpOnly and expires when the browser closes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherProfile'
+        '400':
+          description: Email or password missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: VALIDATION
+                message: Ingrese su correo y su contraseña.
+        '401':
+          description: Unknown email or wrong password. Same message for both.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INVALID_CREDENTIALS
+                message: Correo o contraseña incorrectos.
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: End the current session
+      operationId: logout
+      responses:
+        '204':
+          description: Session cleared
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Current teacher
+      operationId: currentTeacher
+      responses:
+        '200':
+          description: Authenticated teacher
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherProfile'
+        '401':
+          description: No session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: UNAUTHENTICATED
+                message: Inicie sesión para continuar.
+  /api/plans:
+    get:
+      tags: [Plans]
+      summary: List plans owned by the current teacher
+      operationId: listPlans
+      responses:
+        '200':
+          description: Plan summaries, newest update first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlanSummary'
+    post:
+      tags: [Plans]
+      summary: Create a plan from configuration and open step 1
+      operationId: createPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanConfiguration'
+      responses:
+        '201':
+          description: Plan created, steps 0 and 1 visited, step 1 filled with variant 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+        '400':
+          description: Missing field, non-positive number, or grade outside the selected cycle
+  /api/plans/{planId}:
+    get:
+      tags: [Plans]
+      summary: Open a plan on its last saved step
+      operationId: getPlan
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '200':
+          description: Plan detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+        '404':
+          description: Not found, or owned by another teacher. The step screen shows this message and hides the plan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: NOT_FOUND
+                message: No tiene acceso a este planeamiento.
+    patch:
+      tags: [Plans]
+      summary: Autosave edited fields
+      operationId: updatePlan
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanPatch'
+      responses:
+        '200':
+          description: Saved plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+  /api/plans/{planId}/steps/{step}/continue:
+    post:
+      tags: [Plans]
+      summary: Validate the current step and open the next one
+      operationId: continueStep
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - name: step
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 7
+      responses:
+        '200':
+          description: Next step visited and, on the first visit, filled from variant 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+        '422':
+          description: Required field empty, or evaluation percentages do not sum to 100
+  /api/plans/{planId}/blocks/{blockKey}/accept:
+    post:
+      tags: [Suggestions]
+      summary: Accept the variant currently shown on a card
+      operationId: acceptSuggestion
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - $ref: '#/components/parameters/BlockKey'
+      responses:
+        '200':
+          description: Block status becomes ACCEPTED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanBlock'
+  /api/plans/{planId}/blocks/{blockKey}:
+    patch:
+      tags: [Suggestions]
+      summary: Save a manual edit
+      operationId: editBlock
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - $ref: '#/components/parameters/BlockKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body:
+                  description: Edited text or structured content
+      responses:
+        '200':
+          description: Block status becomes EDITED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanBlock'
+  /api/plans/{planId}/blocks/{blockKey}/regenerate:
+    post:
+      tags: [Suggestions]
+      summary: Show the next stored variant of a card
+      operationId: regenerateBlock
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - $ref: '#/components/parameters/BlockKey'
+      responses:
+        '200':
+          description: Next variant. Accepted or edited body is kept until accept.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanBlock'
+        '404':
+          description: No other stored suggestion for this block
+  /api/plans/{planId}/actions/{actionKey}:
+    post:
+      tags: [Suggestions]
+      summary: Run a named stored action
+      description: |
+        Replaces the visible content of the target block with the next stored variant for that action
+        and sets the affected blocks back to SUGGESTED.
+        Known keys: reanalyze-program, redistribute-evaluation, generate-implications,
+        regenerate-mediation, fit-40-minutes, simplify-materials, balance-assessment-load,
+        generate-week-sessions, duplicate-structure.
+      operationId: runStoredAction
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - name: actionKey
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Updated plan detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+        '409':
+          description: No stored variant for the current rubric size or rubric names
+  /api/plans/{planId}/adjustments/apply:
+    post:
+      tags: [Plans]
+      summary: Write the stored post-class adjustment into sessions and the MEP document
+      operationId: applyAdjustments
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '200':
+          description: Plan status becomes ADJUSTED. Reapplying replaces the same fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetail'
+  /api/plans/{planId}/document/pdf:
+    get:
+      tags: [Documents]
+      summary: Download the MEP PDF from saved document fields
+      operationId: downloadPlanPdf
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '200':
+          description: Generated PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '422':
+          description: A required document field is empty
+  /api/plans/{planId}/weeks/{weekNumber}/pdf:
+    get:
+      tags: [Documents]
+      summary: Download the five saved sessions of one week
+      operationId: exportWeekPdf
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - name: weekNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Generated week PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+components:
+  parameters:
+    PlanId:
+      name: planId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    BlockKey:
+      name: blockKey
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    TeacherProfile:
+      type: object
+      required: [id, fullName, email, schoolName, regionalDirectorate]
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        schoolName:
+          type: string
+        regionalDirectorate:
+          type: string
+    PlanConfiguration:
+      type: object
+      required:
+        - cycle
+        - gradeLevel
+        - subject
+        - modality
+        - schoolYear
+        - month
+        - schoolName
+        - regionalDirectorate
+        - teacherName
+        - section
+        - studentCount
+        - weeklyLessons
+      properties:
+        cycle:
+          type: string
+          enum: [I_II, III, DIVERSIFIED]
+        gradeLevel:
+          type: integer
+          minimum: 1
+          maximum: 11
+        subject:
+          type: string
+          enum: [MATH, SPANISH, SCIENCE, SOCIAL_STUDIES]
+        modality:
+          type: string
+          enum: [IN_PERSON, VIRTUAL, HYBRID]
+        schoolYear:
+          type: integer
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        schoolName:
+          type: string
+        regionalDirectorate:
+          type: string
+        teacherName:
+          type: string
+        section:
+          type: string
+        studentCount:
+          type: integer
+          minimum: 1
+        weeklyLessons:
+          type: integer
+          minimum: 1
+    PlanPatch:
+      type: object
+      description: |
+        Partial autosave of configuration, blocks, rubric, sessions, document fields, log, or the notification toggle.
+        The client sends this patch when the teacher leaves a changed field, accepts or edits a suggestion, regenerates a block, adds or removes a rubric row, changes the notification toggle, applies adjustments, or changes step.
+      additionalProperties: true
+    PlanSummary:
+      type: object
+      required: [id, subject, gradeLevel, month, schoolYear, schoolName, status, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        subject:
+          type: string
+        gradeLevel:
+          type: integer
+        month:
+          type: integer
+        schoolYear:
+          type: integer
+        schoolName:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, READY_FOR_DELIVERY, ADJUSTED]
+        currentStep:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+    PlanBlock:
+      type: object
+      required: [blockKey, status, variant, body]
+      properties:
+        blockKey:
+          type: string
+        status:
+          type: string
+          enum: [SUGGESTED, ACCEPTED, EDITED]
+        variant:
+          type: integer
+          minimum: 1
+          maximum: 3
+        body: {}
+    PlanDetail:
+      allOf:
+        - $ref: '#/components/schemas/PlanSummary'
+        - type: object
+          required: [scenarioId, usedFallback, highestVisitedStep, blocks]
+          properties:
+            scenarioId:
+              type: string
+            usedFallback:
+              type: boolean
+            highestVisitedStep:
+              type: integer
+            notifyEvaluationChanges:
+              type: boolean
+            blocks:
+              type: array
+              items:
+                $ref: '#/components/schemas/PlanBlock'
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
