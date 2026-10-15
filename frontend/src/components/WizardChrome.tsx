@@ -27,6 +27,7 @@ export function WizardChrome({
   teacherName,
   onLogout,
   onContinue,
+  continueDisabled = false,
   continueMessage,
   children,
 }: {
@@ -39,6 +40,7 @@ export function WizardChrome({
   teacherName: string;
   onLogout: () => void;
   onContinue?: () => void;
+  continueDisabled?: boolean;
   continueMessage?: string;
   children?: ReactNode;
 }) {
@@ -86,7 +88,7 @@ export function WizardChrome({
         {continueMessage ? <p role="alert">{continueMessage}</p> : null}
         <Link to={backTo}>Atrás</Link>
         {step < 8 ? (
-          <button type="button" onClick={onContinue}>
+          <button type="button" onClick={onContinue} disabled={continueDisabled}>
             Continuar
           </button>
         ) : null}

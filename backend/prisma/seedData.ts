@@ -30,6 +30,19 @@ export function assertSeedAllowed(nodeEnv: string | undefined): void {
   }
 }
 
+export const stepOneBlockKeys = [
+  "program-extract",
+  "available-time",
+  "calendar-restrictions",
+  "month-objectives",
+  "month-contents",
+  "calendar-risks",
+] as const;
+
+function lessons(plannableLessons: string, affectedLessons: string): string {
+  return JSON.stringify({ plannableLessons, affectedLessons });
+}
+
 const scenarios = [
   {
     id: "mat-4-marzo-2026",
@@ -37,8 +50,41 @@ const scenarios = [
     subject: "MATH" as const,
     gradeLevel: 4,
     month: 3,
-    extract: "Aprendizajes esperados: representar fracciones propias como parte de un todo con material concreto.",
-    objectives: "El mes trabaja el concepto de fracción, fracciones equivalentes y comparación.",
+    blocks: {
+      "program-extract": [
+        "Extracto del programa de Matemática 4.°\nEje: Números y operaciones — Fracciones.\nAprendizajes esperados: representar fracciones propias como parte de un todo con material concreto; reconocer fracciones equivalentes en contextos cotidianos; comparar y ordenar fracciones con denominadores hasta 12; resolver problemas sencillos de parte-todo.\nContenidos clave: concepto de fracción, fracciones equivalentes, comparación y orden, resolución de problemas.\nEvaluación: formativa continua y sumativa según la rúbrica del centro.",
+        "Extracto del programa de Matemática 4.°\nEje: Números y operaciones — Fracciones en la recta.\nAprendizajes esperados: Ubicar fracciones en la recta numérica.",
+        "Extracto del programa de Matemática 4.°\nEje: Números y operaciones — Problemas con fracciones.\nAprendizajes esperados: Plantear problemas de la comunidad con fracciones.",
+      ],
+      "available-time": [lessons("18", "2"), lessons("16", "3"), lessons("14", "4")],
+      "calendar-restrictions": [
+        "Consejo de docentes el 6 de marzo; asueto del 30 y 31 de marzo por inicio de Semana Santa.",
+        "El consejo de docentes del 6 de marzo deja una lección sin contenido nuevo.",
+        "La Semana Santa recorta las dos últimas lecciones del mes.",
+      ],
+      "month-objectives": [
+        "Priorizar parte-todo, equivalencias y comparación, y dejar la resolución de problemas para la semana 4.",
+        "Priorizar la ubicación de fracciones en la recta antes de compararlas.",
+        "Priorizar problemas de la comunidad y usar la recta solo como apoyo.",
+      ],
+      "month-contents": [
+        "El mes alcanza para parte-todo, equivalencias, comparación y una semana de problemas. No incluye operaciones avanzadas con fracciones impropias.",
+        "El mes alcanza para la recta numérica, equivalencias y una comparación breve.",
+        "El mes alcanza para problemas de la comunidad con fracciones propias y una revisión de equivalencias.",
+      ],
+      "calendar-risks": [
+        "Se recomienda redistribuir la introducción a fracciones equivalentes a la semana del 9 al 13 de marzo por el asueto del 30 y 31 de marzo.",
+        "Se recomienda pasar la introducción de equivalencias a la semana del 16 al 20 de marzo.",
+        "Se recomienda usar el 6 de marzo solo para diagnóstico y no para contenido nuevo.",
+      ],
+    },
+    days: [
+      { date: "2026-03-06", kind: "SUSPENDED" as const, label: "Consejo de docentes" },
+      { date: "2026-03-13", kind: "ASSESSMENT" as const, label: "Quiz de la semana 2" },
+      { date: "2026-03-27", kind: "ASSESSMENT" as const, label: "Prueba de la semana 4" },
+      { date: "2026-03-30", kind: "HOLIDAY" as const, label: "Asueto por inicio de Semana Santa" },
+      { date: "2026-03-31", kind: "HOLIDAY" as const, label: "Asueto por inicio de Semana Santa" },
+    ],
   },
   {
     id: "esp-2-abril-2026",
@@ -46,8 +92,35 @@ const scenarios = [
     subject: "SPANISH" as const,
     gradeLevel: 2,
     month: 4,
-    extract: "Aprendizajes esperados: leer textos narrativos breves y reconocer personajes.",
-    objectives: "El mes trabaja comprensión de lectura en textos narrativos.",
+    blocks: {
+      "program-extract": [
+        "Extracto del programa de Español 2.° — Comprensión lectora: texto narrativo. Aprendizajes esperados: leer textos narrativos breves y reconocer personajes.",
+        "Extracto del programa de Español 2.° — Comprensión lectora: idea principal del cuento.",
+        "Extracto del programa de Español 2.° — Comprensión lectora: secuencia de hechos.",
+      ],
+      "available-time": [lessons("16", "1"), lessons("15", "2"), lessons("14", "2")],
+      "calendar-restrictions": [
+        "Acto cívico del 11 de abril.",
+        "Ensayo del acto cívico ocupa la primera lección del 10 de abril.",
+        "El 11 de abril no hay lección de lectura.",
+      ],
+      "month-objectives": [
+        "Priorizar personajes y secuencia en textos narrativos breves.",
+        "Priorizar la idea principal antes del vocabulario nuevo.",
+        "Priorizar la relectura en voz alta de un cuento conocido.",
+      ],
+      "month-contents": [
+        "El mes alcanza para personajes, escenario y una producción breve.",
+        "El mes alcanza para idea principal y vocabulario del cuento.",
+        "El mes alcanza para secuencia de hechos y una relectura guiada.",
+      ],
+      "calendar-risks": [
+        "El acto cívico del 11 de abril recorta la lectura en voz alta.",
+        "Conviene pasar la idea principal a la semana siguiente al acto.",
+        "Usar el día del acto solo para retomar personajes, no para contenido nuevo.",
+      ],
+    },
+    days: [{ date: "2026-04-06", kind: "TEACHING" as const, label: "Lectura de cuento" }],
   },
   {
     id: "cie-7-febrero-2026",
@@ -55,8 +128,35 @@ const scenarios = [
     subject: "SCIENCE" as const,
     gradeLevel: 7,
     month: 2,
-    extract: "Aprendizajes esperados: distinguir célula vegetal y célula animal.",
-    objectives: "El mes trabaja la estructura básica de la célula.",
+    blocks: {
+      "program-extract": [
+        "Extracto del programa de Ciencias 7.° — La célula como unidad de la vida. Aprendizajes esperados: distinguir célula vegetal y célula animal.",
+        "Extracto del programa de Ciencias 7.° — Organelos y su función.",
+        "Extracto del programa de Ciencias 7.° — Comparar células en el microscopio.",
+      ],
+      "available-time": [lessons("12", "1"), lessons("11", "2"), lessons("10", "2")],
+      "calendar-restrictions": [
+        "Feria científica del 14 de febrero.",
+        "El montaje de la feria ocupa la lección del 13 de febrero.",
+        "El 14 de febrero no hay observación de laboratorio.",
+      ],
+      "month-objectives": [
+        "Priorizar la célula como unidad de la vida y la diferencia entre célula vegetal y animal.",
+        "Priorizar los organelos antes de la comparación en el microscopio.",
+        "Priorizar la observación guiada y dejar el esquema rotulado para el cierre.",
+      ],
+      "month-contents": [
+        "El mes alcanza para membrana, núcleo y una comparación vegetal-animal.",
+        "El mes alcanza para organelos principales y un esquema rotulado.",
+        "El mes alcanza para una observación guiada y la comparación de dos células.",
+      ],
+      "calendar-risks": [
+        "La feria científica del 14 de febrero recorta la observación de células.",
+        "Conviene pasar la observación al inicio de la semana siguiente.",
+        "Usar el día de la feria solo para retomar el esquema, no para contenido nuevo.",
+      ],
+    },
+    days: [{ date: "2026-02-06", kind: "TEACHING" as const, label: "Observación de la célula" }],
   },
 ];
 
@@ -135,26 +235,35 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
         month: scenario.month,
       },
     });
-    for (const block of [
-      { blockKey: "program-extract", body: scenario.extract },
-      { blockKey: "month-objectives", body: scenario.objectives },
-    ]) {
-      await prisma.suggestionVariant.upsert({
-        where: {
-          scenarioId_blockKey_variant: {
-            scenarioId: scenario.id,
-            blockKey: block.blockKey,
-            variant: 1,
+    for (const blockKey of stepOneBlockKeys) {
+      const bodies = scenario.blocks[blockKey];
+      for (let index = 0; index < bodies.length; index += 1) {
+        const variant = index + 1;
+        await prisma.suggestionVariant.upsert({
+          where: {
+            scenarioId_blockKey_variant: {
+              scenarioId: scenario.id,
+              blockKey,
+              variant,
+            },
           },
-        },
-        update: { body: block.body, step: 1 },
-        create: {
-          scenarioId: scenario.id,
-          blockKey: block.blockKey,
-          step: 1,
-          variant: 1,
-          body: block.body,
-        },
+          update: { body: bodies[index], step: 1 },
+          create: {
+            scenarioId: scenario.id,
+            blockKey,
+            step: 1,
+            variant,
+            body: bodies[index],
+          },
+        });
+      }
+    }
+    for (const day of scenario.days) {
+      const date = new Date(`${day.date}T00:00:00.000Z`);
+      await prisma.calendarDay.upsert({
+        where: { scenarioId_date: { scenarioId: scenario.id, date } },
+        update: { kind: day.kind, label: day.label },
+        create: { scenarioId: scenario.id, date, kind: day.kind, label: day.label },
       });
     }
   }
@@ -187,5 +296,21 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       update: data,
       create: { id: plan.id, ...data },
     });
+    const variants = await prisma.suggestionVariant.findMany({
+      where: { scenarioId: plan.scenarioId, step: 1, variant: 1 },
+    });
+    for (const variant of variants) {
+      await prisma.planBlock.upsert({
+        where: { planId_blockKey: { planId: plan.id, blockKey: variant.blockKey } },
+        update: { body: variant.body, variant: 1, status: "SUGGESTED" },
+        create: {
+          planId: plan.id,
+          blockKey: variant.blockKey,
+          status: "SUGGESTED",
+          variant: 1,
+          body: variant.body,
+        },
+      });
+    }
   }
 }

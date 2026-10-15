@@ -7,6 +7,7 @@ export type PlanDetail = PlanSummary & {
   usedFallback: boolean;
   highestVisitedStep: number;
   blocks: { blockKey: string; status: string; variant: number; body: string }[];
+  calendarDays?: { date: string; kind: string; label: string }[];
 };
 
 const apiUrl = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;

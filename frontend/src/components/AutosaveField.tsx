@@ -12,10 +12,12 @@ export function SaveFooter({ state }: { state: SaveState }) {
 }
 
 export function AutosaveField({
+  label = "Sección o grupo",
   initialValue,
   onSave,
   onStatus,
 }: {
+  label?: string;
   initialValue: string;
   onSave: (value: string) => Promise<void>;
   onStatus?: (state: SaveState) => void;
@@ -54,9 +56,9 @@ export function AutosaveField({
 
   return (
     <label>
-      Sección o grupo
+      {label}
       <input
-        aria-label="Sección o grupo"
+        aria-label={label}
         value={value}
         onChange={(event) => {
           valueRef.current = event.target.value;
