@@ -49,6 +49,7 @@ frontend/src/
 ## Behavior
 
 - After login, open the plan list. A signed-in teacher who opens login returns to that list.
+- Logout clears the plan list held in memory, so the next teacher does not see the previous rows while their own list is loading.
 - Opening another teacher's plan address shows "No tiene acceso a este planeamiento." and does not render that plan.
 - Autosave on field blur, accept, edit, named actions, and step changes.
 - **Continuar** stays disabled until the step's required fields are valid. Back and already visited steps stay available.

@@ -20,6 +20,10 @@ The system SHALL end the session when the teacher chooses Cerrar sesión and MUS
 - **WHEN** the teacher chooses Cerrar sesión and then uses the browser Back button
 - **THEN** the login screen is shown and the list or plan is not shown
 
+#### Scenario: Next account does not inherit the list
+- **WHEN** a teacher logs out and another teacher signs in before that teacher's plan list has loaded
+- **THEN** the previous teacher's plans are not shown
+
 ### Requirement: Saved draft remains
 The system SHALL keep the teacher's already saved plan in storage after logout so the same account can open it on the next session.
 

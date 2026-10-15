@@ -24,6 +24,7 @@ A shared school computer must not stay inside a teacher's account after they lea
 ## Impact
 
 - `POST /api/auth/logout` returning 204.
-- Header control in `WizardChrome.tsx` and `PlanListPage.tsx`.
-- `backend/src/application/logout.ts`.
+- Header control in `frontend/src/components/AppHeader.tsx`, rendered by the plan list and the wizard.
+- `backend/src/application/logoutTeacher.ts`.
+- The in-memory plan list is cleared on logout in `frontend/src/App.tsx`.
 - Depends on the session created by US-01.

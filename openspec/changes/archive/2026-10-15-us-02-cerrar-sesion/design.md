@@ -18,7 +18,7 @@ Depends on the session created by `us-01-iniciar-sesion`. See proposal.md. Logou
 ## Decisions
 
 - `POST /api/auth/logout` returns 204 and deletes the server session record, then expires the cookie.
-- The client clears in-memory auth state and navigates to `/login`. Route guards already send unauthenticated users to login, which covers Back and refresh.
+- The client clears in-memory auth state and the loaded plan list, then navigates to `/login`. Route guards already send unauthenticated users to login, which covers Back and refresh.
 - Logout does not run inside a transaction with plan writes.
 
 Alternative considered: clearing only the cookie. Rejected because a copied cookie could still be presented until it expires.

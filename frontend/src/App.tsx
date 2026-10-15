@@ -29,6 +29,7 @@ export function App() {
 
   async function handleLogout() {
     await logout();
+    setPlans([]);
     setTeacher(null);
     navigate("/login", { replace: true });
   }

@@ -2,12 +2,13 @@
 
 ## 1. Branch
 
-- [ ] 1.1 Create and switch to `feature/us-02-cerrar-sesion` before any code change, and verify `git status` shows that branch
+- [x] 1.1 Create and switch to `feature/us-02-cerrar-sesion` before any code change, and verify `git status` shows that branch
 
 ## 2. Logout
 
 - [x] 2.1 Implement `POST /api/auth/logout` so it deletes the server session and expires the cookie, and verify a Jest test gets 401 from the next authenticated request while the teacher's plan row remains
 - [x] 2.2 Add Cerrar sesión on the list and wizard header, clear client state, and navigate to login, and verify a Testing Library test renders the control only when a session exists
+- [x] 2.4 Clear the loaded plan list on logout so the next teacher does not see it before their own list loads, and verify that with a Testing Library test. Extend the Jest logout test so the same account sees the saved plan after signing in again
 - [x] 2.3 Keep the logout route aligned with `docs/api-spec.yml`, and verify the documented response is 204
 
 ## 3. Mandatory verification

@@ -128,7 +128,7 @@ PostgreSQL. El detalle de entidades está en `docs/data-model.md`. Los textos de
 
 #### Autenticación y autorización
 
-Correo y contraseña de cuentas sembradas. La sesión va en una cookie `httpOnly` que termina al cerrar el navegador. Cada consulta de planeamiento o PDF queda limitada a la docente de la sesión. Un planeamiento ajeno responde como no encontrado.
+Correo y contraseña de cuentas sembradas. La sesión va en una cookie `httpOnly` que termina al cerrar el navegador. Cerrar sesión borra esa sesión en el servidor, limpia la cookie y vacía la lista que el navegador tenía en memoria. Atrás y recargar dejan la pantalla de acceso. El borrador guardado sigue disponible para la misma cuenta. Cada consulta de planeamiento o PDF queda limitada a la docente de la sesión. Un planeamiento ajeno responde como no encontrado.
 
 #### Integraciones externas
 
@@ -140,12 +140,12 @@ No hay integraciones externas. El interruptor de aviso a dirección solo guarda 
 UserStories/          Historias originales y enriquecidas
 stitch.md             Estructura visual
 docs/                 Contratos, modelo y estándares
-openspec/changes/     16 propuestas listas para implementar
+openspec/changes/     Propuestas activas y archivadas
 readme_project.md     Este informe
 README.md             Guía de Specboot
 ```
 
-La estructura prevista de código, todavía vacía, es `backend/` (Express, Prisma) y `frontend/` (React, Vite).
+El código está en `backend/` (Express, Prisma) y `frontend/` (React, Vite).
 
 ### 2.4. Infraestructura y despliegue
 
@@ -155,7 +155,7 @@ PostgreSQL, la API y la aplicación web. No hay despliegue publicado.
 
 #### Proceso de despliegue actual
 
-No hay proceso de despliegue. El repositorio está en GitHub y el trabajo de implementación está en las propuestas de OpenSpec.
+No hay proceso de despliegue. El repositorio está en GitHub. El acceso, el cierre, la lista, la creación y el borrador ya están en el código; US-06 a US-16 siguen como propuestas.
 
 #### Separación entre desarrollo y producción
 
@@ -177,7 +177,7 @@ No hay hallazgos de auditoría.
 
 - Contraseña solo como hash. La respuesta de acceso no incluye ese hash.
 - El mismo mensaje y la misma comparación de contraseña si el correo no existe o si la contraseña no coincide. Un correo desconocido se compara contra un hash de relleno.
-- Cookie de sesión `httpOnly`, sin token en `localStorage`.
+- Cookie de sesión `httpOnly`, sin token en `localStorage`. Cerrar sesión la invalida en el servidor y quita del navegador la lista del docente anterior.
 - Consultas de planeamiento y PDF filtradas por la docente autenticada. Abrir el paso de un planeamiento ajeno muestra «No tiene acceso a este planeamiento.» y no pinta ese plan.
 - El seed de demostración no corre con `NODE_ENV=production`.
 
@@ -187,7 +187,7 @@ El navegador llama a la API con la cookie. Si no hay sesión, la web vuelve a la
 
 #### Sesión y renovación de acceso
 
-La sesión dura mientras el navegador sigue abierto. No hay renovación de larga duración ni recuperación de contraseña. Cerrar sesión borra la sesión del servidor y deja los borradores guardados.
+La sesión dura mientras el navegador sigue abierto. No hay renovación de larga duración ni recuperación de contraseña. Cerrar sesión borra la sesión del servidor, deja los borradores guardados y no muestra esa lista a la siguiente docente mientras carga la suya.
 
 #### Bootstrap, seed y secretos de despliegue
 
@@ -277,8 +277,8 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 
 | ID | Historia | Propuesta |
 | --- | --- | --- |
-| US-01 | Iniciar sesión | `openspec/changes/us-01-iniciar-sesion` |
-| US-02 | Cerrar sesión | `openspec/changes/us-02-cerrar-sesion` |
+| US-01 | Iniciar sesión | `openspec/changes/archive/2026-10-15-us-01-iniciar-sesion` |
+| US-02 | Cerrar sesión | `openspec/changes/archive/2026-10-15-us-02-cerrar-sesion` |
 | US-03 | Ver mis planeamientos | `openspec/changes/us-03-listar-planeamientos` |
 | US-04 | Crear un planeamiento | `openspec/changes/us-04-crear-planeamiento` |
 | US-05 | Guardar el borrador | `openspec/changes/us-05-guardar-borrador` |
@@ -298,18 +298,18 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 
 ## 6. Tickets de Trabajo
 
-Cada propuesta es el ticket de esa historia. Dentro tiene `proposal.md` (por qué), `specs/` (comportamiento), `design.md` (cómo) y `tasks.md` (pasos, todavía sin marcar).
+Cada propuesta es el ticket de esa historia. Dentro tiene `proposal.md` (por qué), `specs/` (comportamiento), `design.md` (cómo) y `tasks.md` (pasos).
 
 Tres tickets representativos del corte previsto:
 
 1. **Backend, US-01.** Acceso con cuentas sembradas, cookie de sesión y el mismo error para correo desconocido y contraseña incorrecta. Cambio: `us-01-iniciar-sesion`. Implementado.
 2. **Frontend, US-03.** Lista con el estado en español y reapertura en el paso guardado. Cambio: `us-03-listar-planeamientos`. Implementado.
-3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204 y el planeamiento guardado permanece. Cambio: `us-02-cerrar-sesion`. Implementado.
+3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
-US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelante siguen sin implementar. El trabajo está en la rama `feature/us-01-iniciar-sesion`. No hay commits, así que las ramas siguientes todavía no se pueden separar.
+US-04 y US-05 también quedaron implementados. Las propuestas de US-06 en adelante siguen sin implementar. El cierre de sesión está en la rama `feature/us-02-cerrar-sesion`. El primer commit está en `feature/us-01-iniciar-sesion`.
 
 ---
 
 ## 7. Pull Requests
 
-Todavía no hay pull requests. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y la rama local de trabajo es `main`, sin commits de estas propuestas.
+Todavía no hay pull requests. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion. La primera rama publicada, `feature/us-01-iniciar-sesion`, quedó como rama predeterminada, así que no había una base contra la cual abrir el pull request.

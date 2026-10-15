@@ -50,6 +50,14 @@ describe("logout", () => {
 
     const stored = await prisma.plan.findUnique({ where: { id: plan.id } });
     expect(stored?.schoolName).toBe("Escuela República de Arabia Saudita");
+
+    const again = await request(app)
+      .post("/api/auth/login")
+      .send({ email: "juanita.perez@demo.mep.cr", password: "Demo2026" });
+    const listed = await request(app).get("/api/plans").set("Cookie", again.headers["set-cookie"]);
+    expect(listed.status).toBe(200);
+    expect(listed.body).toEqual(expect.arrayContaining([expect.objectContaining({ id: plan.id })]));
+
     await prisma.plan.delete({ where: { id: plan.id } });
   });
 });
