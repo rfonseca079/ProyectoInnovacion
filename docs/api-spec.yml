@@ -190,7 +190,7 @@ paths:
                 rubric:
                   value:
                     code: VALIDATION
-                    message: Los porcentajes de la evaluación deben sumar 100.
+                    message: La distribución debe sumar 100 %.
   /api/plans/{planId}/blocks/{blockKey}/accept:
     post:
       tags: [Suggestions]
@@ -274,7 +274,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/PlanDetail'
         '409':
-          description: No stored variant for the current rubric size or rubric names
+          description: No stored distribution matches the current number of rubric rows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: CONFLICT
+                message: No hay una distribución guardada para esta cantidad de rubros.
   /api/plans/{planId}/adjustments/apply:
     post:
       tags: [Plans]

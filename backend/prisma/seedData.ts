@@ -43,6 +43,77 @@ function lessons(plannableLessons: string, affectedLessons: string): string {
   return JSON.stringify({ plannableLessons, affectedLessons });
 }
 
+export type SeededRubricItem = { name: string; count: number; percentage: number };
+
+export const scenarioUnits: Record<
+  string,
+  { weeks: string[]; rubric: SeededRubricItem[]; distributions: number[][]; justifications: string[] }
+> = {
+  "mat-4-marzo-2026": {
+    weeks: [
+      "Fracción como parte-todo",
+      "Fracciones equivalentes",
+      "Comparación y orden",
+      "Resolución de problemas y consolidación",
+    ],
+    rubric: [
+      { name: "Prueba escrita", count: 1, percentage: 30 },
+      { name: "Quices", count: 2, percentage: 20 },
+      { name: "Trabajo extraclase", count: 2, percentage: 15 },
+      { name: "Desempeño en clase y prácticas", count: 1, percentage: 20 },
+      { name: "Proyecto corto «Fracciones en mi comunidad»", count: 1, percentage: 15 },
+    ],
+    distributions: [
+      [30, 20, 15, 20, 15],
+      [25, 15, 20, 25, 15],
+      [20, 20, 10, 30, 20],
+    ],
+    justifications: [
+      "Las equivalencias van después de parte-todo porque el grupo aún confunde mitad y cuarto; la prueba escrita pesa más porque el centro usa un instrumento sumativo al cierre del mes, y el proyecto queda en 15 % para no cargar la semana 4.",
+      "El desempeño en clase sube porque el grupo aprende mejor con material concreto.",
+      "La prueba escrita y el proyecto quedan en 20 % para equilibrar el cierre del mes.",
+    ],
+  },
+  "esp-2-abril-2026": {
+    weeks: ["Lectura narrada", "Vocabulario", "Idea principal", "Producción breve"],
+    rubric: [
+      { name: "Lectura en voz alta", count: 1, percentage: 25 },
+      { name: "Vocabulario", count: 2, percentage: 25 },
+      { name: "Idea principal", count: 1, percentage: 25 },
+      { name: "Producción breve", count: 1, percentage: 25 },
+    ],
+    distributions: [
+      [25, 25, 25, 25],
+      [30, 20, 30, 20],
+      [40, 20, 20, 20],
+    ],
+    justifications: [
+      "La lectura narrada abre el mes para que el vocabulario y la idea principal tengan un texto conocido.",
+      "La producción breve sube porque el grupo ya sostiene un párrafo.",
+      "El vocabulario queda en 20 % para dar más peso a la lectura en voz alta.",
+    ],
+  },
+  "cie-7-febrero-2026": {
+    weeks: ["La célula como unidad de la vida", "Partes de la célula", "Célula animal y vegetal", "Observación de la célula"],
+    rubric: [
+      { name: "Informe de observación", count: 1, percentage: 40 },
+      { name: "Quiz", count: 2, percentage: 20 },
+      { name: "Práctica de laboratorio", count: 1, percentage: 20 },
+      { name: "Participación", count: 1, percentage: 20 },
+    ],
+    distributions: [
+      [40, 20, 20, 20],
+      [30, 20, 30, 20],
+      [25, 25, 25, 25],
+    ],
+    justifications: [
+      "La observación cierra el mes porque el grupo necesita reconocer las partes antes de comparar células.",
+      "La práctica de laboratorio sube porque el grupo aprende con el microscopio.",
+      "Los cuatro rubros quedan parejos para no cargar una sola semana.",
+    ],
+  },
+};
+
 const scenarios = [
   {
     id: "mat-4-marzo-2026",
@@ -258,6 +329,34 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
         });
       }
     }
+    const units = scenarioUnits[scenario.id];
+    const stepTwoBlocks: Record<string, string[]> = {
+      "evaluation-distribution": units.distributions.map((row) => JSON.stringify(row)),
+      "evaluation-justification": units.justifications,
+    };
+    for (const blockKey of Object.keys(stepTwoBlocks)) {
+      const bodies = stepTwoBlocks[blockKey];
+      for (let index = 0; index < bodies.length; index += 1) {
+        const variant = index + 1;
+        await prisma.suggestionVariant.upsert({
+          where: {
+            scenarioId_blockKey_variant: {
+              scenarioId: scenario.id,
+              blockKey,
+              variant,
+            },
+          },
+          update: { body: bodies[index], step: 2 },
+          create: {
+            scenarioId: scenario.id,
+            blockKey,
+            step: 2,
+            variant,
+            body: bodies[index],
+          },
+        });
+      }
+    }
     for (const day of scenario.days) {
       const date = new Date(`${day.date}T00:00:00.000Z`);
       await prisma.calendarDay.upsert({
@@ -300,6 +399,31 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       where: { scenarioId: plan.scenarioId, step: 1, variant: 1 },
     });
     for (const variant of variants) {
+      await prisma.planBlock.upsert({
+        where: { planId_blockKey: { planId: plan.id, blockKey: variant.blockKey } },
+        update: { body: variant.body, variant: 1, status: "SUGGESTED" },
+        create: {
+          planId: plan.id,
+          blockKey: variant.blockKey,
+          status: "SUGGESTED",
+          variant: 1,
+          body: variant.body,
+        },
+      });
+    }
+    const units = scenarioUnits[plan.scenarioId];
+    await prisma.week.deleteMany({ where: { planId: plan.id } });
+    await prisma.week.createMany({
+      data: units.weeks.map((title, index) => ({ planId: plan.id, position: index + 1, title })),
+    });
+    await prisma.rubricItem.deleteMany({ where: { planId: plan.id } });
+    await prisma.rubricItem.createMany({
+      data: units.rubric.map((item, index) => ({ planId: plan.id, position: index + 1, ...item })),
+    });
+    const stepTwo = await prisma.suggestionVariant.findMany({
+      where: { scenarioId: plan.scenarioId, step: 2, variant: 1 },
+    });
+    for (const variant of stepTwo) {
       await prisma.planBlock.upsert({
         where: { planId_blockKey: { planId: plan.id, blockKey: variant.blockKey } },
         update: { body: variant.body, variant: 1, status: "SUGGESTED" },

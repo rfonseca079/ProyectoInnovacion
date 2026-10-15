@@ -1,5 +1,6 @@
 import { Cycle, Modality, PrismaClient, Subject } from "@prisma/client";
 import { AppError } from "../domain/errors";
+import { scenarioUnits } from "../../prisma/seedData";
 import { gradeBelongsToCycle, GRADE_OUTSIDE_CYCLE, resolveScenario } from "../domain/scenario";
 import { getPlan } from "./listPlans";
 
@@ -96,6 +97,33 @@ async function copyStepOne(prisma: PrismaClient, planId: string, scenarioId: str
   }
 }
 
+async function copyUnits(prisma: PrismaClient, planId: string, scenarioId: string): Promise<void> {
+  const units = scenarioUnits[scenarioId];
+  if (!units) {
+    return;
+  }
+  await prisma.week.createMany({
+    data: units.weeks.map((title, index) => ({ planId, position: index + 1, title })),
+  });
+  await prisma.rubricItem.createMany({
+    data: units.rubric.map((item, index) => ({ planId, position: index + 1, ...item })),
+  });
+  const variants = await prisma.suggestionVariant.findMany({
+    where: { scenarioId, step: 2, variant: 1 },
+  });
+  for (const variant of variants) {
+    await prisma.planBlock.create({
+      data: {
+        planId,
+        blockKey: variant.blockKey,
+        status: "SUGGESTED",
+        variant: 1,
+        body: variant.body,
+      },
+    });
+  }
+}
+
 export async function createPlan(prisma: PrismaClient, sessionId: string | undefined, body: Record<string, unknown>) {
   const teacher = await import("./loginTeacher").then((module) => module.currentTeacher(prisma, sessionId));
   const configuration = parseConfiguration(body);
@@ -118,6 +146,7 @@ export async function createPlan(prisma: PrismaClient, sessionId: string | undef
     },
   });
   await copyStepOne(prisma, plan.id, scenario.scenarioId);
+  await copyUnits(prisma, plan.id, scenario.scenarioId);
   return getPlan(prisma, sessionId, plan.id);
 }
 
@@ -134,6 +163,18 @@ export async function updatePlanConfiguration(
   });
   if (!existing) {
     throw new AppError(404, "NOT_FOUND", "No tiene acceso a este planeamiento.");
+  }
+  if (Array.isArray(body.rubric)) {
+    const rows = body.rubric as { name?: string; count?: number; percentage?: number }[];
+    if (rows.length === 0) {
+      throw new AppError(422, "VALIDATION", "No se puede quitar el último rubro.");
+    }
+    const percentageOutOfRange = rows.some(
+      (item) => !Number.isInteger(item.percentage) || (item.percentage as number) < 0 || (item.percentage as number) > 100,
+    );
+    if (percentageOutOfRange) {
+      throw new AppError(422, "VALIDATION", "Cada porcentaje debe ser un entero entre 0 y 100.");
+    }
   }
   const merged = parseConfiguration({ ...existing, ...body });
   const matchChanged = matchKeys.some((key) => merged[key] !== existing[key]);
@@ -154,14 +195,28 @@ export async function updatePlanConfiguration(
     },
   });
   if (Array.isArray(body.rubric)) {
+    const rows = body.rubric as { name?: string; count?: number; percentage?: number }[];
     await prisma.rubricItem.deleteMany({ where: { planId } });
     await prisma.rubricItem.createMany({
-      data: body.rubric.map((item: { name: string; percentage: number }) => ({
+      data: rows.map((item, index) => ({
         planId,
-        name: item.name,
-        percentage: item.percentage,
+        position: index + 1,
+        name: typeof item.name === "string" ? item.name : "",
+        count: Number.isInteger(item.count) && (item.count as number) > 0 ? (item.count as number) : 1,
+        percentage: Number.isInteger(item.percentage) ? (item.percentage as number) : 0,
       })),
     });
+  }
+  if (Array.isArray(body.weeks)) {
+    for (const week of body.weeks as { position?: number; title?: string }[]) {
+      if (!Number.isInteger(week.position) || typeof week.title !== "string") {
+        continue;
+      }
+      await prisma.week.updateMany({
+        where: { planId, position: week.position },
+        data: { title: week.title },
+      });
+    }
   }
   if (Array.isArray(body.blocks)) {
     for (const block of body.blocks as { blockKey: string; body: string }[]) {

@@ -267,6 +267,26 @@ input {
   min-height: 72px;
 }
 
+.week-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.rubric-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rubric-table input {
+  width: 100%;
+}
+
+.distribution-complete {
+  color: #1b7a32;
+  font-weight: 700;
+}
+
 button:disabled {
   opacity: 0.45;
   cursor: default;

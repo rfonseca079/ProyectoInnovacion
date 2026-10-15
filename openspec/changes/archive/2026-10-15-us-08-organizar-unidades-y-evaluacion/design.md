@@ -18,9 +18,10 @@ See proposal.md. Percentages are stored per rubric row. Redistribution is a look
 ## Decisions
 
 - Week titles and `RubricItem` rows are part of the plan patch.
-- The client shows the total immediately. `continue` on step 2 repeats the sum check and returns 422 with "La distribución debe sumar 100 %."
-- Add inserts a row at percentage 0. Remove refuses when one row would remain.
-- `redistribute-evaluation` loads the next stored vector for that count, writes percentages only, and returns 409 when none exists.
+- The client shows the total immediately and disables Continuar from that visible total, including a change that has not finished saving. `continue` on step 2 repeats the sum check and returns 422 with "La distribución debe sumar 100 %."
+- Each percentage is an integer from 0 through 100. Anything else is rejected and the stored rows stay.
+- Add inserts a row at percentage 0. Remove refuses when one row would remain. Both buttons use the latest row list, including text typed in the same moment.
+- `redistribute-evaluation` loads the next stored vector for that count, writes percentages only, and returns 409 when none exists. It claims the current variant before writing, so two overlapping calls do not apply the same vector twice.
 - The justification card is `evaluation-justification` and uses the shared suggestion actions.
 
 Alternative considered: scaling edited percentages to 100. Rejected because US-08 only allows stored distributions.

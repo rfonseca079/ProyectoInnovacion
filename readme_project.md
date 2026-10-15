@@ -50,7 +50,7 @@ Cada docente entra con correo y contraseña de una cuenta ya creada. Ve solo sus
 
 ### 1.2. Características y funcionalidades principales
 
-Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento, el borrador automático, el recorrido del wizard y la revisión del programa con el calendario del mes. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior. Las propuestas US-08 a US-16 siguen en implementación.
+Las 16 propuestas en `openspec/changes/` cubren este alcance. Ya están implementados el inicio de sesión, el cierre, la lista, la creación de un planeamiento, el borrador automático, el recorrido del wizard, la revisión del programa con el calendario del mes y la organización de unidades con la rúbrica. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior. Las propuestas US-09 a US-16 siguen en implementación.
 
 1. Inicio y cierre de sesión, sin registro ni recuperación de contraseña.
 2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado. «Aún no tiene planeamientos.» aparece solo cuando la consulta terminó y no hay filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.»
@@ -199,7 +199,7 @@ No hay registro público, segundo factor ni envío de correo. El aviso a direcci
 
 #### Cobertura actual por capa
 
-El acceso, el cierre, la lista, la creación, el borrador, el recorrido del wizard y el programa con calendario tienen pruebas Jest, Testing Library y Playwright en escritorio de 1440 px. Las propuestas US-08 a US-16 todavía no.
+El acceso, el cierre, la lista, la creación, el borrador, el recorrido del wizard, el programa con calendario y las unidades con la rúbrica tienen pruebas Jest, Testing Library y Playwright en escritorio de 1440 px. Las propuestas US-09 a US-16 todavía no.
 
 #### Organización y ejecución de las suites
 
@@ -211,7 +211,7 @@ Cada cambio de OpenSpec deja sus pruebas junto al comportamiento que agrega. Ant
 
 #### Limitaciones y consideraciones actuales
 
-Las suites de US-01 a US-07 ya se ejecutaron. US-08 a US-16 todavía no tienen implementación que cubrir.
+Las suites de US-01 a US-08 ya se ejecutaron. US-09 a US-16 todavía no tienen implementación que cubrir.
 
 ---
 
@@ -284,7 +284,7 @@ Cada archivo de `UserStories/` conserva la historia original y una versión enri
 | US-05 | Guardar el borrador | `openspec/changes/archive/2026-10-15-us-05-guardar-borrador` |
 | US-06 | Recorrer el wizard | `openspec/changes/archive/2026-10-15-us-06-recorrer-el-wizard` |
 | US-07 | Programa y calendario | `openspec/changes/archive/2026-10-15-us-07-revisar-programa-y-calendario` |
-| US-08 | Unidades y evaluación | `openspec/changes/us-08-organizar-unidades-y-evaluacion` |
+| US-08 | Unidades y evaluación | `openspec/changes/archive/2026-10-15-us-08-organizar-unidades-y-evaluacion` |
 | US-09 | Diagnóstico del grupo | `openspec/changes/us-09-registrar-diagnostico-del-grupo` |
 | US-10 | Mediación | `openspec/changes/us-10-definir-mediacion` |
 | US-11 | Evidencias | `openspec/changes/us-11-definir-evidencias` |
@@ -306,7 +306,7 @@ Tres tickets representativos del corte previsto:
 2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
 3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
-US-04, US-05, US-06 y US-07 también quedaron implementados. Las propuestas de US-08 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-06 hasta que este cambio se fusione.
+US-04, US-05, US-06, US-07 y US-08 también quedaron implementados. Las propuestas de US-09 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-06 hasta que este cambio se fusione.
 
 ---
 

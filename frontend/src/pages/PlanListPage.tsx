@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
 import { AutosaveField, SaveFooter } from "../components/AutosaveField";
@@ -6,8 +6,9 @@ import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
 import { continuePlan, getPlan, patchPlan, PlanDetail } from "../services/planService";
-import { acceptSuggestion, reanalyzeProgram, regenerateSuggestion } from "../services/suggestionService";
+import { acceptSuggestion, reanalyzeProgram, redistributeEvaluation, regenerateSuggestion } from "../services/suggestionService";
 import { isProgramStepReady, ProgramStepPage } from "./steps/ProgramStepPage";
+import { isUnitsStepReady, UnitsStepPage } from "./steps/UnitsStepPage";
 
 export function PlanListPage({
   teacherName,
@@ -82,6 +83,18 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const [notice, setNotice] = useState("");
   const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
   const [continueMessage, setContinueMessage] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
+  const [unitsReady, setUnitsReady] = useState<boolean | null>(null);
+  const pendingSave = useRef(Promise.resolve());
+  const reportUnitsReady = useCallback((ready: boolean) => {
+    setUnitsReady(ready);
+  }, []);
+
+  function trackSave(work: Promise<void>): Promise<void> {
+    const next = pendingSave.current.then(() => work, () => work);
+    pendingSave.current = next;
+    return next;
+  }
 
   useEffect(() => {
     getPlan(planId)
@@ -141,21 +154,90 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
       schoolName={plan.schoolName}
       teacherName={plan.teacherName || teacherName}
       onLogout={onLogout}
-      continueDisabled={step === 1 && !isProgramStepReady(plan.blocks)}
+      continueDisabled={
+        (step === 1 && !isProgramStepReady(plan.blocks)) ||
+        (step === 2 && !(unitsReady ?? isUnitsStepReady(plan.weeks ?? [], plan.rubric ?? [])))
+      }
       continueMessage={continueMessage}
       onContinue={() => {
         setContinueMessage("");
-        continuePlan(planId, step)
-          .then((saved) => {
-            setPlan(saved);
-            navigate(`/plans/${planId}/steps/${saved.currentStep}`);
-          })
-          .catch((error: unknown) => {
-            setContinueMessage(error instanceof Error ? error.message : "No se pudo continuar.");
-          });
+        void pendingSave.current.then(() =>
+          continuePlan(planId, step)
+            .then((saved) => {
+              setPlan(saved);
+              navigate(`/plans/${planId}/steps/${saved.currentStep}`);
+            })
+            .catch((error: unknown) => {
+              setContinueMessage(error instanceof Error ? error.message : "No se pudo continuar.");
+            }),
+        );
       }}
     >
-      {step === 1 ? (
+      {step === 2 ? (
+        <UnitsStepPage
+          weeks={plan.weeks ?? []}
+          rubric={plan.rubric ?? []}
+          justification={plan.blocks.find((block) => block.blockKey === "evaluation-justification")?.body ?? ""}
+          onSaveWeeks={(weeks) =>
+            trackSave(
+              patchPlan(planId, { weeks })
+                .then(() => {
+                  setPlan((current) => (current ? { ...current, weeks } : current));
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onSaveRubric={(rubric) =>
+            trackSave(
+              patchPlan(planId, { rubric })
+                .then(() => {
+                  setPlan((current) => (current ? { ...current, rubric } : current));
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onReadyChange={reportUnitsReady}
+          onRedistribute={() => {
+            void redistributeEvaluation(planId)
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudo redistribuir.");
+              });
+          }}
+          onAccept={() => {
+            void acceptSuggestion(planId, "evaluation-justification").then((saved) => {
+              setPlan((current) =>
+                current
+                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
+                  : current,
+              );
+            });
+          }}
+          onEdit={(body) => {
+            void saveBlock("evaluation-justification", body);
+          }}
+          onRegenerate={() => {
+            void regenerateSuggestion(planId, "evaluation-justification").then((saved) => {
+              setPlan((current) =>
+                current
+                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
+                  : current,
+              );
+            });
+          }}
+          actionMessage={actionMessage}
+          notice={notice}
+        />
+      ) : step === 1 ? (
         <ProgramStepPage
           schoolYear={plan.schoolYear}
           month={plan.month}

@@ -3,11 +3,15 @@ import { AppError, PLAN_FORBIDDEN } from "../domain/errors";
 import { getPlan } from "./listPlans";
 
 export const STEP_NOT_READY = "Complete los campos de este paso antes de continuar.";
-export const RUBRIC_NOT_100 = "Los porcentajes de la evaluación deben sumar 100.";
+export const RUBRIC_NOT_100 = "La distribución debe sumar 100 %.";
 export const STEP_OUT_OF_RANGE = "Seleccione un paso del 0 al 7.";
 export const STEP_NOT_VISITED = "Ese paso todavía no está disponible.";
 
-type PlanWithRubric = Plan & { rubricItems: RubricItem[]; blocks: { blockKey: string; body: string }[] };
+type PlanWithRubric = Plan & {
+  rubricItems: RubricItem[];
+  weeks: { title: string }[];
+  blocks: { blockKey: string; body: string }[];
+};
 
 function blockText(blocks: { blockKey: string; body: string }[], blockKey: string): string {
   return blocks.find((block) => block.blockKey === blockKey)?.body.trim() ?? "";
@@ -71,7 +75,13 @@ function validationProblem(plan: PlanWithRubric, step: number): string | null {
   }
   if (step === 2) {
     const total = plan.rubricItems.reduce((sum, item) => sum + item.percentage, 0);
-    return total === 100 ? null : RUBRIC_NOT_100;
+    const namesExist =
+      plan.weeks.length === 4 &&
+      plan.weeks.every((week) => week.title.trim().length > 0) &&
+      plan.rubricItems.length > 0 &&
+      plan.rubricItems.every((item) => item.name.trim().length > 0);
+    const percentagesInRange = plan.rubricItems.every((item) => item.percentage >= 0 && item.percentage <= 100);
+    return total === 100 && namesExist && percentagesInRange ? null : RUBRIC_NOT_100;
   }
   return STEP_NOT_READY;
 }
@@ -89,7 +99,7 @@ export async function continueStep(
   }
   const plan = await prisma.plan.findFirst({
     where: { id: planId },
-    include: { rubricItems: true, blocks: true },
+    include: { rubricItems: true, weeks: true, blocks: true },
   });
   if (!plan) {
     throw new AppError(404, "NOT_FOUND", PLAN_FORBIDDEN);
