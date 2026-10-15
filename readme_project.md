@@ -306,10 +306,10 @@ Tres tickets representativos del corte previsto:
 2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
 3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
 
-US-04, US-05 y US-06 también quedaron implementados. Las propuestas de US-07 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-05.
+US-04, US-05 y US-06 también quedaron implementados. Las propuestas de US-07 en adelante siguen sin implementar. El trabajo publicado en `main` llega hasta US-06.
 
 ---
 
 ## 7. Pull Requests
 
-No hay pull requests abiertos. El 1 se cerró porque su commit ya estaba en `main`. Se fusionaron el 2 (https://github.com/rfonseca079/ProyectoInnovacion/pull/2), el 3 (https://github.com/rfonseca079/ProyectoInnovacion/pull/3), el 4 (https://github.com/rfonseca079/ProyectoInnovacion/pull/4) y el 5 (https://github.com/rfonseca079/ProyectoInnovacion/pull/5). El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
+No hay pull requests abiertos. El 1 se cerró porque su commit ya estaba en `main`. Se fusionaron el 2 (https://github.com/rfonseca079/ProyectoInnovacion/pull/2), el 3 (https://github.com/rfonseca079/ProyectoInnovacion/pull/3), el 4 (https://github.com/rfonseca079/ProyectoInnovacion/pull/4), el 5 (https://github.com/rfonseca079/ProyectoInnovacion/pull/5) y el 6 (https://github.com/rfonseca079/ProyectoInnovacion/pull/6). El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.
