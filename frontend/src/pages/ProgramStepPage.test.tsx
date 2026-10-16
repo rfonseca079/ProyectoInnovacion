@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { StepPage } from "./PlanListPage";
 import { getPlan } from "../services/planService";
+import { regenerateSuggestion } from "../services/suggestionService";
 
 vi.mock("../services/planService", () => ({
   getPlan: vi.fn(),
@@ -88,5 +89,14 @@ describe("ProgramStepPage", () => {
     const objectives = screen.getByRole("textbox", { name: "Objetivos priorizados del mes" });
     fireEvent.click(screen.getAllByRole("button", { name: "Editar" })[0]);
     expect(objectives).toHaveFocus();
+  });
+
+  it("shows the missing-suggestion sentence when Regenerar has no stored variant", async () => {
+    vi.mocked(getPlan).mockResolvedValue(programPlan("Priorizar parte-todo."));
+    vi.mocked(regenerateSuggestion).mockRejectedValue(new Error("No hay otra sugerencia guardada para este bloque."));
+    renderStep();
+    const card = await screen.findByRole("heading", { name: "Objetivos priorizados del mes" });
+    fireEvent.click(card.closest("article")!.querySelector("button:last-of-type") as HTMLButtonElement);
+    expect(await screen.findByRole("alert")).toHaveTextContent("No hay otra sugerencia guardada para este bloque.");
   });
 });

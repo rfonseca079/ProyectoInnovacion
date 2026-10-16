@@ -343,6 +343,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlanDetail'
+        '404':
+          description: Not found, owned by another teacher, or the scenario has no stored adjustment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/plans/{planId}/document:
     get:
       tags: [Documents]
@@ -397,35 +403,28 @@ paths:
         - $ref: '#/components/parameters/PlanId'
       responses:
         '200':
-          description: Generated PDF
+          description: |
+            PDF built from the saved header, rows, instruments, and observations.
+            The file name is `planeamiento-{subject}-{grade}-{month}-{year}.pdf`,
+            lowercase and without accents. Juanita's file is
+            `planeamiento-matematica-4-marzo-2026.pdf`.
           content:
             application/pdf:
               schema:
                 type: string
                 format: binary
+        '404':
+          description: Plan belongs to another teacher, or there is no saved document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
-          description: A required document field is empty
-  /api/plans/{planId}/weeks/{weekNumber}/pdf:
-    get:
-      tags: [Documents]
-      summary: Download the five saved sessions of one week
-      operationId: exportWeekPdf
-      parameters:
-        - $ref: '#/components/parameters/PlanId'
-        - name: weekNumber
-          in: path
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-      responses:
-        '200':
-          description: Generated week PDF
+          description: A required document field is empty, so no file is returned
           content:
-            application/pdf:
+            application/json:
               schema:
-                type: string
-                format: binary
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   parameters:
     PlanId:
@@ -561,6 +560,9 @@ components:
           minimum: 1
           maximum: 3
         body: {}
+        preview:
+          type: string
+          description: Next stored sentence. Present on regenerate. The saved body stays unchanged when the block is ACCEPTED or EDITED.
     MepRow:
       type: object
       required: [position, expectedLearning, mediationStrategy, indicator]

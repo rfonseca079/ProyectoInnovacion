@@ -63,22 +63,30 @@ export function emptyDocumentField(document: MepDocumentView): string | null {
   return null;
 }
 
+export type PlanPdfFile = {
+  blob: Blob;
+  filename: string;
+};
+
 export function MepStepPage({
   document,
   status,
+  notice = "",
+  fallbackNotice = "",
   onSave,
-  onDownload,
-  onPreview,
+  requestPdf,
 }: {
   document: MepDocumentView;
   status: string;
+  notice?: string;
+  fallbackNotice?: string;
   onSave: (patch: Partial<MepDocumentView>) => void;
-  onDownload: () => void;
-  onPreview?: () => void;
+  requestPdf: () => Promise<PlanPdfFile>;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(document);
   const [downloadMessage, setDownloadMessage] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [seenDocument, setSeenDocument] = useState(document);
   if (seenDocument !== document) {
     setSeenDocument(document);
@@ -107,23 +115,58 @@ export function MepStepPage({
     start();
   }
 
+  function showRequestError(error: unknown) {
+    setDownloadMessage(error instanceof Error ? error.message : "No se pudo descargar el PDF.");
+  }
+
+  function openPreview() {
+    void requestPdf()
+      .then((file) => {
+        const url = URL.createObjectURL(file.blob);
+        setPreviewUrl((current) => {
+          if (current) {
+            URL.revokeObjectURL(current);
+          }
+          return url;
+        });
+      })
+      .catch(showRequestError);
+  }
+
+  function downloadFile() {
+    void requestPdf()
+      .then((file) => {
+        const url = URL.createObjectURL(file.blob);
+        const anchor = window.document.createElement("a");
+        anchor.href = url;
+        anchor.download = file.filename;
+        anchor.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(showRequestError);
+  }
+
   return (
     <main className="page mep-step">
       <h2>Planeamiento en formato institucional</h2>
       <p>Todas las decisiones anteriores se consolidan en la plantilla tipo MEP, lista para descargar.</p>
+      {notice ? <p role="status">{notice}</p> : null}
+      {fallbackNotice ? <p>{fallbackNotice}</p> : null}
       <div className="mep-actions">
         <button type="button" onClick={() => setEditing((current) => !current)}>
           Editar campos
         </button>
-        <button type="button" onClick={() => guardedFileAction(() => onPreview?.())}>
+        <button type="button" onClick={() => guardedFileAction(openPreview)}>
           Vista previa PDF
         </button>
-        <button type="button" onClick={() => guardedFileAction(onDownload)}>
+        <button type="button" onClick={() => guardedFileAction(downloadFile)}>
           Descargar PDF
         </button>
         {status === "READY_FOR_DELIVERY" ? <p>Listo para entrega a dirección</p> : null}
+        {status === "ADJUSTED" ? <p>Ajustado</p> : null}
       </div>
       {downloadMessage ? <p role="alert">{downloadMessage}</p> : null}
+      {previewUrl ? <iframe className="mep-preview" title="Vista previa del planeamiento" src={previewUrl} /> : null}
       <article className="mep-document">
         <dl>
           {headerFields.map((field) => (

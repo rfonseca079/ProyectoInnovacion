@@ -16,7 +16,7 @@ const implicationCards = [
   { key: "implication-differentiation", title: "Diferenciación ligera" },
 ] as const;
 
-type GroupBlock = { blockKey: string; body: string };
+type GroupBlock = { blockKey: string; body: string; preview?: string; status?: string };
 
 function blockBody(blocks: GroupBlock[], blockKey: string): string {
   return blocks.find((block) => block.blockKey === blockKey)?.body ?? "";
@@ -120,9 +120,12 @@ export function GroupStepPage({
       </div>
       {implicationCards.map((card) => (
         <SuggestionCard
-          key={card.key}
+          key={`${card.key}-${blockBody(blocks, card.key)}`}
           title={card.title}
           body={blockBody(blocks, card.key)}
+          preview={blocks.find((block) => block.blockKey === card.key)?.preview}
+          status={blocks.find((block) => block.blockKey === card.key)?.status}
+          fallbackNotice={notice}
           onAccept={() => onAccept(card.key)}
           onEdit={(body) => onEdit(card.key, body)}
           onRegenerate={() => onRegenerate(card.key)}

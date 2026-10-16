@@ -1,5 +1,6 @@
 import { Plan, PrismaClient } from "@prisma/client";
 import { AppError, PLAN_FORBIDDEN } from "../domain/errors";
+import { isPendingSuggestion, shownVariant } from "../domain/suggestionCursor";
 import { currentTeacher } from "./loginTeacher";
 
 export type PlanSummary = {
@@ -52,6 +53,19 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
   if (!plan) {
     throw new AppError(404, "NOT_FOUND", PLAN_FORBIDDEN);
   }
+  const previews = new Map<string, string>();
+  const pending = plan.blocks.filter((block) => isPendingSuggestion(block.variant));
+  if (plan.scenarioId && pending.length > 0) {
+    const stored = await prisma.suggestionVariant.findMany({
+      where: {
+        scenarioId: plan.scenarioId,
+        OR: pending.map((block) => ({ blockKey: block.blockKey, variant: shownVariant(block.variant) })),
+      },
+    });
+    for (const row of stored) {
+      previews.set(`${row.blockKey}:${row.variant}`, row.body);
+    }
+  }
   return {
     ...toSummary(plan),
     highestVisitedStep: plan.highestVisitedStep,
@@ -60,12 +74,14 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
     scenarioId: plan.scenarioId,
     usedFallback: plan.usedFallback,
     adjustmentApplied: plan.adjustmentApplied,
+    notifyEvaluationChanges: plan.notifyEvaluationChanges,
     schoolName: plan.schoolName,
     blocks: plan.blocks.map((block) => ({
       blockKey: block.blockKey,
       status: block.status,
-      variant: block.variant,
+      variant: shownVariant(block.variant),
       body: block.body,
+      preview: previews.get(`${block.blockKey}:${shownVariant(block.variant)}`),
     })),
     weeks: plan.weeks.map((week) => ({
       position: week.position,

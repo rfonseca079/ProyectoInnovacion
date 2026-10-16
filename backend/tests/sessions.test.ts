@@ -156,23 +156,22 @@ describe("continue from sessions", () => {
     expect(file.body.subarray(0, 5).toString()).toBe("%PDF-");
   });
 
-  it("returns 409 when the selected week has no stored set and leaves its sessions unchanged", async () => {
+  it("loads the stored set for mathematics week 1", async () => {
     const cookie = await juanitaCookie();
-    const before = await prisma.classSession.findMany({
-      where: { planId: juanitaPlanId, weekPosition: 1 },
-      orderBy: { position: "asc" },
-    });
     const generated = await request(app)
       .post(`/api/plans/${juanitaPlanId}/actions/generate-week-sessions`)
       .set("Cookie", cookie)
       .send({ weekNumber: 1 });
-    expect(generated.status).toBe(409);
-    expect(generated.body.message).toBe("Esta semana no tiene otro conjunto guardado.");
+    expect(generated.status).toBe(200);
+    const block = generated.body.blocks.find((item: { blockKey: string }) => item.blockKey === "week-sessions-1");
+    expect(block.variant).toBe(2);
+    expect(block.status).toBe("SUGGESTED");
     const after = await prisma.classSession.findMany({
       where: { planId: juanitaPlanId, weekPosition: 1 },
       orderBy: { position: "asc" },
     });
-    expect(after.map((session) => session.development)).toEqual(before.map((session) => session.development));
+    expect(after.some((session) => session.development.includes("Variante 2."))).toBe(true);
+    await copyPlanSessions(prisma, juanitaPlanId, mathScenarioId);
   });
 
   it("rejects a date outside the week and keeps the stored date", async () => {

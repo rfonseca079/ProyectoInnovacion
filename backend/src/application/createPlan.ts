@@ -1,6 +1,7 @@
 import { Cycle, Modality, PrismaClient, Subject } from "@prisma/client";
 import { AppError } from "../domain/errors";
 import { occursOnDate, parseEvidenceCard } from "../domain/evidenceCard";
+import { copyAdjustmentBlocks } from "../../prisma/adjustmentSeed";
 import { mediationVisibleKeys, scenarioUnits, copyScenarioEvidence } from "../../prisma/seedData";
 import { activeWeekPosition, copyPlanSessions } from "../../prisma/sessionSeed";
 import { gradeBelongsToCycle, GRADE_OUTSIDE_CYCLE, resolveScenario } from "../domain/scenario";
@@ -192,6 +193,7 @@ export async function createPlan(prisma: PrismaClient, sessionId: string | undef
   await copyGroup(prisma, plan.id, scenario.scenarioId);
   await copyMediation(prisma, plan.id, scenario.scenarioId);
   await copyScenarioEvidence(prisma, plan.id, scenario.scenarioId);
+  await copyAdjustmentBlocks(prisma, plan.id, scenario.scenarioId);
   return getPlan(prisma, sessionId, plan.id);
 }
 

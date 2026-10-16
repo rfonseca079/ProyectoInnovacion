@@ -25,6 +25,8 @@ export function UnitsStepPage({
   weeks,
   rubric,
   justification,
+  justificationPreview = "",
+  justificationStatus = "SUGGESTED",
   onSaveWeeks,
   onSaveRubric,
   onRedistribute,
@@ -38,6 +40,8 @@ export function UnitsStepPage({
   weeks: WeekDraft[];
   rubric: RubricDraft[];
   justification: string;
+  justificationPreview?: string;
+  justificationStatus?: string;
   onSaveWeeks: (weeks: WeekDraft[]) => Promise<void>;
   onSaveRubric: (rubric: RubricDraft[]) => Promise<void>;
   onRedistribute: () => void;
@@ -204,8 +208,12 @@ export function UnitsStepPage({
         </div>
       </section>
       <SuggestionCard
+        key={justification}
         title="Justificación del orden y de los pesos"
         body={justification}
+        preview={justificationPreview}
+        status={justificationStatus}
+        fallbackNotice={notice}
         onAccept={onAccept}
         onEdit={onEdit}
         onRegenerate={onRegenerate}

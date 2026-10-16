@@ -225,20 +225,35 @@ function toRow(planId: string, weekPosition: number, session: StoredClassSession
   };
 }
 
+function variantWeek(sessions: StoredClassSession[], suffix: string): StoredClassSession[] {
+  return sessions.map((session) => ({
+    ...session,
+    development: `${session.development}${suffix}`,
+  }));
+}
+
 export async function seedWeekSessionVariants(prisma: PrismaClient, scenarioId: string): Promise<void> {
-  const sets = activeSets[scenarioId];
-  if (!sets) {
+  const weeks = weekRows[scenarioId];
+  const activeVariants = activeSets[scenarioId];
+  if (!weeks || !activeVariants) {
     return;
   }
-  const blockKey = weekSessionBlockKey(activeWeekPosition(scenarioId));
-  for (let index = 0; index < sets.length; index += 1) {
-    const variant = index + 1;
-    const body = JSON.stringify(sets[index]);
-    await prisma.suggestionVariant.upsert({
-      where: { scenarioId_blockKey_variant: { scenarioId, blockKey, variant } },
-      update: { body, step: 6 },
-      create: { scenarioId, blockKey, step: 6, variant, body },
-    });
+  const active = activeWeekPosition(scenarioId);
+  for (let position = 1; position <= weeks.length; position += 1) {
+    const blockKey = weekSessionBlockKey(position);
+    const variants =
+      position === active
+        ? activeVariants
+        : [weeks[position - 1], variantWeek(weeks[position - 1], " Variante 2."), variantWeek(weeks[position - 1], " Variante 3.")];
+    for (let index = 0; index < variants.length; index += 1) {
+      const variant = index + 1;
+      const body = JSON.stringify(variants[index]);
+      await prisma.suggestionVariant.upsert({
+        where: { scenarioId_blockKey_variant: { scenarioId, blockKey, variant } },
+        update: { body, step: 6 },
+        create: { scenarioId, blockKey, step: 6, variant, body },
+      });
+    }
   }
 }
 
@@ -248,22 +263,23 @@ export async function copyPlanSessions(prisma: PrismaClient, planId: string, sce
     return;
   }
   await prisma.classSession.deleteMany({ where: { planId } });
-  const active = activeWeekPosition(scenarioId);
   await prisma.classSession.createMany({
     data: weeks.flatMap((sessions, index) =>
       sessions.map((session) => toRow(planId, index + 1, session)),
     ),
   });
-  const blockKey = weekSessionBlockKey(active);
-  const stored = await prisma.suggestionVariant.findUnique({
-    where: { scenarioId_blockKey_variant: { scenarioId, blockKey, variant: 1 } },
-  });
-  if (!stored) {
-    return;
+  for (let position = 1; position <= weeks.length; position += 1) {
+    const blockKey = weekSessionBlockKey(position);
+    const stored = await prisma.suggestionVariant.findUnique({
+      where: { scenarioId_blockKey_variant: { scenarioId, blockKey, variant: 1 } },
+    });
+    if (!stored) {
+      continue;
+    }
+    await prisma.planBlock.upsert({
+      where: { planId_blockKey: { planId, blockKey } },
+      update: { body: stored.body, variant: 1, status: "SUGGESTED" },
+      create: { planId, blockKey, status: "SUGGESTED", variant: 1, body: stored.body },
+    });
   }
-  await prisma.planBlock.upsert({
-    where: { planId_blockKey: { planId, blockKey } },
-    update: { body: stored.body, variant: 1, status: "SUGGESTED" },
-    create: { planId, blockKey, status: "SUGGESTED", variant: 1, body: stored.body },
-  });
 }

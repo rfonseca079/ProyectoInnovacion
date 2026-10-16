@@ -1,7 +1,7 @@
 import { SuggestionCard } from "../../components/SuggestionCard";
 import { AutosaveField } from "../../components/AutosaveField";
 
-export type ProgramBlock = { blockKey: string; status: string; variant: number; body: string };
+export type ProgramBlock = { blockKey: string; status: string; variant: number; body: string; preview?: string };
 export type ProgramCalendarDay = { date: string; kind: string; label: string };
 
 const monthNames = [
@@ -76,6 +76,7 @@ export function ProgramStepPage({
   onRegenerate,
   onStatus,
   notice = "",
+  actionMessage = "",
 }: {
   schoolYear: number;
   month: number;
@@ -87,6 +88,7 @@ export function ProgramStepPage({
   onRegenerate: (blockKey: string) => void;
   onStatus: (state: "idle" | "saved" | "error") => void;
   notice?: string;
+  actionMessage?: string;
 }) {
   const lessons = readLessons(blockBody(blocks, "available-time"));
   const marks = new Map(calendarDays.map((day) => [day.date, day]));
@@ -100,6 +102,7 @@ export function ProgramStepPage({
     <main className="page program-step">
       <h2>Programa, objetivos y tiempo disponible</h2>
       {notice ? <p>{notice}</p> : null}
+      {actionMessage ? <p role="alert">{actionMessage}</p> : null}
       <p>Revise lo esencial del programa oficial y la calendarización real del mes, incluyendo feriados.</p>
       <section>
         <h3>Extracto del programa</h3>
@@ -164,9 +167,12 @@ export function ProgramStepPage({
       </section>
       {Object.entries(cardTitles).map(([blockKey, title]) => (
         <SuggestionCard
-          key={blockKey}
+          key={`${blockKey}-${blockBody(blocks, blockKey)}`}
           title={title}
           body={blockBody(blocks, blockKey)}
+          preview={blocks.find((block) => block.blockKey === blockKey)?.preview}
+          status={blocks.find((block) => block.blockKey === blockKey)?.status}
+          fallbackNotice={notice}
           onAccept={() => onAccept(blockKey)}
           onEdit={(body) => {
             void onSaveBlock(blockKey, body);

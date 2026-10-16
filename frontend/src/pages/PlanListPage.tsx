@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
 import { AutosaveField, SaveFooter } from "../components/AutosaveField";
 import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
-import { continuePlan, downloadWeekPdf, getMepDocument, getPlan, patchMepDocument, patchPlan, PlanDetail, saveClassSession } from "../services/planService";
+import { applyAdjustments, continuePlan, downloadWeekPdf, fetchPlanPdf, getMepDocument, getPlan, patchMepDocument, patchPlan, PlanDetail, saveClassSession } from "../services/planService";
 import { acceptSuggestion, balanceAssessmentLoad, duplicateStructure, fitFortyMinutes, generateImplications, generateWeekSessions, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
+import { AdjustmentStepPage } from "./steps/AdjustmentStepPage";
 import { EvidenceStepPage, isEvidenceStepReady, NO_STORED_LOAD } from "./steps/EvidenceStepPage";
 import { GroupStepPage, isGroupStepReady } from "./steps/GroupStepPage";
 import { isMediationStepReady, MediationStepPage } from "./steps/MediationStepPage";
@@ -83,6 +84,8 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const { planId = "", step: stepText = "0" } = useParams();
   const step = Number(stepText);
   const navigate = useNavigate();
+  const location = useLocation();
+  const adjustmentNotice = (location.state as { adjustmentNotice?: string } | null)?.adjustmentNotice ?? "";
   const [plan, setPlan] = useState<PlanDetail | null>(null);
   const [deniedMessage, setDeniedMessage] = useState("");
   const [notice, setNotice] = useState("");
@@ -170,11 +173,34 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
         ? {
             ...current,
             blocks: current.blocks.map((block) =>
-              block.blockKey === blockKey ? { ...block, body, status: "EDITED" } : block,
+              block.blockKey === blockKey ? { ...block, body, status: "EDITED", preview: undefined } : block,
             ),
           }
         : current,
     );
+  }
+
+  function acceptShown(blockKey: string) {
+    void pendingSave.current.then(() => acceptSuggestion(planId, blockKey)).then((saved) => {
+      setPlan((current) =>
+        current
+          ? { ...current, blocks: current.blocks.map((item) => (item.blockKey === saved.blockKey ? saved : item)) }
+          : current,
+      );
+    });
+  }
+
+  function storeSuggestion(saved: { blockKey: string }) {
+    setActionMessage("");
+    setPlan((current) =>
+      current
+        ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? { ...block, ...saved } : block)) }
+        : current,
+    );
+  }
+
+  function showSuggestionError(error: unknown) {
+    setActionMessage(error instanceof Error ? error.message : "No hay otra sugerencia guardada para este bloque.");
   }
 
   return (
@@ -255,25 +281,13 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
               })
           }
           onAccept={(blockKey) => {
-            void acceptSuggestion(planId, blockKey).then((saved) => {
-              setPlan((current) =>
-                current
-                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
-                  : current,
-              );
-            });
+            acceptShown(blockKey);
           }}
           onEdit={(blockKey, body) => {
             void saveBlock(blockKey, body);
           }}
           onRegenerate={(blockKey) => {
-            void regenerateSuggestion(planId, blockKey).then((saved) => {
-              setPlan((current) =>
-                current
-                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
-                  : current,
-              );
-            });
+            void regenerateSuggestion(planId, blockKey).then(storeSuggestion).catch(showSuggestionError);
           }}
           notice={notice}
         />
@@ -282,6 +296,8 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
           weeks={plan.weeks ?? []}
           rubric={plan.rubric ?? []}
           justification={plan.blocks.find((block) => block.blockKey === "evaluation-justification")?.body ?? ""}
+          justificationPreview={plan.blocks.find((block) => block.blockKey === "evaluation-justification")?.preview}
+          justificationStatus={plan.blocks.find((block) => block.blockKey === "evaluation-justification")?.status}
           onSaveWeeks={(weeks) =>
             trackSave(
               patchPlan(planId, { weeks })
@@ -318,25 +334,13 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
               });
           }}
           onAccept={() => {
-            void acceptSuggestion(planId, "evaluation-justification").then((saved) => {
-              setPlan((current) =>
-                current
-                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
-                  : current,
-              );
-            });
+            acceptShown("evaluation-justification");
           }}
           onEdit={(body) => {
             void saveBlock("evaluation-justification", body);
           }}
           onRegenerate={() => {
-            void regenerateSuggestion(planId, "evaluation-justification").then((saved) => {
-              setPlan((current) =>
-                current
-                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
-                  : current,
-              );
-            });
+            void regenerateSuggestion(planId, "evaluation-justification").then(storeSuggestion).catch(showSuggestionError);
           }}
           actionMessage={actionMessage}
           notice={notice}
@@ -350,27 +354,16 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
           onStatus={setSaveState}
           onSaveBlock={saveBlock}
           onReanalyze={() => {
-            void reanalyzeProgram(planId).then(setPlan);
+            void reanalyzeProgram(planId).then(setPlan).catch(showSuggestionError);
           }}
           onAccept={(blockKey) => {
-            void acceptSuggestion(planId, blockKey).then((saved) => {
-              setPlan((current) =>
-                current
-                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
-                  : current,
-              );
-            });
+            acceptShown(blockKey);
           }}
           onRegenerate={(blockKey) => {
-            void regenerateSuggestion(planId, blockKey).then((saved) => {
-              setPlan((current) =>
-                current
-                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
-                  : current,
-              );
-            });
+            void regenerateSuggestion(planId, blockKey).then(storeSuggestion).catch(showSuggestionError);
           }}
           notice={notice}
+          actionMessage={actionMessage}
         />
       ) : step === 4 ? (
         <MediationStepPage
@@ -504,13 +497,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
               })
           }
           onAccept={(blockKey) => {
-            void acceptSuggestion(planId, blockKey).then((saved) => {
-              setPlan((current) =>
-                current
-                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
-                  : current,
-              );
-            });
+            acceptShown(blockKey);
           }}
           onRegenerate={(blockKey) => {
             void pendingSave.current
@@ -578,11 +565,14 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
               });
           }}
           actionMessage={actionMessage}
+          notice={notice}
         />
       ) : step === 7 && mepDocument ? (
         <MepStepPage
           document={mepDocument}
           status={plan.status}
+          notice={adjustmentNotice}
+          fallbackNotice={notice}
           onSave={(patch) => {
             void trackSave(
               patchMepDocument(planId, patch)
@@ -595,7 +585,55 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
                 }),
             );
           }}
-          onDownload={() => undefined}
+          requestPdf={() => pendingSave.current.then(() => fetchPlanPdf(planId))}
+        />
+      ) : step === 8 ? (
+        <AdjustmentStepPage
+          adjustmentApplied={plan.adjustmentApplied === true}
+          notifyEvaluationChanges={plan.notifyEvaluationChanges === true}
+          blocks={plan.blocks}
+          notice={notice}
+          sessions={(plan.weeks?.find((week) => week.active)?.sessions ?? plan.weeks?.[0]?.sessions ?? []).map((session) => ({
+            day: session.day,
+            occursOn: session.occursOn,
+            expectedLearning: session.expectedLearning,
+            start: session.start,
+          }))}
+          onSaveField={(blockKey, body) =>
+            trackSave(
+              saveBlock(blockKey, body)
+                .then(() => {
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onToggle={(enabled) =>
+            trackSave(
+              patchPlan(planId, { notifyEvaluationChanges: enabled })
+                .then(() => {
+                  setPlan((current) => (current ? { ...current, notifyEvaluationChanges: enabled } : current));
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onApply={() =>
+            pendingSave.current.then(() => applyAdjustments(planId)).then((saved) => {
+              setPlan(saved);
+              setActionMessage("");
+            })
+          }
+          onAccept={(blockKey) => {
+            acceptShown(blockKey);
+          }}
+          onRegenerate={(blockKey) => {
+            void regenerateSuggestion(planId, blockKey).then(storeSuggestion).catch(showSuggestionError);
+          }}
         />
       ) : (
         <main className="page">

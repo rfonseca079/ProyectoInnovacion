@@ -381,6 +381,39 @@ input {
   align-items: center;
 }
 
+.mep-preview {
+  width: 920px;
+  height: 480px;
+  margin-top: 16px;
+  border: 1px solid #d7d2c8;
+  background: #fff;
+}
+
+.adjustment-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.adjustment-layout textarea,
+.adjustment-log textarea {
+  display: block;
+  width: 100%;
+  min-height: 72px;
+}
+
+.adjustment-log,
+.adjustment-week,
+.adjustment-actions {
+  margin-top: 16px;
+}
+
+.adjustment-actions {
+  display: flex;
+  gap: 12px;
+}
+
 button:disabled {
   opacity: 0.45;
   cursor: default;

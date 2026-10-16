@@ -1,379 +1,330 @@
-# Specboot: Augmented Spec-driven development
-
-![Specboot](https://drive.google.com/uc?export=view&id=1yic8hwSzSyQE6Zmf6__YNBcBvqiHMGEr)
-
-Boot OpenSpec's Spec-Driven in any project and give superpowers to any coding agent.
-
-This repository contains a comprehensive set of development rules, standards, and AI agent configurations designed to work seamlessly with multiple AI coding copilots. The setup is portable and can be imported into any project to provide consistent, high-quality AI-assisted development.
-
-It's highly recommended to be used along with Spec-Driven Development frameworks like [OpenSpec](https://github.com/Fission-AI/OpenSpec)
-
-## 📁 Repository Structure
-
-```
-.
-├── docs/                        # Development standards and specifications
-│   ├── base-standards.md        # Core development rules (single source of truth)
-│   ├── backend-standards.md
-│   ├── frontend-standards.md
-│   ├── documentation-standards.md
-│   ├── api-spec.yml             # OpenAPI specification
-│   ├── data-model.md            # Database and domain models
-│   ├── development_guide.md
-├── ai-specs/
-│   ├── agents/                  # Agent role definitions (backend, frontend, analyst, etc.)
-│   └── skills/                  # Reusable skill prompts/workflows
-│
-├── AGENTS.md                    # Generic agent configuration
-├── CLAUDE.md                    # Claude-specific configuration
-├── codex.md                     # GitHub Copilot/Codex configuration
-└── GEMINI.md                    # Gemini-specific configuration
-```
-
-## 🤖 Multi-Copilot Support
-
-This repository uses **symbolic links** or **naming conventions** to support multiple AI coding copilots without duplication:
-
-- **`AGENTS.md`** → Generic agent rules (works with most copilots)
-- **`CLAUDE.md`** → Optimized for Claude/Cursor
-- **`codex.md`** → Optimized for GitHub Copilot/Codex
-- **`GEMINI.md`** → Optimized for Google Gemini
-
-All these files reference the same core rules in `docs/base-standards.md`, ensuring consistency across different AI tools while allowing copilot-specific customizations.
-
-### Why This Approach?
-
-✅ **Single Source of Truth**: Core rules maintained in one place (`base-standards.md`)  
-✅ **Copilot Compatibility**: Each AI tool finds its configuration using its preferred naming convention  
-✅ **Zero Configuration**: Import into a new project and it works immediately  
-✅ **Easy Updates**: Update rules once, all copilots benefit  
-✅ **Portable**: Copy this structure to any project  
-
-## 🚀 Quick Start
-
-### 1) Install and Initialize OpenSpec
-
-OpenSpec works great with this repository and is recommended for a spec-driven workflow.
-
-Quick Start requirements from OpenSpec official docs:
-
-- Node.js `20.19.0` or higher
-
-Install OpenSpec globally:
-
-```bash
-npm install -g @fission-ai/openspec@latest
-```
-
-Then navigate to your project and initialize:
-
-```bash
-cd your-project
-openspec init
-```
-
-### 2) Import Into Your Project
-
-Copy this repository into your project first, so the `docs/` and `ai-specs/` paths already exist when you configure OpenSpec:
-
-```bash
-# Clone or copy this repository into your project (`-n`: do not overwrite existing files so you keep project's original README)
-cp -rn lidr-specboot/* your-project/
-```
-
-Alternative for step 2 (Claude Code users):
-
-- You can alternatively install the Claude plugin and use it as the coding agent for this import step.
-- This only changes **how** you install Specboot. It does **not** install OpenSpec, does **not** update OpenSpec config, and does **not** customize `docs/`.
-
-Quick install:
-
-```bash
-npx @lidr/lidr-specboot
-```
-
-This copies all files into your project and recreates the symlink structure automatically. Safe to re-run: existing files are never overwritten.
-
-
-### 3) Customize `docs/` for Your Project (Mandatory)
-
-This step is required. If you skip it, your AI assistant will use generic technical context instead of your real project context.
-
-Update the files in `docs/` to match your stack, architecture patterns, domain language, API contracts, and data model.
-
-For detailed guidance and ready-to-use prompt examples, see [Customization](#-customization).
-
-### 4) Point OpenSpec Config to Your `docs/` and `ai-specs/`
-
-After `openspec init` and after copying this repository, update your project's `config.yml` to include your technical context from `docs`.
-
-Prompt example to automate this with your copilot:
-
-```text
-Update my openspec config.yml context to reference this repository's docs and ai-specs structure.
-
-Requirements:
-- Use docs/base-standards.md as the single source of truth.
-- Include docs/backend-standards.md, docs/frontend-standards.md, docs/documentation-standards.md.
-- Include docs/api-spec.yml and docs/data-model.md.
-- Tell the agent to adopt ai-specs/agents/backend-developer.md for backend work and ai-specs/agents/frontend-developer.md for frontend work.
-- Mention ai-specs/skills as workflow guidance.
-- Keep all paths relative to the project root.
-```
-
-Example (`config.yml`):
-
-```yml
-context: |
-  Tech stack: TypeScript, Node.js, Express, Prisma, Domain-Driven Design (DDD)
-  Architecture: Clean Architecture with Domain, Application, and Presentation layers
-  We use conventional commits
-  Domain: LTI (Leadership. Technology. Impact) ATS platform
-  All code, comments, documentation, and technical artifacts must be in English
-
-  Project specs (single source of truth): All artifact creation and implementation MUST follow the project's technical context in ai-specs/. Read and apply these when creating or implementing:
-  - docs/base-standards.md — core principles, TDD, language standards, links to backend/frontend/docs standards
-  - docs/backend-standards.md — API, database, testing, security (backend changes)
-  - docs/frontend-standards.md — React, UI/UX (frontend changes)
-  - docs/api-spec.yml — API contracts and endpoint definitions
-  - docs/data-model.md — domain and data model
-  - docs/documentation-standards.md — docs structure and maintenance
-  For implementation: adopt the relevant agent from ai-specs/agents/ (e.g. backend-developer.md for backend, frontend-developer.md for frontend). Use ai-specs/skills/ for workflow guidance when applicable.
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-rules:
-  # Global: apply ai-specs when creating any artifact
-  _global:
-    - Before creating any artifact, read and apply docs/base-standards.md
-    - For backend-related artifacts, read docs/backend-standards.md and adopt guidelines from ai-specs/agents/backend-developer.md
-    - For frontend-related artifacts, read docs/frontend-standards.md and adopt guidelines from ai-specs/agents/frontend-developer.md
-    - Use docs/api-spec.yml and docs/data-model.md for API and data consistency in specs and tasks
-```
-
-## ✅ Verify Configuration (Required)
-
-Do this after completing the setup steps above.
-
-Your AI copilot should automatically load:
-
-- **Claude/Cursor**: `CLAUDE.md` → `docs/base-standards.md`
-- **GitHub Copilot**: `codex.md` → `docs/base-standards.md`
-- **Gemini**: `GEMINI.md` → `docs/base-standards.md`
-
-All paths and rules are configured to work seamlessly without manual adjustments.
-
-## 💡 Usage: Official OpenSpec Workflow
-
-The recommended workflow in this repository uses official OpenSpec commands:
-
-The recommended workflow in this repository uses official OpenSpec commands:
-
-1. **`/enrich-us`** (optional): refine a vague user story or idea
-2. **`/new`**: create a new OpenSpec change (currently a copy of `/ff`)
-3. **`/ff`**: create all required OpenSpec artifacts (feature file, tasks, etc.)
-   - Running `/new` followed by `/ff` is equivalent to the new `/propose` command
-4. **`/apply`**: implement tasks one by one
-5. **`/verify`**: validate implementation against the change artifacts
-6. **`/adversarial-review`**: independent red-team code review before archiving
-7. **`/archive`**: archive the completed change
-8. **`/commit`**: create focused commit(s) and manages Pull Request after verification
-Workflow reference image:
-
-![OpenSpec custom workflow reference](https://drive.google.com/uc?export=view&id=1Bu8hysVBlpBZgH3SVgRh3knHS7W4X5ud)
-
-### Optional: MCP Integrations (Jira + Playwright)
-
-This workflow is enhanced with MCP servers that are mentioned in the workflow. These are optional and you can skip them entirely, or replace them with equivalent tools.
-
-- **Jira MCP (recommended in `/enrich-us`)**: lets the agent read Jira tickets directly to enrich user stories without copy/paste.
-- **Playwright MCP (recommended for E2E testing)**: lets the agent run browser-based E2E checks for user workflows.
-
-Recommended installation approach:
-
-- **Cursor**: enable/configure MCP servers in Cursor settings (add your Jira and Playwright MCP servers, then provide credentials such as Jira API tokens as required).
-- **Other agents/IDEs**: follow your tool’s MCP installation docs and configure Jira/Playwright there.
-
-If you don’t use Jira, or you don’t want automated E2E testing in this workflow, just update the skills and keep using the same OpenSpec command flow.
-
-### Example: End-to-End Flow
-
-Use these commands in sequence:
-
-Optional first step (recommended): create a dedicated worktree before running the command flow, then clean it up when done. The `using-git-worktrees` skill can automate this.
-
-```bash
-/enrich-us SCRUM-10
-/ff SCRUM-10
-/apply SCRUM-10
-/verify SCRUM-10
-/adversarial-review SCRUM-10
-/archive SCRUM-10
-/commit
-```
-
-Artifacts are managed through OpenSpec directories during this flow, including testing reports created. 
-
-### Useful Skills
-
-Skills live in `ai-specs/skills/` and are mirrored into `.claude/skills/` and `.cursor/skills/` via relative symlinks, so any copilot can discover them. The agent loads a skill automatically when a request matches its description (per `AGENTS.md` §4). The most useful ones in day-to-day work are **`enrich-us`**, **`using-git-worktrees`**, **`writing-skills`**, and **`code-auditing`**:
-
-- **`enrich-us`** — Analyze and enhance a vague Jira user story (or raw idea) into an implementation-ready ticket with acceptance criteria, technical detail, and edge cases. Use **before** planning to make sure the team and the AI agree on scope.
-- **`using-git-worktrees`** — Set up an isolated workspace before starting feature work or executing a plan, with safe creation, baseline checks, copying of local Claude settings, and a complete cleanup workflow when the work is done.
-- **`writing-skills`** — Author and verify new skills (or refactor existing ones) following TDD-style validation before deployment. Use when adding a skill to `ai-specs/skills/` or editing an existing `SKILL.md`.
-- **`code-auditing`** — Run a systematic 6-phase code quality audit covering security, performance, type safety, dead code, and library best practices, ending with a prioritized action plan. Use for pre-release reviews, technical-debt sweeps, and dependency audits.
-
-Other active skills in this repository: `commit`, `explain`, `meta-prompt`, `update-docs`. See each `ai-specs/skills/<name>/SKILL.md` for the full instructions.
-
-## 📖 Core Development Rules
-
-All development follows principles defined in `docs/base-standards.md`:
-
-### Key Principles
-
-1. **Small Tasks, One at a Time**: Baby steps, never skip ahead
-2. **Test-Driven Development (TDD)**: Write failing tests first
-3. **Type Safety**: Fully typed code (TypeScript)
-4. **Clear Naming**: Descriptive variables and functions
-5. **English Only**: All code, comments, documentation, and messages in English
-6. **90%+ Test Coverage**: Comprehensive testing across all layers
-7. **Incremental Changes**: Focused, reviewable modifications
-
-### Specific Standards
-
-- **Backend Standards**: `docs/backend-standards.md`
-  - API development patterns
-  - Database best practices
-  - Security guidelines
-  - Testing requirements
-- **Frontend Standards**: `docs/frontend-standards.md`
-  - React component patterns
-  - UI/UX guidelines
-  - State management
-  - Component testing
-- **Documentation Standards**: `docs/documentation-standards.md`
-  - Technical documentation structure
-  - API documentation (OpenAPI)
-  - Code documentation
-  - Maintenance guidelines
-
-## 🎯 Benefits
-
-### For Developers
-
-- ✅ **Consistent Code Quality**: AI follows the same standards every time
-- ✅ **Comprehensive Testing**: Automatic 90%+ coverage across all layers
-- ✅ **Complete Documentation**: API specs updated automatically
-- ✅ **Faster Onboarding**: New team members reference the same rules
-- ✅ **Reduced Review Time**: Code follows established patterns
-
-### For Teams
-
-- ✅ **Copilot Flexibility**: Team members can use their preferred AI tool
-- ✅ **Knowledge Preservation**: Standards documented, not in people's heads
-- ✅ **Quality Consistency**: Same standards regardless of who (or what) writes code
-- ✅ **Easier Code Reviews**: Clear expectations and patterns
-- ✅ **Scalable Practices**: Standards scale with the team
-
-### For Projects
-
-- ✅ **Maintainable Codebase**: Clean architecture and clear separation of concerns
-- ✅ **Production-Ready Code**: TDD, error handling, and validation built-in
-- ✅ **Living Documentation**: API specs and data models always current
-- ✅ **Faster Feature Development**: Autonomous AI implementation from plans
-- ✅ **Lower Technical Debt**: Best practices enforced from day one
-
-## 🔧 Customization
-
-### Adapting to Your Project
-
-1. **Update technical context**: Find the different files in `docs` and modify core principles, coding standards, business rules and technical documentation to match your needs:
-  - backend/frontend/testing/documentation standards
-  - installation guide
-  - data model
-  - API docs
-  - ...
-2. **Adapt agents in `ai-specs/agents`**: Adjust agent definitions to your project's roles and workflows
-3. **Extend skills in `ai-specs/skills`**: Define battle-tested prompts and workflows in reusable skills
-4. **Link Resources**: Reference your project's specific documentation or tasks using MCPs
-5. **Keep the symlink structure**: Remember to create relative symlinks from `.claude` and `.cursor` to the corresponding `ai-specs/agents` and `ai-specs/skills` entries to keep it consistent
-
-### Prompt Example: Adapt Technical Context
-
-Use this prompt with your copilot to adapt the `docs/` folder while preserving the same baseline structure:
-
-```text
-Following the same base structure already present in docs/, update all technical context documents according to this project's specifics.
-
-Requirements:
-- Keep the same document set and file names in docs/.
-- Replace generic content with this project's real stack, architecture patterns, coding conventions, and domain terminology.
-- Update backend, frontend, and documentation standards to reflect actual practices used by this team.
-- Update docs/api-spec.yml and docs/data-model.md so they match the real endpoints and entities of this project.
-- Ensure all references are internally consistent and aligned across docs/.
-- Keep everything in English and make guidance implementation-ready for AI agents.
-```
-
-### Maintaining Standards
-
-- **Single Source of Truth**: Always update `base-standards.md` first
-- **Version Control**: Track changes to standards like code
-- **Team Review**: Standards changes should be reviewed like pull requests
-- **Documentation**: Keep examples current with actual implementation
-- **Symlink Integrity**: After file renames/moves/suffix changes, verify and update all impacted symlinks
-- **Canonical Placement**: Prefer `ai-specs` as canonical source and expose through symlinks for `.claude`/`.cursor` compatibility
-
-## 📚 Technical context
-
-### Reference Examples (from LIDR Project)
-
-The following files are included as **reference examples** from the LIDR project. You should create your own versions tailored to your specific project:
-
-- **API Specification**: `docs/api-spec.yml` (OpenAPI 3.0 format)
-  - *Create your own API spec documenting your project's endpoints*
-- **Data Models**: `docs/data-model.md` (Database schemas, domain models)
-  - *Document your database structure and domain entities*
-- **Development Guide**: `docs/development_guide.md` (Setup, workflows)
-  - *Write setup instructions specific to your tech stack*
-
-## 🤝 Contributing
-
-When contributing to the standards:
-
-1. Update `base-standards.md` (single source of truth)
-2. Test with multiple AI copilots to ensure compatibility
-3. Update generated examples in `changes/` if needed
-4. Document breaking changes clearly
-5. Follow the same standards you're defining!
-
-## 📄 License
-
-Copyright (c) 2025 LIDR.co
-Licensed under the MIT License
-
-**English:**
-
-The content of this repository is part of the AI4Devs program by LIDR.co. If you want to learn to code with AI like the pros and get more templates and resources like these, you can find all the information on the official website: [https://lidr.co/ia-devs](https://lidr.co/ia-devs)
-
-**Español:**
-
-El contenido de este repositorio es parte del programa AI4Devs de LIDR.co. Si quieres aprender a programar con IA como los pros, y obtener más plantillas y recursos como estos, puedes encontrar toda la información en la página oficial: [https://lidr.co/ia-devs](https://lidr.co/ia-devs)
+## Índice
+
+0. [Ficha del proyecto](#0-ficha-del-proyecto)
+1. [Descripción general del producto](#1-descripción-general-del-producto)
+2. [Arquitectura del sistema](#2-arquitectura-del-sistema)
+3. [Modelo de datos](#3-modelo-de-datos)
+4. [Especificación de la API](#4-especificación-de-la-api)
+5. [Historias de usuario](#5-historias-de-usuario)
+6. [Tickets de trabajo](#6-tickets-de-trabajo)
+7. [Pull requests](#7-pull-requests)
 
 ---
 
-## 🙏 Acknowledgements
+## 0. Ficha del proyecto
 
-Some workflows and skill patterns in this repository are inspired by the Superpowers framework, especially around:
+### 0.1. Tu nombre completo
 
-- `using-git-worktrees`
-- `writing-skills`
+Roger Eduardo Fonseca Montero
+Milton Alvarado Ramirez
+Rodolfo Campos Solano
+Carlos Jose Montero Castro
+Lorenzo Jesus Rodriguez Vargas
 
-Superpowers project: [obra/superpowers](https://github.com/obra/superpowers/tree/main)
+### 0.2. Nombre del proyecto
 
-Additional inspiration/source acknowledgements:
+Planificador AI
 
-- `code-auditing` skill: inspired by and adapted from [jeffrigby/somepulp-agents](https://github.com/jeffrigby/somepulp-agents/tree/main)
+### 0.3. Descripción breve del proyecto
 
-**Made with 🤖 by the LIDR community**
+Aplicación web de escritorio para que una persona docente de primaria o secundaria en Costa Rica arme su planeamiento didáctico en un wizard y descargue un PDF con formato institucional. Las sugerencias que parecen de IA salen de textos ya guardados. No hay un modelo de lenguaje.
 
-For questions, issues, or suggestions, visit [LIDR.co](https://lidr.co/ia-devs)
+### 0.4. URL del proyecto
+
+https://github.com/rfonseca079/ProyectoInnovacion
+
+### 0.5. URL o archivo comprimido del repositorio
+
+https://github.com/rfonseca079/ProyectoInnovacion
+
+---
+
+## 1. Descripción general del producto
+
+Planificador AI guía el planeamiento en nueve pasos, del contexto curricular al ajuste después de la clase. El idioma de la interfaz es español de Costa Rica. El ancho de referencia es 1440 px. No hay versión para teléfono.
+
+Cada docente entra con correo y contraseña de una cuenta ya creada. Ve solo sus planeamientos, puede abrir uno o crear otro, y el borrador se guarda solo. Al final el sistema arma un documento tipo plantilla MEP y genera el PDF con lo que quedó guardado.
+
+### 1.1. Objetivo
+
+- Llevar a la persona docente por un wizard secuencial hasta un planeamiento entregable.
+- Mostrar sugerencias editables dentro de cada paso, leídas de una base, para que pueda aceptarlas, editarlas o pedir otra variante ya guardada.
+- Consolidar esas decisiones en un documento institucional y en un PDF.
+- Permitir registrar lo ocurrido en clase y aplicar un ajuste ya definido a las sesiones y al documento.
+
+### 1.2. Características y funcionalidades principales
+
+Las 16 propuestas, archivadas en `openspec/changes/archive/`, cubren este alcance y ya están implementadas: del inicio de sesión al ajuste después de la clase, incluidas las sesiones de la semana, el documento institucional, el PDF y las sugerencias leídas de la base. Al salir de un campo modificado, el sistema lo guarda y el pie dice «Borrador guardado automáticamente». Si sale otra vez mientras ese guardado sigue en curso, el texto más nuevo se guarda al terminar el anterior.
+
+1. Inicio y cierre de sesión, sin registro ni recuperación de contraseña.
+2. Lista de planeamientos propios, con estado y reapertura en el último paso guardado. «Aún no tiene planeamientos.» aparece solo cuando la consulta terminó y no hay filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.»
+3. Configuración de un planeamiento nuevo y elección del escenario guardado. Si el nivel queda fuera del ciclo, se muestra «Seleccione un nivel del ciclo elegido.» y el inicio sigue deshabilitado. Un segundo clic mientras se crea no abre otro planeamiento. Si la combinación no existe, se usan las sugerencias de Matemática, 4.° año, marzo 2026, y la pantalla lo indica. Un cambio de asignatura recarga solo las tarjetas sugeridas; las aceptadas y las editadas conservan su texto.
+4. Borrador automático.
+5. Wizard con avance solo si el paso es válido, y reapertura de los pasos ya visitados.
+6. Programa, tiempo disponible y calendario del mes.
+7. Unidades del mes y rúbrica que debe sumar 100 %.
+8. Diagnóstico general del grupo, sin datos sensibles del estudiantado.
+9. Mediación dentro y fuera del aula.
+10. Evidencias durante la clase y evaluaciones calendarizadas.
+11. Cinco sesiones de la semana, con exportación de esa semana.
+12. Documento institucional y descarga de PDF.
+13. Ajuste después de la clase. El aviso a dirección solo se guarda: no se envía.
+
+Cada tarjeta muestra «Sugerido por IA», «Aceptada» o «Editada». Regenerar recorre las variantes 1, 2 y 3. Si la tarjeta sigue sugerida, el campo visible cambia. Si ya fue aceptada o editada, el texto de la docente se mantiene hasta que acepte la variante nueva; al recargar, esa variante sigue pendiente. Un botón con nombre, como Reanalizar programa o Generar las 5 sesiones con IA, sí reemplaza el texto visible y vuelve a marcar la tarjeta como sugerida. Cada semana del escenario tiene su conjunto guardado, también las que no son la semana activa. Si no queda otra variante, el paso muestra «No hay otra sugerencia guardada para este bloque.»
+
+Cuentas de ejemplo: Juanita Pérez, Carlos Mora y María Solís. El detalle y la contraseña de demostración están en `docs/development_guide.md`.
+
+### 1.3. Diseño y experiencia de usuario
+
+La estructura visual y los textos de ejemplo están en `stitch.md`. Encabezado con **Planificador AI** y el contexto del planeamiento. Barra de pasos fija. Pie con **Borrador guardado automáticamente**. Las sugerencias son tarjetas dentro del paso, no un chat lateral.
+
+### 1.4. Instrucciones de instalación
+
+Hace falta Docker Desktop. No hace falta instalar Node.js ni npm. Desde la raíz del repositorio:
+
+```bash
+docker compose up -d --build
+```
+
+La aplicación queda en http://localhost:8088. Ese comando levanta PostgreSQL, la API y la web. Al arrancar, la API crea las tablas y carga las tres cuentas de demostración. La contraseña está en `docs/development_guide.md`.
+
+#### Requisitos
+
+- Docker Desktop
+- Git, para clonar el repositorio
+
+#### Despliegue completo con Docker
+
+`docker compose up -d --build` publica la web en el puerto `8088` y PostgreSQL en el puerto de host `55432`. La API queda dentro de la red de Docker; el navegador habla solo con la web, que reenvía `/api`. El contenedor de demostración carga el seed. Un despliegue de producción no debe hacerlo.
+
+#### Desarrollo local
+
+Quien modifica el código puede seguir usando `npm run dev` en `backend/` y `frontend/`. Eso no es necesario para abrir la aplicación.
+
+---
+
+## 2. Arquitectura del Sistema
+
+La arquitectura está en las propuestas archivadas y en `docs/backend-standards.md` y `docs/frontend-standards.md`. El código de esas capas ya está en `backend/` y `frontend/`.
+
+### 2.1. Diagrama de arquitectura
+
+```mermaid
+flowchart LR
+    docente[Navegador de escritorio]
+    web[React y Vite]
+    api[API Express]
+    db[(PostgreSQL)]
+    docente --> web
+    web --> api
+    api --> db
+```
+
+No hay un servicio de modelo de lenguaje ni un servicio de correo.
+
+### 2.2. Descripción de componentes principales
+
+#### Frontend (capa de presentación)
+
+React, TypeScript y Vite. Las páginas viven en `frontend/src/pages/` y las llamadas HTTP solo en `frontend/src/services/`. El marco común del wizard es `WizardChrome`. El ancho de trabajo es 1440 px.
+
+#### Backend (capa de aplicación)
+
+Node.js, TypeScript y Express, en cuatro capas: presentación, aplicación, dominio e infraestructura. Cada caso de uso, como crear un planeamiento o aplicar un ajuste, es un servicio de aplicación. Prisma habla con la base desde infraestructura.
+
+#### Base de datos
+
+PostgreSQL. El detalle de entidades está en `docs/data-model.md`. Los textos de sugerencia son filas de `SuggestionVariant`, tres variantes por bloque regenerable.
+
+#### Autenticación y autorización
+
+Correo y contraseña de cuentas sembradas. La sesión va en una cookie `httpOnly` que termina al cerrar el navegador. Cerrar sesión borra esa sesión en el servidor, limpia la cookie y vacía la lista que el navegador tenía en memoria. Atrás y recargar dejan la pantalla de acceso. El borrador guardado sigue disponible para la misma cuenta. Cada consulta de planeamiento o PDF queda limitada a la docente de la sesión. Un planeamiento ajeno responde como no encontrado.
+
+#### Integraciones externas
+
+No hay integraciones externas. El interruptor de aviso a dirección solo guarda su estado.
+
+### 2.3. Descripción de alto nivel del proyecto y estructura de ficheros
+
+```text
+UserStories/          Historias originales y enriquecidas
+stitch.md             Estructura visual
+docs/                 Contratos, modelo y estándares
+openspec/changes/     Propuestas archivadas en archive/
+docker-compose.yml    PostgreSQL, API y web
+backend/Dockerfile    Imagen de la API
+frontend/Dockerfile   Imagen de la web
+readme_project.md     Este informe
+README.md             Guía de Specboot
+```
+
+El código está en `backend/` (Express, Prisma) y `frontend/` (React, Vite).
+
+### 2.4. Infraestructura y despliegue
+
+#### Componentes de infraestructura
+
+PostgreSQL, la API y la aplicación web corren con `docker compose up -d --build`. La web publicada queda en http://localhost:8088.
+
+#### Proceso de despliegue actual
+
+`docker compose up -d --build` construye la API y la web y levanta PostgreSQL. El repositorio está en GitHub. US-01 a US-16 están en el código. Lo publicado en `main` llega hasta US-11. US-12 y US-13 tienen pull request abierto. US-14, US-15 y US-16 están implementadas en `feature/us-16-usar-sugerencias-simuladas` y todavía no tienen pull request.
+
+#### Separación entre desarrollo y producción
+
+En desarrollo el seed carga las tres docentes y los tres escenarios. En producción ese seed no corre. Los secretos salen de variables de entorno.
+
+#### Consideraciones operativas
+
+La persona docente entra por la web. La API no se expone como producto aparte. El PDF se genera al pedirlo, a partir de lo guardado, y no reemplaza a la base como fuente de verdad.
+
+### 2.5. Seguridad
+
+No hay una auditoría de seguridad aparte. El acceso y la lista ya usan estos controles.
+
+#### Hallazgos de auditoría y mitigaciones implementadas
+
+No hay hallazgos de auditoría.
+
+#### Controles actuales
+
+- Contraseña solo como hash. La respuesta de acceso no incluye ese hash.
+- El mismo mensaje y la misma comparación de contraseña si el correo no existe o si la contraseña no coincide. Un correo desconocido se compara contra un hash de relleno.
+- Cookie de sesión `httpOnly`, sin token en `localStorage`. Cerrar sesión la invalida en el servidor y quita del navegador la lista del docente anterior.
+- Consultas de planeamiento y PDF filtradas por la docente autenticada. Abrir el paso de un planeamiento ajeno muestra «No tiene acceso a este planeamiento.» y no pinta ese plan.
+- El seed de demostración no corre con `NODE_ENV=production`.
+
+#### Cómo se combinan frontend y backend
+
+El navegador llama a la API con la cookie. Si no hay sesión, la web vuelve a la pantalla de acceso. La API sigue siendo quien decide si el planeamiento pertenece a esa docente.
+
+#### Sesión y renovación de acceso
+
+La sesión dura mientras el navegador sigue abierto. No hay renovación de larga duración ni recuperación de contraseña. Cerrar sesión borra la sesión del servidor, deja los borradores guardados y no muestra esa lista a la siguiente docente mientras carga la suya.
+
+#### Bootstrap, seed y secretos de despliegue
+
+Las cuentas y los escenarios se cargan con el seed de desarrollo descrito en `docs/development_guide.md`. `SESSION_SECRET` y `DATABASE_URL` van en `.env`.
+
+#### Consideraciones y límites remanentes
+
+No hay registro público, segundo factor ni envío de correo. El aviso a dirección no sale del sistema.
+
+#### Cobertura actual por capa
+
+US-01 a US-16 tienen pruebas Jest, Testing Library y Playwright en escritorio de 1440 px. Eso incluye sesiones, documento MEP, PDF, ajuste después de la clase y sugerencias leídas de la base.
+
+#### Organización y ejecución de las suites
+
+`npm test` en `backend/` y en `frontend/`, y `npm run test:e2e` en `frontend/`. El viewport de las pruebas de extremo a extremo es el de escritorio.
+
+#### Pruebas de regresión
+
+Cada cambio de OpenSpec deja sus pruebas junto al comportamiento que agrega. Antes de integrar un cambio mayor, corren las suites de API y de web.
+
+#### Limitaciones y consideraciones actuales
+
+Las suites de US-01 a US-16 ya se ejecutaron en esta rama. La última corrida completa dejó 100 pruebas de API y 52 de la web.
+
+---
+
+## 3. Modelo de Datos
+
+El modelo completo está en `docs/data-model.md`. Resumen de lo ya definido:
+
+### 3.1. Diagrama del modelo de datos
+
+```mermaid
+erDiagram
+    Teacher ||--o{ Plan : owns
+    Scenario ||--o{ Plan : suggests
+    Scenario ||--o{ SuggestionVariant : stores
+    Plan ||--o{ PlanBlock : contains
+    Plan ||--o{ RubricItem : evaluates
+    Plan ||--o{ Week : schedules
+    Week ||--o{ Session : details
+    Plan ||--o| MepDocument : consolidates
+```
+
+### 3.2. Descripción de entidades principales
+
+- **Teacher.** Cuenta sembrada: nombre, correo, hash de contraseña, centro y dirección regional.
+- **Plan.** Planeamiento de una docente. Guarda el contexto curricular, el paso actual, el paso más alto visitado, el estado (`DRAFT`, `READY_FOR_DELIVERY`, `ADJUSTED`) y el escenario asociado.
+- **Scenario.** Paquete de contenido. La clave es curso lectivo, asignatura, nivel y mes. Los tres paquetes son `mat-4-marzo-2026`, `esp-2-abril-2026` y `cie-7-febrero-2026`. El primero también es el respaldo.
+- **SuggestionVariant.** Texto o JSON de un bloque, variantes 1 a 3. Regenerar devuelve la siguiente en `preview`. Si no hay otra, la respuesta es 404 con «No hay otra sugerencia guardada para este bloque.»
+- **PlanBlock.** Texto vigente del bloque y su estado: sugerido, aceptado o editado. La tarjeta lo muestra como «Sugerido por IA», «Aceptada» o «Editada». La respuesta expone la variante 1, 2 o 3. Mientras una tarjeta aceptada o editada espera que la docente acepte la siguiente, la base guarda ese número más 3 y la lectura incluye `preview`.
+- **Week, Session, CalendarDay, RubricItem, Evidence.** Semanas, sesiones, marcas de calendario, rúbrica y evidencias.
+- **MepDocument.** Documento institucional ya armado. Las ediciones de ese documento son las que salen en el PDF.
+
+---
+
+## 4. Especificación de la API
+
+El contrato está en `docs/api-spec.yml`. La base local prevista es `http://localhost:3000`. Los mensajes visibles a la docente van en español. Los nombres de campos y los códigos de error van en inglés.
+
+| Método y ruta | Uso |
+| --- | --- |
+| `POST /api/auth/login` | Abre la sesión |
+| `POST /api/auth/logout` | La cierra |
+| `GET /api/auth/me` | Devuelve la docente actual |
+| `GET /api/plans` | Lista solo sus planeamientos |
+| `POST /api/plans` | Crea uno desde la configuración |
+| `GET /api/plans/{planId}` | Abre el último paso guardado |
+| `PATCH /api/plans/{planId}` | Guarda un fragmento del borrador |
+| `POST /api/plans/{planId}/steps/{step}/continue` | Avanza si el paso es válido |
+| `POST /api/plans/{planId}/blocks/{blockKey}/accept` | Acepta la sugerencia visible. Si había una variante pendiente, escribe ese texto guardado |
+| `PATCH /api/plans/{planId}/blocks/{blockKey}` | Edita el bloque |
+| `POST /api/plans/{planId}/blocks/{blockKey}/regenerate` | Pasa a la siguiente variante y devuelve `preview`. Si la tarjeta ya no está sugerida, el texto guardado no cambia hasta aceptarla |
+| `POST /api/plans/{planId}/actions/{actionKey}` | Ejecuta un botón con nombre, como reanalizar, redistribuir o generar las cinco sesiones de una semana |
+| `GET /api/plans/{planId}/document` | Arma el documento institucional la primera vez y luego devuelve el guardado |
+| `PATCH /api/plans/{planId}/document` | Guarda los campos editados de ese documento |
+| `POST /api/plans/{planId}/adjustments/apply` | Aplica el ajuste guardado |
+| `GET /api/plans/{planId}/document/pdf` | PDF institucional |
+| `GET /api/plans/{planId}/weeks/{weekNumber}/pdf` | PDF de las cinco sesiones |
+
+Un campo vacío en el acceso responde 400. Un correo o contraseña incorrectos responden 401, con el mismo mensaje y una comparación de hash en ambos casos. Un planeamiento ajeno responde 404 con «No tiene acceso a este planeamiento.». Pedir otra sugerencia cuando no hay variante guardada responde 404 con «No hay otra sugerencia guardada para este bloque.». Un paso inválido o un PDF incompleto responden 422. Una redistribución sin distribución guardada para esa cantidad de rubros, o una semana sin otro conjunto guardado, responden 409.
+
+---
+
+## 5. Historias de Usuario
+
+Cada archivo de `UserStories/` conserva la historia original y una versión enriquecida con campos, rutas y definición de terminado.
+
+| ID | Historia | Propuesta |
+| --- | --- | --- |
+| US-01 | Iniciar sesión | `openspec/changes/archive/2026-10-15-us-01-iniciar-sesion` |
+| US-02 | Cerrar sesión | `openspec/changes/archive/2026-10-15-us-02-cerrar-sesion` |
+| US-03 | Ver mis planeamientos | `openspec/changes/archive/2026-10-15-us-03-listar-planeamientos` |
+| US-04 | Crear un planeamiento | `openspec/changes/archive/2026-10-15-us-04-crear-planeamiento` |
+| US-05 | Guardar el borrador | `openspec/changes/archive/2026-10-15-us-05-guardar-borrador` |
+| US-06 | Recorrer el wizard | `openspec/changes/archive/2026-10-15-us-06-recorrer-el-wizard` |
+| US-07 | Programa y calendario | `openspec/changes/archive/2026-10-15-us-07-revisar-programa-y-calendario` |
+| US-08 | Unidades y evaluación | `openspec/changes/archive/2026-10-15-us-08-organizar-unidades-y-evaluacion` |
+| US-09 | Diagnóstico del grupo | `openspec/changes/archive/2026-10-15-us-09-registrar-diagnostico-del-grupo` |
+| US-10 | Mediación | `openspec/changes/archive/2026-10-15-us-10-definir-mediacion` |
+| US-11 | Evidencias | `openspec/changes/archive/2026-10-16-us-11-definir-evidencias` |
+| US-12 | Sesiones | `openspec/changes/archive/2026-10-16-us-12-preparar-sesiones` |
+| US-13 | Formato MEP | `openspec/changes/archive/2026-10-16-us-13-consolidar-formato-mep` |
+| US-14 | PDF | `openspec/changes/archive/2026-10-16-us-14-descargar-pdf` |
+| US-15 | Ajuste después de la clase | `openspec/changes/archive/2026-10-16-us-15-ajustar-despues-de-la-clase` |
+| US-16 | Sugerencias simuladas | `openspec/changes/archive/2026-10-16-us-16-usar-sugerencias-simuladas` |
+
+---
+
+## 6. Tickets de Trabajo
+
+Cada propuesta es el ticket de esa historia. Dentro tiene `proposal.md` (por qué), `specs/` (comportamiento), `design.md` (cómo) y `tasks.md` (pasos).
+
+Tres tickets representativos del corte previsto:
+
+1. **Backend, US-01.** Acceso con cuentas sembradas, cookie de sesión y el mismo error para correo desconocido y contraseña incorrecta. Cambio: `us-01-iniciar-sesion`. Implementado.
+2. **Frontend, US-03.** Lista con el estado en español, reapertura en el paso guardado, y la frase de lista vacía solo después de una consulta exitosa sin filas. Si la consulta falla, el texto es «No se pudieron cargar los planeamientos.». Cambio archivado: `2026-10-15-us-03-listar-planeamientos`. Implementado.
+3. **Cierre de sesión, US-02.** `POST /api/auth/logout` responde 204, el planeamiento guardado permanece y la lista en memoria se vacía antes de que entre otra docente. Cambio: `us-02-cerrar-sesion`. Implementado.
+
+US-04 a US-16 también quedaron implementadas. El trabajo publicado en `main` llega hasta US-11. US-12 y US-13 tienen pull request abierto. US-14, US-15 y US-16 están en `feature/us-16-usar-sugerencias-simuladas`, archivadas, y todavía sin pull request.
+
+---
+
+## 7. Pull Requests
+
+El 1 se cerró porque su commit ya estaba en `main`. Se fusionaron el 2 (https://github.com/rfonseca079/ProyectoInnovacion/pull/2), el 3 (https://github.com/rfonseca079/ProyectoInnovacion/pull/3), el 4 (https://github.com/rfonseca079/ProyectoInnovacion/pull/4), el 5 (https://github.com/rfonseca079/ProyectoInnovacion/pull/5), el 6 (https://github.com/rfonseca079/ProyectoInnovacion/pull/6), el 7 (https://github.com/rfonseca079/ProyectoInnovacion/pull/7), el 8 (https://github.com/rfonseca079/ProyectoInnovacion/pull/8), el 9 (https://github.com/rfonseca079/ProyectoInnovacion/pull/9), el 10 (https://github.com/rfonseca079/ProyectoInnovacion/pull/10) y el 11 (https://github.com/rfonseca079/ProyectoInnovacion/pull/11). Siguen abiertos el 12 (https://github.com/rfonseca079/ProyectoInnovacion/pull/12), de las sesiones de la semana, y el 13 (https://github.com/rfonseca079/ProyectoInnovacion/pull/13), del documento institucional. US-14, US-15 y US-16 todavía no tienen pull request. El repositorio remoto es https://github.com/rfonseca079/ProyectoInnovacion y su rama predeterminada es `main`.

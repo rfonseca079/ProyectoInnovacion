@@ -87,6 +87,7 @@ export function SessionsStepPage({
   onExport,
   onReadyChange,
   actionMessage = "",
+  notice = "",
 }: {
   weeks: WeekSessions[];
   onSave: (sessionId: string, patch: Partial<ClassSession>) => Promise<void>;
@@ -95,6 +96,7 @@ export function SessionsStepPage({
   onExport: (weekNumber: number) => void | Promise<void>;
   onReadyChange?: (ready: boolean) => void;
   actionMessage?: string;
+  notice?: string;
 }) {
   const incoming = JSON.stringify(weeks);
   const [rows, setRows] = useState(weeks);
@@ -145,6 +147,7 @@ export function SessionsStepPage({
   return (
     <main className="page sessions-step">
       <h2>Prepare la semana y cada sesión</h2>
+      {notice ? <p>{notice}</p> : null}
       <p>Detalle qué toca esta semana. Toda sesión tiene inicio, desarrollo y cierre.</p>
       <label>
         Semana

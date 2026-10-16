@@ -3,6 +3,7 @@ import { AppError } from "../domain/errors";
 import { AssessmentLoadBody, NO_STORED_LOAD, occursOnDate, parseAssessmentLoad, parseEvidenceCard, sameRubricNames } from "../domain/evidenceCard";
 import { StoredClassSession, weekSessionBlockKey } from "../../prisma/sessionSeed";
 import { getPlan } from "./listPlans";
+import { shownVariant } from "../domain/suggestionCursor";
 
 const actionBlockKey: Record<string, string> = {
   "reanalyze-program": "program-extract",
@@ -48,7 +49,7 @@ export async function runStoredAction(
   if (!block) {
     throw new AppError(404, "NOT_FOUND", "No hay una acción guardada con ese nombre.");
   }
-  const nextVariant = block.variant >= 3 ? 1 : block.variant + 1;
+  const nextVariant = shownVariant(block.variant) >= 3 ? 1 : shownVariant(block.variant) + 1;
   const stored = await prisma.suggestionVariant.findUnique({
     where: {
       scenarioId_blockKey_variant: {
@@ -59,7 +60,7 @@ export async function runStoredAction(
     },
   });
   if (!stored) {
-    throw new AppError(404, "NOT_FOUND", "No hay otra variante guardada para este bloque.");
+    throw new AppError(404, "NOT_FOUND", "No hay otra sugerencia guardada para este bloque.");
   }
   await prisma.planBlock.update({
     where: { id: block.id },
@@ -98,7 +99,7 @@ async function replaceStoredSet(
     if (blocks.length !== blockKeys.length) {
       throw new AppError(404, "NOT_FOUND", "No hay una acción guardada con ese nombre.");
     }
-    const setIndex = Math.min(...blocks.map((block) => block.variant));
+    const setIndex = Math.min(...blocks.map((block) => shownVariant(block.variant)));
     const nextVariant = setIndex >= 3 ? 1 : setIndex + 1;
     const storedByKey = new Map<string, string>();
     for (const blockKey of blockKeys) {
@@ -106,7 +107,7 @@ async function replaceStoredSet(
         where: { scenarioId_blockKey_variant: { scenarioId, blockKey, variant: nextVariant } },
       });
       if (!stored) {
-        throw new AppError(404, "NOT_FOUND", "No hay otra variante guardada para este bloque.");
+        throw new AppError(404, "NOT_FOUND", "No hay otra sugerencia guardada para este bloque.");
       }
       storedByKey.set(blockKey, stored.body);
     }
@@ -134,7 +135,7 @@ async function replaceStoredSet(
     }
     return getPlan(prisma, sessionId, planId);
   }
-  throw new AppError(409, "CONFLICT", "No hay otra variante guardada para este bloque.");
+  throw new AppError(409, "CONFLICT", "No hay otra sugerencia guardada para este bloque.");
 }
 
 async function replaceFromActionList(
@@ -154,13 +155,13 @@ async function replaceFromActionList(
     const cursor = await prisma.planBlock.findUnique({
       where: { planId_blockKey: { planId, blockKey: actionKey } },
     });
-    const current = cursor?.variant ?? 0;
+    const current = shownVariant(cursor?.variant ?? 0);
     const nextVariant = current >= 3 ? 1 : current + 1;
     const stored = await prisma.suggestionVariant.findUnique({
       where: { scenarioId_blockKey_variant: { scenarioId, blockKey: actionKey, variant: nextVariant } },
     });
     if (!stored) {
-      throw new AppError(404, "NOT_FOUND", "No hay otra variante guardada para este bloque.");
+      throw new AppError(404, "NOT_FOUND", "No hay otra sugerencia guardada para este bloque.");
     }
     try {
       await prisma.$transaction(async (tx) => {
@@ -199,7 +200,7 @@ async function replaceFromActionList(
     }
     return getPlan(prisma, sessionId, planId);
   }
-  throw new AppError(409, "CONFLICT", "No hay otra variante guardada para este bloque.");
+  throw new AppError(409, "CONFLICT", "No hay otra sugerencia guardada para este bloque.");
 }
 
 function evidenceWrite(planId: string, blockKey: string, card: AssessmentLoadBody["scheduled"][number]) {
@@ -239,11 +240,12 @@ async function balanceAssessmentLoad(
       where: { scenarioId, blockKey: "assessment-load" },
       orderBy: { variant: "asc" },
     });
+    const shown = shownVariant(cursor.variant);
     const match = stored
-      .filter((row) => row.variant !== cursor.variant)
+      .filter((row) => row.variant !== shown)
       .sort((left, right) => {
-        const leftDistance = (left.variant - cursor.variant + stored.length) % stored.length;
-        const rightDistance = (right.variant - cursor.variant + stored.length) % stored.length;
+        const leftDistance = (left.variant - shown + stored.length) % stored.length;
+        const rightDistance = (right.variant - shown + stored.length) % stored.length;
         return leftDistance - rightDistance;
       })
       .map((row) => ({ row, load: parseAssessmentLoad(row.body) }))
@@ -326,13 +328,13 @@ async function generateWeekSessions(
   if (!cursor) {
     throw new AppError(409, "CONFLICT", NO_STORED_WEEK_SET);
   }
-  const nextVariant = cursor.variant >= 3 ? 1 : cursor.variant + 1;
+  const nextVariant = shownVariant(cursor.variant) >= 3 ? 1 : shownVariant(cursor.variant) + 1;
   const stored = await prisma.suggestionVariant.findUnique({
     where: { scenarioId_blockKey_variant: { scenarioId, blockKey, variant: nextVariant } },
   });
   const sessions = stored ? parseStoredSessions(stored.body) : null;
   if (!stored || !sessions) {
-    throw new AppError(404, "NOT_FOUND", "No hay otra variante guardada para este bloque.");
+    throw new AppError(404, "NOT_FOUND", "No hay otra sugerencia guardada para este bloque.");
   }
   const claimed = await prisma.$transaction(async (tx) => {
     const updated = await tx.planBlock.updateMany({
@@ -440,7 +442,7 @@ async function generateImplications(
     if (blocks.length !== implicationKeys.length) {
       throw new AppError(404, "NOT_FOUND", "No hay una acción guardada con ese nombre.");
     }
-    const setIndex = Math.min(...blocks.map((block) => block.variant));
+    const setIndex = Math.min(...blocks.map((block) => shownVariant(block.variant)));
     const nextVariant = setIndex >= 3 ? 1 : setIndex + 1;
     const storedByKey = new Map<string, string>();
     for (const blockKey of implicationKeys) {
@@ -450,7 +452,7 @@ async function generateImplications(
         },
       });
       if (!stored) {
-        throw new AppError(404, "NOT_FOUND", "No hay otra variante guardada para este bloque.");
+        throw new AppError(404, "NOT_FOUND", "No hay otra sugerencia guardada para este bloque.");
       }
       storedByKey.set(blockKey, stored.body);
     }
@@ -478,7 +480,7 @@ async function generateImplications(
     }
     return getPlan(prisma, sessionId, planId);
   }
-  throw new AppError(409, "CONFLICT", "No hay otra variante guardada para este bloque.");
+  throw new AppError(409, "CONFLICT", "No hay otra sugerencia guardada para este bloque.");
 }
 
 async function redistributeEvaluation(
@@ -501,7 +503,7 @@ async function redistributeEvaluation(
       where: { planId },
       orderBy: { position: "asc" },
     });
-    const nextVariant = block.variant >= 3 ? 1 : block.variant + 1;
+    const nextVariant = shownVariant(block.variant) >= 3 ? 1 : shownVariant(block.variant) + 1;
     const stored = await prisma.suggestionVariant.findUnique({
       where: {
         scenarioId_blockKey_variant: {
@@ -512,7 +514,7 @@ async function redistributeEvaluation(
       },
     });
     if (!stored) {
-      throw new AppError(404, "NOT_FOUND", "No hay otra variante guardada para este bloque.");
+      throw new AppError(404, "NOT_FOUND", "No hay otra sugerencia guardada para este bloque.");
     }
     const percentages = JSON.parse(stored.body) as number[];
     if (!Array.isArray(percentages) || percentages.length !== items.length) {

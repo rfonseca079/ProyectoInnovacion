@@ -1,14 +1,12 @@
 # Development Guide
 
-Setup for Planificador AI. `backend/` and `frontend/` exist. Login is the first working slice. Later wizard steps are still being added.
+Setup for Planificador AI. The demo runs entirely in Docker.
 
 Repository: https://github.com/rfonseca079/ProyectoInnovacion
 
 ## Prerequisites
 
-- Node.js 20 or newer
-- npm 10 or newer
-- Docker Desktop, for PostgreSQL
+- Docker Desktop
 - Git
 
 Do not commit `.env` files or real passwords. Demo seed passwords belong only in the development seed.
@@ -20,75 +18,27 @@ git clone https://github.com/rfonseca079/ProyectoInnovacion.git
 cd ProyectoInnovacion
 ```
 
-## 2. Database
+## 2. Start the demo
 
-From the repository root, once `docker-compose.yml` exists:
-
-```bash
-docker compose up -d
-```
-
-Expected local database:
-
-- Host: `127.0.0.1`
-- Port: `55432` on the host, forwarded to `5432` in the container, because another PostgreSQL may already use 5432
-- Database: `planificador`
-- User and password: values from `backend/.env`, never hardcoded in source
-
-## 3. Backend
-
-`backend/.env.example` is the template. Copy it to `backend/.env` and set at least:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@127.0.0.1:55432/planificador"
-PORT=3000
-NODE_ENV=development
-SESSION_SECRET=replace-with-a-long-random-string
-```
+From the repository root:
 
 ```bash
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate deploy
-npm run db:seed
-npm run dev
+docker compose up -d --build
 ```
 
-The API listens on `http://127.0.0.1:3000` unless `PORT` is set. If 3000 is already taken, set `PORT` and `VITE_API_URL` to the same free port.
+Open http://localhost:8088. The same app is available at http://127.0.0.1:8088.
 
-`npm run db:seed` loads the three teachers and the three suggestion scenarios described in `docs/data-model.md`. It must refuse to run when `NODE_ENV=production`.
+That command starts three services:
 
-## 4. Frontend
+- `postgres`: PostgreSQL 16. The host port `55432` forwards to `5432` in the container.
+- `api`: Express. It applies the Prisma schema and loads the demo seed, then listens inside the Docker network.
+- `web`: the built React app on port `8088`. The browser calls `/api` on that same origin, and nginx forwards those requests to `api`.
 
-```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
-```
+The demo container uses `NODE_ENV=development` so the seed can run. A production deployment must not load that seed.
 
-`frontend/.env`:
+## 3. Demo accounts
 
-```env
-VITE_API_URL=http://localhost:3000
-```
-
-The web app is desktop-first. Check it in a 1440px-wide window. Teacher-facing text is Spanish.
-
-## 5. Tests
-
-```bash
-cd backend && npm test
-cd frontend && npm test
-cd frontend && npm run test:e2e
-```
-
-Backend tests use Jest. Frontend unit tests use Vitest and Testing Library. End-to-end tests use Playwright against the seeded teachers.
-
-## 6. Demo accounts
-
-The development seed creates these teachers. The shared demo password is `Demo2026`.
+The seed creates these teachers. The shared demo password is `Demo2026`.
 
 | Teacher | Email | Opening state |
 | --- | --- | --- |
@@ -96,6 +46,16 @@ The development seed creates these teachers. The shared demo password is `Demo20
 | Carlos Mora | carlos.mora@demo.mep.cr | Ready for delivery on step 7, scenario `esp-2-abril-2026` |
 | María Solís | maria.solis@demo.mep.cr | Step 8 before adjustments, scenario `cie-7-febrero-2026` |
 
-## 7. What this demo must not call
+## 4. What this demo must not call
 
 Do not add an LLM SDK, an email provider, or a public registration endpoint. Suggestion buttons read rows already stored for the plan's scenario.
+
+## 5. Tests
+
+The suites are for people changing the code. They are not required to open the demo. Backend tests use Jest. Frontend unit tests use Vitest and Testing Library. End-to-end tests use Playwright against the seeded teachers, in a 1440px desktop window.
+
+```bash
+cd backend && npm test
+cd frontend && npm test
+cd frontend && npm run test:e2e
+```

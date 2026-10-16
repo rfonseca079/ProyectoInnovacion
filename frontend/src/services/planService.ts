@@ -7,7 +7,9 @@ export type PlanDetail = PlanSummary & {
   scenarioId: string | null;
   usedFallback: boolean;
   highestVisitedStep: number;
-  blocks: { blockKey: string; status: string; variant: number; body: string }[];
+  adjustmentApplied?: boolean;
+  notifyEvaluationChanges?: boolean;
+  blocks: { blockKey: string; status: string; variant: number; body: string; preview?: string }[];
   calendarDays?: { date: string; kind: string; label: string }[];
   weeks?: {
     position: number;
@@ -148,6 +150,32 @@ export async function patchMepDocument(planId: string, patch: Partial<MepDocumen
     throw new Error("No se pudo guardar el documento.");
   }
   return response.json() as Promise<MepDocumentView>;
+}
+
+export async function fetchPlanPdf(planId: string): Promise<{ blob: Blob; filename: string }> {
+  const response = await fetch(`${apiUrl}/api/plans/${planId}/document/pdf`, { credentials: "include" });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { message?: string } | null;
+    throw new Error(body?.message ?? "No se pudo descargar el PDF.");
+  }
+  const header = response.headers.get("Content-Disposition") ?? "";
+  const match = /filename="([^"]+)"/.exec(header);
+  return {
+    blob: await response.blob(),
+    filename: match?.[1] ?? "planeamiento.pdf",
+  };
+}
+
+export async function applyAdjustments(planId: string): Promise<PlanDetail> {
+  const response = await fetch(`${apiUrl}/api/plans/${planId}/adjustments/apply`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { message?: string } | null;
+    throw new Error(body?.message ?? "No se pudieron aplicar los ajustes.");
+  }
+  return response.json() as Promise<PlanDetail>;
 }
 
 export async function downloadWeekPdf(planId: string, weekNumber: number): Promise<void> {

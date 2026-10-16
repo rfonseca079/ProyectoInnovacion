@@ -51,6 +51,7 @@ One didactic plan owned by one teacher. A teacher sees only their own plans.
 | `highestVisitedStep` | Highest step the teacher has opened |
 | `scenarioId` | Scenario selected for suggestions |
 | `usedFallback` | True when the configuration did not match a scenario and `mat-4-marzo-2026` was used |
+| `adjustmentApplied` | Boolean, default false. True only after the teacher applies the stored post-class adjustment |
 | `notifyEvaluationChanges` | Boolean, default false. Stored only. Nothing is sent |
 | `updatedAt` | Shown on the plan list |
 
@@ -85,12 +86,13 @@ One stored text or JSON payload for a block.
 | `scenarioId` | Foreign key |
 | `blockKey` | Stable key, such as `program-extract` or `month-objectives` |
 | `variant` | `1`, `2`, or `3` |
-| `actionKey` | Optional. Set when a named button loads this variant, such as `fit-40-minutes` |
 | `body` | Text or structured JSON |
 
-Every regenerable block has three variants. Named buttons (`reanalyze-program`, `redistribute-evaluation`, `generate-implications`, `regenerate-mediation`, `fit-40-minutes`, `simplify-materials`, `balance-assessment-load`, `generate-week-sessions`) select the next stored variant for that action and replace the visible text, even if the block was accepted or edited. The block returns to `SUGGESTED`.
+Named buttons are route keys, not a column on this table. `reanalyze-program`, `redistribute-evaluation`, `generate-implications`, `regenerate-mediation`, `fit-40-minutes`, `simplify-materials`, `balance-assessment-load`, and `generate-week-sessions` select the next stored variant and replace the visible text, even if the block was accepted or edited. The block returns to `SUGGESTED`. `duplicate-structure` copies the fields of the expanded session onto the other sessions of that week and does not cycle a variant.
 
-`Regenerate` on a card cycles variants 1, 2, and 3. If the block is still `SUGGESTED`, the visible field updates too. If it is `ACCEPTED` or `EDITED`, the field stays until the teacher accepts the new variant.
+`Regenerate` on a card cycles variants 1, 2, and 3. The response includes `preview` with the next stored sentence. If the block is still `SUGGESTED`, the visible field updates too. If it is `ACCEPTED` or `EDITED`, `body` stays until the teacher accepts the new variant. A missing next variant responds `404` with `No hay otra sugerencia guardada para este bloque.`
+
+Every week of a scenario stores three `week-sessions-{position}` variants. Mathematics weeks 1, 3, and 4 use the seeded sessions plus two stored variants. Week 2 keeps the three expanded session sets.
 
 ## PlanBlock
 
@@ -100,7 +102,7 @@ The teacher's current content for one block.
 | --- | --- |
 | `planId`, `blockKey` | Unique together |
 | `status` | `SUGGESTED`, `ACCEPTED`, or `EDITED` |
-| `variant` | Variant currently shown |
+| `variant` | Variant currently shown, `1`, `2`, or `3`. While an accepted or edited block is waiting for the teacher to accept the next variant, the stored number is that variant plus 3. Responses still show `1`, `2`, or `3` and include `preview`. |
 | `body` | Current saved content |
 
 Step 1 block keys, matching the seed: `program-extract`, `available-time`, `calendar-restrictions`, `month-objectives`, `month-contents`, and `calendar-risks`. `available-time` stores JSON with `plannableLessons` and `affectedLessons`. The other five store Spanish text.

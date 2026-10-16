@@ -36,15 +36,35 @@ export type WeekPdfSession = {
 };
 
 export function weekPdfFilename(weekNumber: number, subject: string, month: number, year: number): string {
-  const subjectName = subjects[subject] ?? "asignatura";
-  const monthName = months[month - 1] ?? "mes";
-  return `semana-${weekNumber}-${subjectName}-${monthName}-${year}.pdf`;
+  return `semana-${weekNumber}-${subjectSlug(subject)}-${monthSlug(month)}-${year}.pdf`;
+}
+
+export function planPdfFilename(subject: string, grade: number, month: number, year: number): string {
+  return `planeamiento-${subjectSlug(subject)}-${grade}-${monthSlug(month)}-${year}.pdf`;
+}
+
+function subjectSlug(subject: string): string {
+  return subjects[subject] ?? "asignatura";
+}
+
+function monthSlug(month: number): string {
+  return months[month - 1] ?? "mes";
 }
 
 const lineWidth = 90;
 
+function winAnsi(value: string): string {
+  return value
+    .replace(/\u2014/g, "-")
+    .replace(/\u2013/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, "\"")
+    .replace(/\u2026/g, "...")
+    .replace(/[^\u0000-\u00FF]/g, "");
+}
+
 function pdfString(value: string): string {
-  return Buffer.from(value, "latin1")
+  return Buffer.from(winAnsi(value), "latin1")
     .toString("latin1")
     .replace(/\\/g, "\\\\")
     .replace(/\(/g, "\\(")
@@ -106,10 +126,10 @@ function latin1(value: string): Buffer {
   return Buffer.from(value, "latin1");
 }
 
-export function renderWeekPdf(sessions: WeekPdfSession[]): Buffer {
-  const lines = sessions.flatMap(sessionLines).flatMap(wrapLine);
+export function renderTextPdf(lines: string[]): Buffer {
+  const wrapped = lines.flatMap(wrapLine);
   const commands = ["BT", "/F1 11 Tf", "50 760 Td"];
-  lines.forEach((line, index) => {
+  wrapped.forEach((line, index) => {
     if (index > 0) {
       commands.push("0 -14 Td");
     }
@@ -148,4 +168,8 @@ export function renderWeekPdf(sessions: WeekPdfSession[]): Buffer {
   ];
   parts.push(latin1(xref.join("")));
   return Buffer.concat(parts);
+}
+
+export function renderWeekPdf(sessions: WeekPdfSession[]): Buffer {
+  return renderTextPdf(sessions.flatMap(sessionLines));
 }

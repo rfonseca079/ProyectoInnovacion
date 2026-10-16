@@ -6,10 +6,12 @@ import { errorMiddleware } from "./presentation/http";
 import { apiRouter } from "./presentation/routes";
 
 export function createApp(prisma: PrismaClient) {
+  const configuredOrigin = process.env.WEB_ORIGIN ?? "http://localhost:5173";
+  const origins = configuredOrigin.split(",").map((origin) => origin.trim()).filter((origin) => origin.length > 0);
   const app = express();
   app.use(
     cors({
-      origin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
+      origin: origins.length === 1 ? origins[0] : origins,
       credentials: true,
     }),
   );

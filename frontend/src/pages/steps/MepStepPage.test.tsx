@@ -56,10 +56,12 @@ const maria: MepDocumentView = {
   ],
 };
 
+const unusedPdf = () => Promise.resolve({ blob: new Blob(), filename: "planeamiento.pdf" });
+
 describe("MepStepPage", () => {
   it("shows a three-column document, the ready state, and Carlos's and María's signature sentences", () => {
     const { unmount } = render(
-      <MepStepPage document={carlos} status="READY_FOR_DELIVERY" onSave={() => undefined} onDownload={() => undefined} />,
+      <MepStepPage document={carlos} status="READY_FOR_DELIVERY" onSave={() => undefined} requestPdf={unusedPdf} />,
     );
     expect(screen.getByRole("columnheader", { name: "Aprendizajes esperados" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Estrategias de mediación" })).toBeInTheDocument();
@@ -68,7 +70,7 @@ describe("MepStepPage", () => {
     expect(screen.getByText("Lectura en voz alta del cuento de la semana")).toBeInTheDocument();
     unmount();
     render(
-      <MepStepPage document={maria} status="READY_FOR_DELIVERY" onSave={() => undefined} onDownload={() => undefined} />,
+      <MepStepPage document={maria} status="READY_FOR_DELIVERY" onSave={() => undefined} requestPdf={unusedPdf} />,
     );
     expect(screen.getByText("Observación guiada de la célula")).toBeInTheDocument();
   });
@@ -76,7 +78,7 @@ describe("MepStepPage", () => {
   it("saves Curso lectivo as a number", () => {
     const onSave = vi.fn();
     render(
-      <MepStepPage document={carlos} status="READY_FOR_DELIVERY" onSave={onSave} onDownload={() => undefined} />,
+      <MepStepPage document={carlos} status="READY_FOR_DELIVERY" onSave={onSave} requestPdf={unusedPdf} />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Editar campos" }));
     const year = screen.getByRole("textbox", { name: "Curso lectivo" });
@@ -86,19 +88,52 @@ describe("MepStepPage", () => {
   });
 
   it("keeps the document on screen and does not download when a required field is empty", () => {
-    const onDownload = vi.fn();
+    const requestPdf = vi.fn();
     render(
       <MepStepPage
         document={{ ...carlos, schoolName: "" }}
         status="READY_FOR_DELIVERY"
         onSave={() => undefined}
-        onDownload={onDownload}
+        requestPdf={requestPdf}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Descargar PDF" }));
-    expect(onDownload).not.toHaveBeenCalled();
+    expect(requestPdf).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent("Complete el campo Centro educativo.");
     expect(screen.getByRole("columnheader", { name: "Aprendizajes esperados" })).toBeInTheDocument();
     expect(screen.getByText("Lectura en voz alta del cuento de la semana")).toBeInTheDocument();
+  });
+
+  it("previews and downloads the same PDF response", async () => {
+    const blob = new Blob(["observacion nueva"], { type: "application/pdf" });
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:preview") });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
+    const requestPdf = vi.fn().mockResolvedValue({
+      blob,
+      filename: "planeamiento-matematica-4-marzo-2026.pdf",
+    });
+    render(
+      <MepStepPage
+        document={carlos}
+        status="READY_FOR_DELIVERY"
+        onSave={() => undefined}
+        requestPdf={requestPdf}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Vista previa PDF" }));
+    const preview = await screen.findByTitle("Vista previa del planeamiento");
+    expect(requestPdf).toHaveBeenCalledTimes(1);
+    expect(preview).toHaveAttribute("src", expect.stringMatching(/^blob:/));
+    fireEvent.click(screen.getByRole("button", { name: "Descargar PDF" }));
+    expect(requestPdf).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows the message when the PDF request fails", async () => {
+    const requestPdf = vi.fn().mockRejectedValue(new Error("Complete el campo Centro educativo."));
+    render(
+      <MepStepPage document={carlos} status="READY_FOR_DELIVERY" onSave={() => undefined} requestPdf={requestPdf} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Descargar PDF" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Complete el campo Centro educativo.");
   });
 });

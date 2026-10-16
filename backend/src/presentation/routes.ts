@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { currentTeacher, loginTeacher } from "../application/loginTeacher";
+import { applyAdjustments } from "../application/applyAdjustments";
 import { readMepDocument, updateMepDocument } from "../application/buildMepDocument";
 import { continueStep } from "../application/continueStep";
 import { createPlan, updatePlanConfiguration } from "../application/createPlan";
+import { downloadPlanPdf } from "../application/downloadPlanPdf";
 import { downloadWeekPdf } from "../application/downloadWeekPdf";
 import { getPlan, listPlans } from "../application/listPlans";
 import { logoutTeacher } from "../application/logoutTeacher";
-import { acceptBlock, regenerateBlock } from "../application/regenerateBlock";
+import { acceptBlock, editBlock, regenerateBlock } from "../application/regenerateBlock";
 import { runStoredAction } from "../application/runStoredAction";
 import { updateClassSession } from "../application/updateClassSession";
 import { readSessionId, SESSION_COOKIE, sessionCookieOptions } from "./http";
@@ -94,6 +96,21 @@ export function apiRouter(prisma: PrismaClient): Router {
     }
   });
 
+  router.patch("/plans/:planId/blocks/:blockKey", async (req, res, next) => {
+    try {
+      const block = await editBlock(
+        prisma,
+        readSessionId(req),
+        String(req.params.planId),
+        String(req.params.blockKey),
+        req.body?.body,
+      );
+      res.json(block);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.post("/plans/:planId/blocks/:blockKey/accept", async (req, res, next) => {
     try {
       const block = await acceptBlock(prisma, readSessionId(req), String(req.params.planId), String(req.params.blockKey));
@@ -148,9 +165,28 @@ export function apiRouter(prisma: PrismaClient): Router {
     }
   });
 
+  router.post("/plans/:planId/adjustments/apply", async (req, res, next) => {
+    try {
+      res.json(await applyAdjustments(prisma, readSessionId(req), String(req.params.planId)));
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.patch("/plans/:planId/document", async (req, res, next) => {
     try {
       res.json(await updateMepDocument(prisma, readSessionId(req), String(req.params.planId), req.body ?? {}));
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get("/plans/:planId/document/pdf", async (req, res, next) => {
+    try {
+      const file = await downloadPlanPdf(prisma, readSessionId(req), String(req.params.planId));
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${file.filename}"`);
+      res.send(file.bytes);
     } catch (error) {
       next(error);
     }

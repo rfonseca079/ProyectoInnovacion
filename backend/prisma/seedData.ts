@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { copyAdjustmentBlocks, seedAdjustmentVariants } from "./adjustmentSeed";
 import { evidenceCardJson, scenarioEvidence, StoredEvidenceCard } from "./evidenceSeed";
 import { seedMepTemplate } from "./mepSeed";
 import { activeWeekPosition, copyPlanSessions, seedWeekSessionVariants } from "./sessionSeed";
@@ -855,6 +856,7 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
     }
     await seedWeekSessionVariants(prisma, scenario.id);
     await seedMepTemplate(prisma, scenario.id);
+    await seedAdjustmentVariants(prisma, scenario.id);
   }
 
   for (const plan of seededPlans) {
@@ -878,6 +880,7 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       highestVisitedStep: plan.highestVisitedStep,
       scenarioId: plan.scenarioId,
       usedFallback: false,
+      adjustmentApplied: false,
       updatedAt: plan.updatedAt,
     };
     await prisma.plan.upsert({
@@ -914,6 +917,7 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       })),
     });
     await copyPlanSessions(prisma, plan.id, plan.scenarioId);
+    await copyAdjustmentBlocks(prisma, plan.id, plan.scenarioId);
     await prisma.rubricItem.deleteMany({ where: { planId: plan.id } });
     await prisma.rubricItem.createMany({
       data: units.rubric.map((item, index) => ({ planId: plan.id, position: index + 1, ...item })),
