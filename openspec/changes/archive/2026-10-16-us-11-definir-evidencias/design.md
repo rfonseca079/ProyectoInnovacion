@@ -18,9 +18,10 @@ See proposal.md. Scheduled evidence must stay tied to current rubric names, and 
 ## Decisions
 
 - `Evidence.kind` is `FORMATIVE` or `SCHEDULED`. Cards use the shared accept, edit, and regenerate routes.
-- `balance-assessment-load` selects the next stored set whose `rubricNames` equal the current rubric names. No match returns 409 and the Spanish sentence from the spec.
-- A scheduled `when` that falls on `HOLIDAY` or `SUSPENDED` is a display warning only. Continue checks completeness, not the warning.
-- The third mathematics load may move quiz weight only when the seeded rubric names are unchanged. That write is stored data, not a general redistributor.
+- `balance-assessment-load` selects the next stored set whose `rubricNames` are the same set as the current rubric names. Position does not matter. No match returns 409 and the Spanish sentence from the spec.
+- A lost claim returns the plan without applying another load. The balance control ignores further clicks while a request is in flight.
+- A scheduled `occursOn` that falls on `HOLIDAY` or `SUSPENDED` is a display warning only. A missing `occursOn` does not warn, even when the Spanish `when` names a week that contains a holiday. Continue checks completeness, not the warning.
+- Only the third mathematics load may move quiz weight, and only when the seeded rubric names are unchanged. Other loads replace scheduled evidence and leave rubric count and percentage untouched.
 
 Alternative considered: always moving dates even after renames. Rejected because US-11 says unmatched names produce the 409 message.
 

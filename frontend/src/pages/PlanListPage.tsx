@@ -6,7 +6,8 @@ import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
 import { continuePlan, getPlan, patchPlan, PlanDetail } from "../services/planService";
-import { acceptSuggestion, fitFortyMinutes, generateImplications, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
+import { acceptSuggestion, balanceAssessmentLoad, fitFortyMinutes, generateImplications, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
+import { EvidenceStepPage, isEvidenceStepReady, NO_STORED_LOAD } from "./steps/EvidenceStepPage";
 import { GroupStepPage, isGroupStepReady } from "./steps/GroupStepPage";
 import { isMediationStepReady, MediationStepPage } from "./steps/MediationStepPage";
 import { isProgramStepReady, ProgramStepPage } from "./steps/ProgramStepPage";
@@ -89,6 +90,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const [unitsReady, setUnitsReady] = useState<boolean | null>(null);
   const [groupReady, setGroupReady] = useState<boolean | null>(null);
   const [mediationReady, setMediationReady] = useState<boolean | null>(null);
+  const [evidenceReady, setEvidenceReady] = useState<boolean | null>(null);
   const pendingSave = useRef(Promise.resolve());
   const reportUnitsReady = useCallback((ready: boolean) => {
     setUnitsReady(ready);
@@ -98,6 +100,9 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   }, []);
   const reportMediationReady = useCallback((ready: boolean) => {
     setMediationReady(ready);
+  }, []);
+  const reportEvidenceReady = useCallback((ready: boolean) => {
+    setEvidenceReady(ready);
   }, []);
 
   function trackSave(work: Promise<void>): Promise<void> {
@@ -168,7 +173,8 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
         (step === 1 && !isProgramStepReady(plan.blocks)) ||
         (step === 2 && !(unitsReady ?? isUnitsStepReady(plan.weeks ?? [], plan.rubric ?? []))) ||
         (step === 3 && !(groupReady ?? isGroupStepReady(plan.blocks))) ||
-        (step === 4 && !(mediationReady ?? isMediationStepReady(plan.blocks)))
+        (step === 4 && !(mediationReady ?? isMediationStepReady(plan.blocks))) ||
+        (step === 5 && !(evidenceReady ?? isEvidenceStepReady(plan.evidence ?? [])))
       }
       continueMessage={continueMessage}
       onContinue={() => {
@@ -419,6 +425,78 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
                 setActionMessage(error instanceof Error ? error.message : "No se pudieron simplificar los materiales.");
               })
           }
+          actionMessage={actionMessage}
+          notice={notice}
+        />
+      ) : step === 5 ? (
+        <EvidenceStepPage
+          evidence={plan.evidence ?? []}
+          calendarDays={plan.calendarDays ?? []}
+          onSave={(blockKey, body) =>
+            trackSave(
+              patchPlan(planId, { blocks: [{ blockKey, body }] })
+                .then(() => {
+                  const card = JSON.parse(body) as {
+                    title: string;
+                    measures: string;
+                    when: string;
+                    instrument: string;
+                    expectedLearning: string;
+                    occursOn: string | null;
+                  };
+                  setPlan((current) =>
+                    current
+                      ? {
+                          ...current,
+                          blocks: current.blocks.map((block) =>
+                            block.blockKey === blockKey ? { ...block, body, status: "EDITED" } : block,
+                          ),
+                          evidence: (current.evidence ?? []).map((item) =>
+                            item.blockKey === blockKey ? { ...item, ...card } : item,
+                          ),
+                        }
+                      : current,
+                  );
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onReadyChange={reportEvidenceReady}
+          onBalance={() =>
+            pendingSave.current
+              .then(() => balanceAssessmentLoad(planId))
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : NO_STORED_LOAD);
+              })
+          }
+          onAccept={(blockKey) => {
+            void acceptSuggestion(planId, blockKey).then((saved) => {
+              setPlan((current) =>
+                current
+                  ? { ...current, blocks: current.blocks.map((block) => (block.blockKey === saved.blockKey ? saved : block)) }
+                  : current,
+              );
+            });
+          }}
+          onRegenerate={(blockKey) => {
+            void pendingSave.current
+              .then(() => regenerateSuggestion(planId, blockKey))
+              .then(() => getPlan(planId))
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudo regenerar la evidencia.");
+              });
+          }}
           actionMessage={actionMessage}
           notice={notice}
         />

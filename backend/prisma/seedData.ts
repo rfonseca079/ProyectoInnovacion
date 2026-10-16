@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { evidenceCardJson, scenarioEvidence, StoredEvidenceCard } from "./evidenceSeed";
 
 export const DEMO_PASSWORD = "Demo2026";
 
@@ -623,6 +624,53 @@ const seededPlans = [
   },
 ];
 
+export async function copyScenarioEvidence(prisma: PrismaClient, planId: string, scenarioId: string): Promise<void> {
+  const evidence = scenarioEvidence[scenarioId];
+  if (!evidence) {
+    return;
+  }
+  const cards = [...evidence.formative[0], ...evidence.loads[0].scheduled];
+  await prisma.evidence.deleteMany({ where: { planId } });
+  await prisma.evidence.createMany({
+    data: cards.map((card) => ({
+      planId,
+      kind: card.kind,
+      position: card.position,
+      blockKey: card.blockKey,
+      title: card.title,
+      measures: card.measures,
+      when: card.when,
+      instrument: card.instrument,
+      expectedLearning: card.expectedLearning,
+      occursOn: card.occursOn ? new Date(`${card.occursOn}T00:00:00.000Z`) : null,
+    })),
+  });
+  for (const card of cards) {
+    await prisma.planBlock.upsert({
+      where: { planId_blockKey: { planId, blockKey: card.blockKey } },
+      update: { body: evidenceCardJson(card), variant: 1, status: "SUGGESTED" },
+      create: {
+        planId,
+        blockKey: card.blockKey,
+        status: "SUGGESTED",
+        variant: 1,
+        body: evidenceCardJson(card),
+      },
+    });
+  }
+  await prisma.planBlock.upsert({
+    where: { planId_blockKey: { planId, blockKey: "assessment-load" } },
+    update: { body: JSON.stringify(evidence.loads[0]), variant: 1, status: "SUGGESTED" },
+    create: {
+      planId,
+      blockKey: "assessment-load",
+      status: "SUGGESTED",
+      variant: 1,
+      body: JSON.stringify(evidence.loads[0]),
+    },
+  });
+}
+
 export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undefined): Promise<void> {
   assertSeedAllowed(nodeEnv);
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
@@ -761,6 +809,40 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
         });
       }
     }
+    const evidence = scenarioEvidence[scenario.id];
+    const formativeKeys = evidence.formative[0].map((card) => card.blockKey);
+    for (const blockKey of formativeKeys) {
+      const bodies = evidence.formative.map((set) => evidenceCardJson(set.find((card) => card.blockKey === blockKey) as StoredEvidenceCard));
+      for (let index = 0; index < bodies.length; index += 1) {
+        const variant = index + 1;
+        await prisma.suggestionVariant.upsert({
+          where: { scenarioId_blockKey_variant: { scenarioId: scenario.id, blockKey, variant } },
+          update: { body: bodies[index], step: 5 },
+          create: { scenarioId: scenario.id, blockKey, step: 5, variant, body: bodies[index] },
+        });
+      }
+    }
+    const scheduledKeys = evidence.loads[0].scheduled.map((card) => card.blockKey);
+    for (const blockKey of scheduledKeys) {
+      const bodies = evidence.loads.map((set) => evidenceCardJson(set.scheduled.find((card) => card.blockKey === blockKey) as StoredEvidenceCard));
+      for (let index = 0; index < bodies.length; index += 1) {
+        const variant = index + 1;
+        await prisma.suggestionVariant.upsert({
+          where: { scenarioId_blockKey_variant: { scenarioId: scenario.id, blockKey, variant } },
+          update: { body: bodies[index], step: 5 },
+          create: { scenarioId: scenario.id, blockKey, step: 5, variant, body: bodies[index] },
+        });
+      }
+    }
+    for (let index = 0; index < evidence.loads.length; index += 1) {
+      const variant = index + 1;
+      const body = JSON.stringify(evidence.loads[index]);
+      await prisma.suggestionVariant.upsert({
+        where: { scenarioId_blockKey_variant: { scenarioId: scenario.id, blockKey: "assessment-load", variant } },
+        update: { body, step: 5 },
+        create: { scenarioId: scenario.id, blockKey: "assessment-load", step: 5, variant, body },
+      });
+    }
     for (const day of scenario.days) {
       const date = new Date(`${day.date}T00:00:00.000Z`);
       await prisma.calendarDay.upsert({
@@ -856,6 +938,7 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
         },
       });
     }
+    await copyScenarioEvidence(prisma, plan.id, plan.scenarioId);
     const stepThree = await prisma.suggestionVariant.findMany({
       where: { scenarioId: plan.scenarioId, step: 3, variant: 1 },
     });

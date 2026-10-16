@@ -1,6 +1,7 @@
 import { Cycle, Modality, PrismaClient, Subject } from "@prisma/client";
 import { AppError } from "../domain/errors";
-import { mediationVisibleKeys, scenarioUnits } from "../../prisma/seedData";
+import { occursOnDate, parseEvidenceCard } from "../domain/evidenceCard";
+import { mediationVisibleKeys, scenarioUnits, copyScenarioEvidence } from "../../prisma/seedData";
 import { gradeBelongsToCycle, GRADE_OUTSIDE_CYCLE, resolveScenario } from "../domain/scenario";
 import { getPlan } from "./listPlans";
 
@@ -183,6 +184,7 @@ export async function createPlan(prisma: PrismaClient, sessionId: string | undef
   await copyUnits(prisma, plan.id, scenario.scenarioId);
   await copyGroup(prisma, plan.id, scenario.scenarioId);
   await copyMediation(prisma, plan.id, scenario.scenarioId);
+  await copyScenarioEvidence(prisma, plan.id, scenario.scenarioId);
   return getPlan(prisma, sessionId, plan.id);
 }
 
@@ -260,6 +262,22 @@ export async function updatePlanConfiguration(
         where: { planId, blockKey: block.blockKey },
         data: { body: block.body, status: "EDITED" },
       });
+      const card = parseEvidenceCard(block.body);
+      if (block.blockKey.startsWith("evidence-") && card) {
+        await prisma.evidence.updateMany({
+          where: { planId, blockKey: block.blockKey },
+          data: {
+            kind: card.kind,
+            position: card.position,
+            title: card.title,
+            measures: card.measures,
+            when: card.when,
+            instrument: card.instrument,
+            expectedLearning: card.expectedLearning,
+            occursOn: occursOnDate(card.occursOn),
+          },
+        });
+      }
     }
   }
   if (matchChanged && existing.scenarioId !== scenario.scenarioId) {

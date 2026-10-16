@@ -143,7 +143,13 @@ Mathematics variant 1 is 30, 20, 15, 20, 15. Variant 2 is 25, 15, 20, 25, 15. Va
 
 ## Evidence
 
-Formative and scheduled evidence cards: what it measures, when, instrument, and link to an expected learning. `balance-assessment-load` loads the next stored set that matches the current rubric names. If none matches, the API returns that no stored load exists.
+Step 5 stores formative and scheduled cards. `kind` is only `FORMATIVE` or `SCHEDULED`. Each row stores `title`, `measures`, `when`, `instrument`, `expectedLearning`, and optional `occursOn` (`YYYY-MM-DD`). The four teacher-facing fields are what it measures, when, the instrument, and the link to an expected learning. `title` is the card heading. `occursOn` is the concrete date compared with `CalendarDay`. A scheduled date on `HOLIDAY` or `SUSPENDED` shows "Esta fecha está marcada como no lectiva en el calendario." and does not block continue.
+
+Cards use the shared accept, edit, and regenerate routes with keys `evidence-formative-*` and `evidence-scheduled-*`. Continue on step 5 requires at least one complete formative card and one complete scheduled card.
+
+`balance-assessment-load` replaces only the scheduled rows with the next stored load whose `rubricNames` are the same set as the current rubric names. Position does not matter. It does not delete or rename rubric rows, and it does not change rubric count or percentage. The exception is the third mathematics load, which may change the quiz count and move 10 percentage points from quices to desempeño en clase when those seeded names still match. An overlapping request that loses the claim does not apply another load. A card with no `occursOn` does not show the non-teaching-day warning, even when its week phrase covers a holiday. If no other stored load matches, the response is 409 with "No hay otra carga guardada para los rubros actuales."
+
+Mathematics load 1 places Quiz 1 on 13 March and the written test on 27 March. Load 2 moves Quiz 1 to 20 March and leaves the written test on 27 March. Spanish stores a "Quiz de idea principal" in April. Science stores a "Práctica de reconocimiento de organelos" in February. Each scenario stores three loads.
 
 ## AdjustmentSet
 

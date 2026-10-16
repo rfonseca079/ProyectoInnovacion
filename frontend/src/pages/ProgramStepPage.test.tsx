@@ -18,6 +18,7 @@ vi.mock("../services/suggestionService", () => ({
   regenerateMediation: vi.fn(),
   fitFortyMinutes: vi.fn(),
   simplifyMaterials: vi.fn(),
+  balanceAssessmentLoad: vi.fn(),
 }));
 
 const planId = "11111111-1111-4111-8111-111111111111";

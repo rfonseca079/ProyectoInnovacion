@@ -24,6 +24,15 @@ All implementation tasks MUST include these steps in the correct order:
 - **Branch naming**: `feature/[ticket-id]` or `feature/[change-name]`
 - **Action**: Create and switch to feature branch before any code changes
 
+### TDD pair for each new behavior (MUST precede that behavior's implementation)
+
+Every new behavior MUST be two consecutive tasks. Do not merge them into one checkbox such as "implement X and verify the test passes".
+
+- **Failing test**: Write only the test. Run it. Record the command, the test name, and the assertion or error that failed. Do not add or edit production code in this task. Mark the task complete only after that failure has been observed.
+- **Implementation**: Start only after the failing-test task is checked. Change the minimum production code so that same test passes. Run it again and record the pass. Mark the task complete only after that pass.
+
+This applies to backend and frontend tests. The later suite, curl, and Playwright steps do not replace this pair.
+
 ### Mandatory Steps (Must Be Included):
 - **Step N**: Review and Update Existing Unit Tests (MANDATORY)
 - **Step N+1**: Run Unit Tests and Verify Database State (MANDATORY)
@@ -234,6 +243,8 @@ All implementation tasks MUST include these steps in the correct order:
 
 Before finalizing any `tasks.md` file, verify:
 - [ ] Step 0 (Create Feature Branch) is the FIRST step
+- [ ] Each new behavior is two consecutive tasks: a failing-test task that forbids production edits, then an implementation task that starts only after that failure is recorded
+- [ ] No behavior task is merged into "implement X and verify the test passes"
 - [ ] All mandatory steps from config.yaml are included
 - [ ] Steps are numbered sequentially
 - [ ] Mandatory steps are clearly marked with "(MANDATORY)" label
@@ -260,8 +271,15 @@ This rule applies when:
 - [ ] 0.1 Create feature branch `feature/update-position-backend` from main/master branch
 - [ ] 0.2 Verify branch creation and current branch status
 
-## 1. Backend: Validator Tests (TDD)
-...
+## 1. <Behavior> failing test (TDD)
+
+- [ ] 1.1 Write the failing test for <behavior>. Run it and record the command, the test name, and the assertion or error that failed. Do not add or edit production code in this task. Mark complete only after the failure has been observed.
+
+## 2. <Behavior> implementation
+
+- [ ] 2.1 Implement the minimum production change so the test from 1.1 passes. Run that same test and record the pass. Do not start this task until 1.1 is checked.
+
+Repeat sections 1 and 2 for each new behavior, including frontend component tests.
 
 ## 8. Backend: Review and Update Existing Unit Tests (MANDATORY)
 ...
@@ -320,6 +338,8 @@ This rule applies when:
    - Ask the user to run E2E tests
    - Mark tasks as completed without executing tests
    - Skip manual testing steps
+   - Write production code inside a failing-test task
+   - Mark an implementation task complete when its test was never observed failing first
 
 4. **Document Test Execution**: The agent must document:
    - All curl commands executed
@@ -327,6 +347,8 @@ This rule applies when:
    - All E2E test scenarios executed
    - Database state restoration actions
    - Any issues encountered and resolutions
+
+5. **Keep each TDD pair split during apply**: For a failing-test task, do not edit production code. Mark it complete only after the test run shows a failure for the missing behavior, and record the command, test name, and failure. Do not start the matching implementation task until that checkbox is done. Mark the implementation task complete only after that same test passes.
 
 ## Failure to Follow
 

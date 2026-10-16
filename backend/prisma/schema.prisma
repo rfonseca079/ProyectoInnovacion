@@ -56,6 +56,11 @@ enum DayKind {
   ASSESSMENT
 }
 
+enum EvidenceKind {
+  FORMATIVE
+  SCHEDULED
+}
+
 model Plan {
   id                   String     @id @default(uuid())
   teacherId            String
@@ -83,6 +88,7 @@ model Plan {
   blocks               PlanBlock[]
   rubricItems          RubricItem[]
   weeks                Week[]
+  evidence             Evidence[]
 }
 
 model Week {
@@ -151,6 +157,24 @@ model PlanBlock {
   body     String
 
   @@unique([planId, blockKey])
+}
+
+model Evidence {
+  id               String       @id @default(uuid())
+  planId           String
+  plan             Plan         @relation(fields: [planId], references: [id], onDelete: Cascade)
+  kind             EvidenceKind
+  position         Int
+  blockKey         String
+  title            String
+  measures         String
+  when             String
+  instrument       String
+  expectedLearning String
+  occursOn         DateTime?    @db.Date
+
+  @@unique([planId, blockKey])
+  @@unique([planId, kind, position])
 }
 
 model Session {
