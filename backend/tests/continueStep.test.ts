@@ -1,6 +1,7 @@
 import request from "supertest";
 import { PrismaClient } from "@prisma/client";
 import { scenarioUnits } from "../prisma/seedData";
+import { activeWeekPosition } from "../prisma/sessionSeed";
 import { createApp } from "../src/app";
 
 const prisma = new PrismaClient();
@@ -12,7 +13,12 @@ describe("continue step", () => {
     const units = scenarioUnits["mat-4-marzo-2026"];
     await prisma.week.deleteMany({ where: { planId: juanitaPlanId } });
     await prisma.week.createMany({
-      data: units.weeks.map((title, index) => ({ planId: juanitaPlanId, position: index + 1, title })),
+      data: units.weeks.map((title, index) => ({
+        planId: juanitaPlanId,
+        position: index + 1,
+        title,
+        active: index + 1 === activeWeekPosition("mat-4-marzo-2026"),
+      })),
     });
     await prisma.rubricItem.deleteMany({ where: { planId: juanitaPlanId } });
     await prisma.rubricItem.createMany({

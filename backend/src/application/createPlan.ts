@@ -2,6 +2,7 @@ import { Cycle, Modality, PrismaClient, Subject } from "@prisma/client";
 import { AppError } from "../domain/errors";
 import { occursOnDate, parseEvidenceCard } from "../domain/evidenceCard";
 import { mediationVisibleKeys, scenarioUnits, copyScenarioEvidence } from "../../prisma/seedData";
+import { activeWeekPosition, copyPlanSessions } from "../../prisma/sessionSeed";
 import { gradeBelongsToCycle, GRADE_OUTSIDE_CYCLE, resolveScenario } from "../domain/scenario";
 import { getPlan } from "./listPlans";
 
@@ -138,8 +139,14 @@ async function copyUnits(prisma: PrismaClient, planId: string, scenarioId: strin
     return;
   }
   await prisma.week.createMany({
-    data: units.weeks.map((title, index) => ({ planId, position: index + 1, title })),
+    data: units.weeks.map((title, index) => ({
+      planId,
+      position: index + 1,
+      title,
+      active: index + 1 === activeWeekPosition(scenarioId),
+    })),
   });
+  await copyPlanSessions(prisma, planId, scenarioId);
   await prisma.rubricItem.createMany({
     data: units.rubric.map((item, index) => ({ planId, position: index + 1, ...item })),
   });

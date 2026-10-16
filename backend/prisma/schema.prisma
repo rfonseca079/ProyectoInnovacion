@@ -89,16 +89,42 @@ model Plan {
   rubricItems          RubricItem[]
   weeks                Week[]
   evidence             Evidence[]
+  classSessions        ClassSession[]
 }
 
 model Week {
-  id       String @id @default(uuid())
+  id       String  @id @default(uuid())
   planId   String
-  plan     Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  plan     Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
   position Int
   title    String
+  active   Boolean @default(false)
 
   @@unique([planId, position])
+}
+
+model ClassSession {
+  id                String      @id @default(uuid())
+  planId            String
+  plan              Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  weekPosition      Int
+  position          Int
+  day               String
+  occursOn          DateTime    @db.Date
+  expectedLearning  String
+  durationMinutes   Int         @default(40)
+  start             String
+  development       String
+  close             String
+  materials         String
+  formativeEvidence String
+  homework          String?
+  expanded          Boolean     @default(false)
+  status            BlockStatus @default(SUGGESTED)
+  planBNote         String?
+  planBMinutes      Int?
+
+  @@unique([planId, weekPosition, position])
 }
 
 model RubricItem {

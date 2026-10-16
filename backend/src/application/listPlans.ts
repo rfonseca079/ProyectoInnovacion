@@ -44,6 +44,7 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
     include: {
       blocks: true,
       weeks: { orderBy: { position: "asc" } },
+      classSessions: { orderBy: [{ weekPosition: "asc" }, { position: "asc" }] },
       rubricItems: { orderBy: { position: "asc" } },
       evidence: { orderBy: [{ kind: "asc" }, { position: "asc" }] },
     },
@@ -65,7 +66,31 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
       variant: block.variant,
       body: block.body,
     })),
-    weeks: plan.weeks.map((week) => ({ position: week.position, title: week.title })),
+    weeks: plan.weeks.map((week) => ({
+      position: week.position,
+      title: week.title,
+      active: week.active,
+      sessions: plan.classSessions
+        .filter((session) => session.weekPosition === week.position)
+        .map((session) => ({
+          id: session.id,
+          position: session.position,
+          day: session.day,
+          occursOn: session.occursOn.toISOString().slice(0, 10),
+          expectedLearning: session.expectedLearning,
+          durationMinutes: session.durationMinutes,
+          start: session.start,
+          development: session.development,
+          close: session.close,
+          materials: session.materials,
+          formativeEvidence: session.formativeEvidence,
+          homework: session.homework,
+          expanded: session.expanded,
+          status: session.status,
+          planBNote: session.planBNote,
+          planBMinutes: session.planBMinutes,
+        })),
+    })),
     rubric: plan.rubricItems.map((item) => ({
       name: item.name,
       count: item.count,

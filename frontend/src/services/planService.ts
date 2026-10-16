@@ -8,7 +8,29 @@ export type PlanDetail = PlanSummary & {
   highestVisitedStep: number;
   blocks: { blockKey: string; status: string; variant: number; body: string }[];
   calendarDays?: { date: string; kind: string; label: string }[];
-  weeks?: { position: number; title: string }[];
+  weeks?: {
+    position: number;
+    title: string;
+    active?: boolean;
+    sessions?: {
+      id: string;
+      position: number;
+      day: string;
+      occursOn: string;
+      expectedLearning: string;
+      durationMinutes: number;
+      start: string;
+      development: string;
+      close: string;
+      materials: string;
+      formativeEvidence: string;
+      homework: string | null;
+      expanded: boolean;
+      status: string;
+      planBNote: string | null;
+      planBMinutes: number | null;
+    }[];
+  }[];
   rubric?: { name: string; count: number; percentage: number }[];
   evidence?: {
     blockKey: string;
@@ -87,4 +109,37 @@ export async function createPlan(draft: PlanDraft): Promise<PlanDetail> {
     throw new Error(body.message ?? "No se pudo crear el planeamiento.");
   }
   return response.json() as Promise<PlanDetail>;
+}
+
+export async function saveClassSession(
+  planId: string,
+  sessionId: string,
+  patch: Record<string, unknown>,
+): Promise<PlanDetail> {
+  const response = await fetch(`${apiUrl}/api/plans/${planId}/sessions/${sessionId}`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  if (!response.ok) {
+    throw new Error("No se pudo guardar el borrador. Intente de nuevo.");
+  }
+  return response.json() as Promise<PlanDetail>;
+}
+
+export async function downloadWeekPdf(planId: string, weekNumber: number): Promise<void> {
+  const response = await fetch(`${apiUrl}/api/plans/${planId}/weeks/${weekNumber}/pdf`, { credentials: "include" });
+  if (!response.ok) {
+    throw new Error("No se pudo exportar la semana.");
+  }
+  const header = response.headers.get("Content-Disposition") ?? "";
+  const match = /filename="([^"]+)"/.exec(header);
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = match?.[1] ?? `semana-${weekNumber}.pdf`;
+  anchor.click();
+  URL.revokeObjectURL(url);
 }

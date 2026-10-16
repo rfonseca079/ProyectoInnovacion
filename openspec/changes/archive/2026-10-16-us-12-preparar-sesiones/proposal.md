@@ -26,7 +26,7 @@ Step 6 turns the active week into five class sessions, each with a start, develo
 
 ## Impact
 
-- `Week` and `Session` rows, including `expanded`.
+- `Week` and `ClassSession` rows, including `expanded`. The login `Session` stays the sign-in cookie.
 - Actions `generate-week-sessions` and `duplicate-structure` (409 when no session is expanded).
 - `GET /api/plans/{planId}/weeks/{weekNumber}/pdf`.
 - `frontend/src/pages/steps/SessionsStepPage.tsx`.

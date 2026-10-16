@@ -109,11 +109,30 @@ The first visit to a step creates these rows from variant 1 and saves them as th
 
 ## Week and Session
 
-Step 2 stores four `Week` rows on the plan, with `position` and `title`. Each scenario stores the weeks of its month. The active week has five sessions, Monday to Friday. Each session stores day, date, expected learning, 40-minute duration, start, development, close, materials, formative evidence, and optional homework.
+Step 2 stores four `Week` rows on the plan, with `position`, `title`, and `active`. Each scenario stores the weeks of its month. The active week is selected when step 6 opens. Mathematics uses week 2. Spanish and science use week 1.
+
+Class sessions are `ClassSession` rows. They are not the login `Session` above. Each week stores five class sessions, Monday to Friday. Homework is optional and stays null when the day has no assignment.
+
+| Field | Notes |
+| --- | --- |
+| `planId`, `weekPosition`, `position` | Unique together. `position` 1 is Monday |
+| `day` | Spanish day name |
+| `occursOn` | Calendar date. Shown, not edited in the step. A value outside that week's stored range is rejected with "La fecha debe quedar dentro de esta semana." |
+| `expectedLearning` | Required to continue |
+| `durationMinutes` | 40 in the seed |
+| `start`, `development`, `close` | Required to continue |
+| `materials` | Stored text |
+| `formativeEvidence` | The day's formative evidence |
+| `homework` | Optional. Null when the session has no assignment |
+| `expanded` | Monday and Wednesday of mathematics week 2 start true |
+| `status` | `SUGGESTED`, `ACCEPTED`, or `EDITED` |
+| `planBNote`, `planBMinutes` | Optional. Thursday of mathematics week 2 stores the institutional note and 25 minutes |
 
 Scenario A week 2 is 9–13 March 2026. Monday and Wednesday start expanded. Thursday includes the stored plan B.
 
-`duplicate-structure` copies start, development, close, materials, and formative evidence from the expanded session onto the other sessions of that week. It keeps each session's day, date, and expected learning.
+`generate-week-sessions` replaces the five sessions of the selected week with the next stored set and marks them `SUGGESTED`. `duplicate-structure` copies start, development, close, materials, and formative evidence from the first expanded session onto the other sessions of that week. It keeps each session's day, date, and expected learning. If none is expanded, the response is 409 with "Abra una sesión para duplicar su estructura."
+
+A valid continue from step 6 opens step 7 and sets the plan to `READY_FOR_DELIVERY`.
 
 ## CalendarDay
 

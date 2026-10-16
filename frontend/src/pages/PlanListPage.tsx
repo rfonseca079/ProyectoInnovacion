@@ -5,12 +5,13 @@ import { AutosaveField, SaveFooter } from "../components/AutosaveField";
 import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
-import { continuePlan, getPlan, patchPlan, PlanDetail } from "../services/planService";
-import { acceptSuggestion, balanceAssessmentLoad, fitFortyMinutes, generateImplications, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
+import { continuePlan, downloadWeekPdf, getPlan, patchPlan, PlanDetail, saveClassSession } from "../services/planService";
+import { acceptSuggestion, balanceAssessmentLoad, duplicateStructure, fitFortyMinutes, generateImplications, generateWeekSessions, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
 import { EvidenceStepPage, isEvidenceStepReady, NO_STORED_LOAD } from "./steps/EvidenceStepPage";
 import { GroupStepPage, isGroupStepReady } from "./steps/GroupStepPage";
 import { isMediationStepReady, MediationStepPage } from "./steps/MediationStepPage";
 import { isProgramStepReady, ProgramStepPage } from "./steps/ProgramStepPage";
+import { isSessionsStepReady, SessionsStepPage } from "./steps/SessionsStepPage";
 import { isUnitsStepReady, UnitsStepPage } from "./steps/UnitsStepPage";
 
 export function PlanListPage({
@@ -91,6 +92,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const [groupReady, setGroupReady] = useState<boolean | null>(null);
   const [mediationReady, setMediationReady] = useState<boolean | null>(null);
   const [evidenceReady, setEvidenceReady] = useState<boolean | null>(null);
+  const [sessionsReady, setSessionsReady] = useState<boolean | null>(null);
   const pendingSave = useRef(Promise.resolve());
   const reportUnitsReady = useCallback((ready: boolean) => {
     setUnitsReady(ready);
@@ -103,6 +105,9 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   }, []);
   const reportEvidenceReady = useCallback((ready: boolean) => {
     setEvidenceReady(ready);
+  }, []);
+  const reportSessionsReady = useCallback((ready: boolean) => {
+    setSessionsReady(ready);
   }, []);
 
   function trackSave(work: Promise<void>): Promise<void> {
@@ -174,7 +179,15 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
         (step === 2 && !(unitsReady ?? isUnitsStepReady(plan.weeks ?? [], plan.rubric ?? []))) ||
         (step === 3 && !(groupReady ?? isGroupStepReady(plan.blocks))) ||
         (step === 4 && !(mediationReady ?? isMediationStepReady(plan.blocks))) ||
-        (step === 5 && !(evidenceReady ?? isEvidenceStepReady(plan.evidence ?? [])))
+        (step === 5 && !(evidenceReady ?? isEvidenceStepReady(plan.evidence ?? []))) ||
+        (step === 6 && !(sessionsReady ?? isSessionsStepReady(
+          (plan.weeks ?? []).map((week) => ({
+            position: week.position,
+            title: week.title,
+            active: week.active ?? false,
+            sessions: week.sessions ?? [],
+          })),
+        )))
       }
       continueMessage={continueMessage}
       onContinue={() => {
@@ -499,6 +512,58 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
           }}
           actionMessage={actionMessage}
           notice={notice}
+        />
+      ) : step === 6 ? (
+        <SessionsStepPage
+          weeks={(plan.weeks ?? []).map((week) => ({
+            position: week.position,
+            title: week.title,
+            active: week.active ?? false,
+            sessions: week.sessions ?? [],
+          }))}
+          onReadyChange={reportSessionsReady}
+          onSave={(sessionId, patch) =>
+            trackSave(
+              saveClassSession(planId, sessionId, patch)
+                .then((saved) => {
+                  setPlan(saved);
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+          onGenerate={(weekNumber) =>
+            pendingSave.current
+              .then(() => generateWeekSessions(planId, weekNumber))
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudieron generar las sesiones.");
+              })
+          }
+          onDuplicate={(weekNumber) =>
+            pendingSave.current
+              .then(() => duplicateStructure(planId, weekNumber))
+              .then((saved) => {
+                setPlan(saved);
+                setActionMessage("");
+              })
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudo duplicar la estructura.");
+              })
+          }
+          onExport={(weekNumber) => {
+            void pendingSave.current
+              .then(() => downloadWeekPdf(planId, weekNumber))
+              .catch((error: unknown) => {
+                setActionMessage(error instanceof Error ? error.message : "No se pudo exportar la semana.");
+              });
+          }}
+          actionMessage={actionMessage}
         />
       ) : (
         <main className="page">

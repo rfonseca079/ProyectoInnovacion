@@ -3,10 +3,12 @@ import { PrismaClient } from "@prisma/client";
 import { currentTeacher, loginTeacher } from "../application/loginTeacher";
 import { continueStep } from "../application/continueStep";
 import { createPlan, updatePlanConfiguration } from "../application/createPlan";
+import { downloadWeekPdf } from "../application/downloadWeekPdf";
 import { getPlan, listPlans } from "../application/listPlans";
 import { logoutTeacher } from "../application/logoutTeacher";
 import { acceptBlock, regenerateBlock } from "../application/regenerateBlock";
 import { runStoredAction } from "../application/runStoredAction";
+import { updateClassSession } from "../application/updateClassSession";
 import { readSessionId, SESSION_COOKIE, sessionCookieOptions } from "./http";
 
 export function apiRouter(prisma: PrismaClient): Router {
@@ -83,6 +85,7 @@ export function apiRouter(prisma: PrismaClient): Router {
         readSessionId(req),
         String(req.params.planId),
         String(req.params.actionKey),
+        req.body ?? {},
       );
       res.json(plan);
     } catch (error) {
@@ -108,6 +111,37 @@ export function apiRouter(prisma: PrismaClient): Router {
         String(req.params.blockKey),
       );
       res.json(block);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get("/plans/:planId/weeks/:weekNumber/pdf", async (req, res, next) => {
+    try {
+      const file = await downloadWeekPdf(
+        prisma,
+        readSessionId(req),
+        String(req.params.planId),
+        String(req.params.weekNumber),
+      );
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${file.filename}"`);
+      res.send(file.bytes);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.patch("/plans/:planId/sessions/:sessionId", async (req, res, next) => {
+    try {
+      const plan = await updateClassSession(
+        prisma,
+        readSessionId(req),
+        String(req.params.planId),
+        String(req.params.sessionId),
+        req.body ?? {},
+      );
+      res.json(plan);
     } catch (error) {
       next(error);
     }

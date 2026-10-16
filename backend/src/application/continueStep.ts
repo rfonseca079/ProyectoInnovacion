@@ -10,9 +10,10 @@ export const STEP_NOT_VISITED = "Ese paso todavía no está disponible.";
 
 type PlanWithRubric = Plan & {
   rubricItems: RubricItem[];
-  weeks: { title: string }[];
+  weeks: { title: string; position: number; active: boolean }[];
   blocks: { blockKey: string; body: string }[];
   evidence: { kind: "FORMATIVE" | "SCHEDULED"; measures: string; when: string; instrument: string; expectedLearning: string }[];
+  classSessions: { weekPosition: number; expectedLearning: string; start: string; development: string; close: string }[];
 };
 
 function blockText(blocks: { blockKey: string; body: string }[], blockKey: string): string {
@@ -96,7 +97,25 @@ function validationProblem(plan: PlanWithRubric, step: number): string | null {
     const scheduled = plan.evidence.some((card) => card.kind === "SCHEDULED" && isCompleteEvidence(card));
     return formative && scheduled ? null : STEP_NOT_READY;
   }
+  if (step === 6) {
+    return sessionsStepProblem(plan);
+  }
   return STEP_NOT_READY;
+}
+
+function sessionsStepProblem(plan: PlanWithRubric): string | null {
+  const activeWeek = plan.weeks.find((week) => week.active);
+  const sessions = plan.classSessions.filter((session) => session.weekPosition === activeWeek?.position);
+  const complete =
+    sessions.length === 5 &&
+    sessions.every(
+      (session) =>
+        session.expectedLearning.trim().length > 0 &&
+        session.start.trim().length > 0 &&
+        session.development.trim().length > 0 &&
+        session.close.trim().length > 0,
+    );
+  return complete ? null : STEP_NOT_READY;
 }
 
 type MediationRow = { minutes?: number };
@@ -143,7 +162,7 @@ export async function continueStep(
   }
   const plan = await prisma.plan.findFirst({
     where: { id: planId },
-    include: { rubricItems: true, weeks: true, blocks: true, evidence: true },
+    include: { rubricItems: true, weeks: true, blocks: true, evidence: true, classSessions: true },
   });
   if (!plan) {
     throw new AppError(404, "NOT_FOUND", PLAN_FORBIDDEN);
@@ -162,6 +181,7 @@ export async function continueStep(
       currentStep: nextStep,
       highestVisitedStep: Math.max(plan.highestVisitedStep, nextStep),
       updatedAt: new Date(),
+      ...(step === 6 ? { status: "READY_FOR_DELIVERY" as const } : {}),
     },
   });
   return getPlan(prisma, sessionId, owned.id);

@@ -1,5 +1,6 @@
 import request from "supertest";
 import { PrismaClient } from "@prisma/client";
+import { activeWeekPosition } from "../prisma/sessionSeed";
 import { createApp } from "../src/app";
 
 const prisma = new PrismaClient();
@@ -244,7 +245,12 @@ async function juanitaCookie(): Promise<string[]> {
 async function restoreJuanitaUnits(): Promise<void> {
   await prisma.week.deleteMany({ where: { planId: juanitaPlanId } });
   await prisma.week.createMany({
-    data: mathWeekTitles.map((title, index) => ({ planId: juanitaPlanId, position: index + 1, title })),
+    data: mathWeekTitles.map((title, index) => ({
+      planId: juanitaPlanId,
+      position: index + 1,
+      title,
+      active: index + 1 === activeWeekPosition(mathScenarioId),
+    })),
   });
   await prisma.rubricItem.deleteMany({ where: { planId: juanitaPlanId } });
   await prisma.rubricItem.createMany({

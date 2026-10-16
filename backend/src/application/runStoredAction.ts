@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { AppError } from "../domain/errors";
 import { AssessmentLoadBody, NO_STORED_LOAD, occursOnDate, parseAssessmentLoad, parseEvidenceCard, sameRubricNames } from "../domain/evidenceCard";
+import { StoredClassSession, weekSessionBlockKey } from "../../prisma/sessionSeed";
 import { getPlan } from "./listPlans";
 
 const actionBlockKey: Record<string, string> = {
@@ -16,6 +17,7 @@ export async function runStoredAction(
   sessionId: string | undefined,
   planId: string,
   actionKey: string,
+  body: { weekNumber?: unknown } = {},
 ) {
   const owned = await getPlan(prisma, sessionId, planId);
   if (actionKey === "redistribute-evaluation") {
@@ -29,6 +31,12 @@ export async function runStoredAction(
   }
   if (actionKey === "balance-assessment-load") {
     return balanceAssessmentLoad(prisma, sessionId, planId, owned.scenarioId);
+  }
+  if (actionKey === "generate-week-sessions") {
+    return generateWeekSessions(prisma, sessionId, planId, owned.scenarioId, body.weekNumber);
+  }
+  if (actionKey === "duplicate-structure") {
+    return duplicateStructure(prisma, sessionId, planId, body.weekNumber);
   }
   const blockKey = actionBlockKey[actionKey];
   if (!blockKey || !owned.scenarioId) {
@@ -282,6 +290,131 @@ async function balanceAssessmentLoad(
     return getPlan(prisma, sessionId, planId);
   }
   throw new AppError(409, "CONFLICT", NO_STORED_LOAD);
+}
+
+function parseStoredSessions(body: string): StoredClassSession[] | null {
+  try {
+    const parsed = JSON.parse(body) as StoredClassSession[];
+    if (!Array.isArray(parsed) || parsed.length !== 5) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+async function generateWeekSessions(
+  prisma: PrismaClient,
+  sessionId: string | undefined,
+  planId: string,
+  scenarioId: string | null,
+  requestedWeek: unknown,
+) {
+  if (!scenarioId) {
+    throw new AppError(404, "NOT_FOUND", "No hay una acción guardada con ese nombre.");
+  }
+  const weekNumber = await selectedWeekNumber(prisma, planId, requestedWeek);
+  const week = await prisma.week.findFirst({ where: { planId, position: weekNumber } });
+  if (!week) {
+    throw new AppError(404, "NOT_FOUND", "No hay una semana guardada con ese número.");
+  }
+  const blockKey = weekSessionBlockKey(weekNumber);
+  const cursor = await prisma.planBlock.findUnique({
+    where: { planId_blockKey: { planId, blockKey } },
+  });
+  if (!cursor) {
+    throw new AppError(409, "CONFLICT", NO_STORED_WEEK_SET);
+  }
+  const nextVariant = cursor.variant >= 3 ? 1 : cursor.variant + 1;
+  const stored = await prisma.suggestionVariant.findUnique({
+    where: { scenarioId_blockKey_variant: { scenarioId, blockKey, variant: nextVariant } },
+  });
+  const sessions = stored ? parseStoredSessions(stored.body) : null;
+  if (!stored || !sessions) {
+    throw new AppError(404, "NOT_FOUND", "No hay otra variante guardada para este bloque.");
+  }
+  const claimed = await prisma.$transaction(async (tx) => {
+    const updated = await tx.planBlock.updateMany({
+      where: { id: cursor.id, variant: cursor.variant },
+      data: { variant: nextVariant, body: stored.body, status: "SUGGESTED" },
+    });
+    if (updated.count === 0) {
+      return false;
+    }
+    for (const session of sessions) {
+      await tx.classSession.updateMany({
+        where: { planId, weekPosition: weekNumber, position: session.position },
+        data: {
+          day: session.day,
+          occursOn: new Date(`${session.occursOn}T00:00:00.000Z`),
+          expectedLearning: session.expectedLearning,
+          durationMinutes: session.durationMinutes,
+          start: session.start,
+          development: session.development,
+          close: session.close,
+          materials: session.materials,
+          formativeEvidence: session.formativeEvidence,
+          homework: session.homework,
+          expanded: session.expanded,
+          status: "SUGGESTED",
+          planBNote: session.planBNote,
+          planBMinutes: session.planBMinutes,
+        },
+      });
+    }
+    return true;
+  });
+  if (!claimed) {
+    return getPlan(prisma, sessionId, planId);
+  }
+  return getPlan(prisma, sessionId, planId);
+}
+
+const DUPLICATE_NEEDS_EXPANDED = "Abra una sesión para duplicar su estructura.";
+const NO_STORED_WEEK_SET = "Esta semana no tiene otro conjunto guardado.";
+
+async function selectedWeekNumber(prisma: PrismaClient, planId: string, requestedWeek: unknown): Promise<number> {
+  const active = await prisma.week.findFirst({ where: { planId, active: true } });
+  const weekNumber = requestedWeek === undefined || requestedWeek === null ? active?.position : Number(requestedWeek);
+  if (!weekNumber || !Number.isInteger(weekNumber)) {
+    throw new AppError(404, "NOT_FOUND", "No hay una acción guardada con ese nombre.");
+  }
+  return weekNumber;
+}
+
+async function duplicateStructure(
+  prisma: PrismaClient,
+  sessionId: string | undefined,
+  planId: string,
+  requestedWeek: unknown,
+) {
+  const weekNumber = await selectedWeekNumber(prisma, planId, requestedWeek);
+  const sessions = await prisma.classSession.findMany({
+    where: { planId, weekPosition: weekNumber },
+    orderBy: { position: "asc" },
+  });
+  const source = sessions.find((session) => session.expanded);
+  if (!source) {
+    throw new AppError(409, "CONFLICT", DUPLICATE_NEEDS_EXPANDED);
+  }
+  await prisma.$transaction(
+    sessions
+      .filter((session) => session.id !== source.id)
+      .map((session) =>
+        prisma.classSession.update({
+          where: { id: session.id },
+          data: {
+            start: source.start,
+            development: source.development,
+            close: source.close,
+            materials: source.materials,
+            formativeEvidence: source.formativeEvidence,
+          },
+        }),
+      ),
+  );
+  return getPlan(prisma, sessionId, planId);
 }
 
 function isClaimRetry(error: unknown): boolean {

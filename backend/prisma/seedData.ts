@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { evidenceCardJson, scenarioEvidence, StoredEvidenceCard } from "./evidenceSeed";
+import { activeWeekPosition, copyPlanSessions, seedWeekSessionVariants } from "./sessionSeed";
 
 export const DEMO_PASSWORD = "Demo2026";
 
@@ -851,6 +852,7 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
         create: { scenarioId: scenario.id, date, kind: day.kind, label: day.label },
       });
     }
+    await seedWeekSessionVariants(prisma, scenario.id);
   }
 
   for (const plan of seededPlans) {
@@ -898,10 +900,18 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       });
     }
     const units = scenarioUnits[plan.scenarioId];
+    const activeWeek = activeWeekPosition(plan.scenarioId);
+    await prisma.classSession.deleteMany({ where: { planId: plan.id } });
     await prisma.week.deleteMany({ where: { planId: plan.id } });
     await prisma.week.createMany({
-      data: units.weeks.map((title, index) => ({ planId: plan.id, position: index + 1, title })),
+      data: units.weeks.map((title, index) => ({
+        planId: plan.id,
+        position: index + 1,
+        title,
+        active: index + 1 === activeWeek,
+      })),
     });
+    await copyPlanSessions(prisma, plan.id, plan.scenarioId);
     await prisma.rubricItem.deleteMany({ where: { planId: plan.id } });
     await prisma.rubricItem.createMany({
       data: units.rubric.map((item, index) => ({ planId: plan.id, position: index + 1, ...item })),

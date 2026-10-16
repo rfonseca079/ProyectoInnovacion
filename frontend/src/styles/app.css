@@ -317,6 +317,27 @@ input {
   color: #8a3b12;
 }
 
+.session-card {
+  margin-top: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #d5ddd8;
+  border-radius: 8px;
+}
+
+.session-card label,
+.sessions-step > label {
+  display: block;
+  margin-top: 8px;
+}
+
+.session-card input,
+.sessions-step select {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+}
+
 button:disabled {
   opacity: 0.45;
   cursor: default;

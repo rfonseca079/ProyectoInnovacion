@@ -155,6 +155,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlanDetail'
+  /api/plans/{planId}/weeks/{weekNumber}/pdf:
+    get:
+      tags: [Plans]
+      summary: Download the five saved sessions of one week
+      operationId: downloadWeekPdf
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - name: weekNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: |
+            PDF of the saved session text for that week. Cross-reference offsets and the
+            stream length use the bytes written in the file, including Spanish accents.
+            Drawn lines stay within the page width. The file name is
+            `semana-{number}-{subject}-{month}-{year}.pdf`, lowercase and without accents.
+            Mathematics week 2 of March 2026 is `semana-2-matematica-marzo-2026.pdf`.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Plan or week was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/plans/{planId}/steps/{step}/continue:
     post:
       tags: [Plans]
@@ -258,6 +290,9 @@ paths:
         Known keys: reanalyze-program, redistribute-evaluation, generate-implications,
         regenerate-mediation, fit-40-minutes, simplify-materials, balance-assessment-load,
         generate-week-sessions, duplicate-structure.
+        generate-week-sessions replaces the active week's five sessions. A week without a
+        stored next set stays unchanged and responds 409 with
+        "Esta semana no tiene otro conjunto guardado."
         generate-implications replaces implication-manipulatives, implication-scaffolding,
         and implication-differentiation together.
         regenerate-mediation, fit-40-minutes, and simplify-materials each replace the visible
