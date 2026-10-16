@@ -10,6 +10,17 @@ export type PlanDetail = PlanSummary & {
   calendarDays?: { date: string; kind: string; label: string }[];
   weeks?: { position: number; title: string }[];
   rubric?: { name: string; count: number; percentage: number }[];
+  evidence?: {
+    blockKey: string;
+    kind: "FORMATIVE" | "SCHEDULED";
+    position: number;
+    title: string;
+    measures: string;
+    when: string;
+    instrument: string;
+    expectedLearning: string;
+    occursOn: string | null;
+  }[];
 };
 
 const apiUrl = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;

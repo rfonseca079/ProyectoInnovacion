@@ -288,6 +288,35 @@ input {
   font-weight: 700;
 }
 
+.evidence-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.evidence-card {
+  margin-top: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #d5ddd8;
+  border-radius: 8px;
+}
+
+.evidence-card label {
+  display: block;
+  margin-top: 8px;
+}
+
+.evidence-card input {
+  display: block;
+  width: 100%;
+}
+
+.evidence-warning {
+  color: #8a3b12;
+}
+
 button:disabled {
   opacity: 0.45;
   cursor: default;

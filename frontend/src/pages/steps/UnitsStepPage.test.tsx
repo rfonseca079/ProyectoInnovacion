@@ -19,6 +19,7 @@ vi.mock("../../services/suggestionService", () => ({
   regenerateMediation: vi.fn(),
   fitFortyMinutes: vi.fn(),
   simplifyMaterials: vi.fn(),
+  balanceAssessmentLoad: vi.fn(),
 }));
 
 const weeks = [

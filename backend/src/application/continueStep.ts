@@ -1,5 +1,6 @@
 import { Plan, PrismaClient, RubricItem } from "@prisma/client";
 import { AppError, PLAN_FORBIDDEN } from "../domain/errors";
+import { isCompleteEvidence } from "../domain/evidenceCard";
 import { getPlan } from "./listPlans";
 
 export const STEP_NOT_READY = "Complete los campos de este paso antes de continuar.";
@@ -11,6 +12,7 @@ type PlanWithRubric = Plan & {
   rubricItems: RubricItem[];
   weeks: { title: string }[];
   blocks: { blockKey: string; body: string }[];
+  evidence: { kind: "FORMATIVE" | "SCHEDULED"; measures: string; when: string; instrument: string; expectedLearning: string }[];
 };
 
 function blockText(blocks: { blockKey: string; body: string }[], blockKey: string): string {
@@ -89,6 +91,11 @@ function validationProblem(plan: PlanWithRubric, step: number): string | null {
   if (step === 4) {
     return mediationStepProblem(plan.blocks);
   }
+  if (step === 5) {
+    const formative = plan.evidence.some((card) => card.kind === "FORMATIVE" && isCompleteEvidence(card));
+    const scheduled = plan.evidence.some((card) => card.kind === "SCHEDULED" && isCompleteEvidence(card));
+    return formative && scheduled ? null : STEP_NOT_READY;
+  }
   return STEP_NOT_READY;
 }
 
@@ -136,7 +143,7 @@ export async function continueStep(
   }
   const plan = await prisma.plan.findFirst({
     where: { id: planId },
-    include: { rubricItems: true, weeks: true, blocks: true },
+    include: { rubricItems: true, weeks: true, blocks: true, evidence: true },
   });
   if (!plan) {
     throw new AppError(404, "NOT_FOUND", PLAN_FORBIDDEN);

@@ -45,6 +45,7 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
       blocks: true,
       weeks: { orderBy: { position: "asc" } },
       rubricItems: { orderBy: { position: "asc" } },
+      evidence: { orderBy: [{ kind: "asc" }, { position: "asc" }] },
     },
   });
   if (!plan) {
@@ -69,6 +70,17 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
       name: item.name,
       count: item.count,
       percentage: item.percentage,
+    })),
+    evidence: plan.evidence.map((item) => ({
+      blockKey: item.blockKey,
+      kind: item.kind,
+      position: item.position,
+      title: item.title,
+      measures: item.measures,
+      when: item.when,
+      instrument: item.instrument,
+      expectedLearning: item.expectedLearning,
+      occursOn: item.occursOn ? item.occursOn.toISOString().slice(0, 10) : null,
     })),
     calendarDays: (
       plan.scenarioId

@@ -37,6 +37,10 @@ export function simplifyMaterials(planId: string): Promise<PlanDetail> {
   return postJson<PlanDetail>(`/api/plans/${planId}/actions/simplify-materials`);
 }
 
+export function balanceAssessmentLoad(planId: string): Promise<PlanDetail> {
+  return postJson<PlanDetail>(`/api/plans/${planId}/actions/balance-assessment-load`);
+}
+
 export function acceptSuggestion(planId: string, blockKey: string): Promise<PlanBlock> {
   return postJson<PlanBlock>(`/api/plans/${planId}/blocks/${blockKey}/accept`);
 }

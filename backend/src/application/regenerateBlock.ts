@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { AppError } from "../domain/errors";
+import { occursOnDate, parseEvidenceCard } from "../domain/evidenceCard";
 import { getPlan } from "./listPlans";
 
 async function ownedBlock(prisma: PrismaClient, sessionId: string | undefined, planId: string, blockKey: string) {
@@ -48,13 +49,31 @@ export async function regenerateBlock(
     throw new AppError(404, "NOT_FOUND", "No hay otra sugerencia guardada para este bloque.");
   }
   const replaceBody = block.status === "SUGGESTED";
-  return prisma.planBlock.update({
+  const nextBody = replaceBody ? stored.body : block.body;
+  const saved = await prisma.planBlock.update({
     where: { id: block.id },
     data: {
       variant: nextVariant,
-      body: replaceBody ? stored.body : block.body,
+      body: nextBody,
       status: replaceBody ? "SUGGESTED" : block.status,
     },
     select: { blockKey: true, status: true, variant: true, body: true },
   });
+  const card = parseEvidenceCard(saved.body);
+  if (blockKey.startsWith("evidence-") && card) {
+    await prisma.evidence.updateMany({
+      where: { planId, blockKey },
+      data: {
+        kind: card.kind,
+        position: card.position,
+        title: card.title,
+        measures: card.measures,
+        when: card.when,
+        instrument: card.instrument,
+        expectedLearning: card.expectedLearning,
+        occursOn: occursOnDate(card.occursOn),
+      },
+    });
+  }
+  return saved;
 }

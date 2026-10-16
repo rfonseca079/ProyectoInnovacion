@@ -278,14 +278,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/PlanDetail'
         '409':
-          description: No stored distribution matches the current number of rubric rows
+          description: |
+            No stored distribution matches the current number of rubric rows, or no stored
+            assessment load matches the current rubric names.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: CONFLICT
-                message: No hay una distribución guardada para esta cantidad de rubros.
+              examples:
+                distribution:
+                  value:
+                    code: CONFLICT
+                    message: No hay una distribución guardada para esta cantidad de rubros.
+                assessmentLoad:
+                  value:
+                    code: CONFLICT
+                    message: No hay otra carga guardada para los rubros actuales.
   /api/plans/{planId}/adjustments/apply:
     post:
       tags: [Plans]
@@ -491,6 +499,45 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/PlanBlock'
+            rubric:
+              type: array
+              items:
+                type: object
+                required: [name, count, percentage]
+                properties:
+                  name:
+                    type: string
+                  count:
+                    type: integer
+                  percentage:
+                    type: integer
+            evidence:
+              type: array
+              items:
+                type: object
+                required: [blockKey, kind, position, title, measures, when, instrument, expectedLearning, occursOn]
+                properties:
+                  blockKey:
+                    type: string
+                  kind:
+                    type: string
+                    enum: [FORMATIVE, SCHEDULED]
+                  position:
+                    type: integer
+                  title:
+                    type: string
+                  measures:
+                    type: string
+                  when:
+                    type: string
+                  instrument:
+                    type: string
+                  expectedLearning:
+                    type: string
+                  occursOn:
+                    type: string
+                    format: date
+                    nullable: true
             calendarDays:
               type: array
               items:

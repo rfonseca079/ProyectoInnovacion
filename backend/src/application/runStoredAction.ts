@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { AppError } from "../domain/errors";
+import { AssessmentLoadBody, NO_STORED_LOAD, occursOnDate, parseAssessmentLoad, parseEvidenceCard, sameRubricNames } from "../domain/evidenceCard";
 import { getPlan } from "./listPlans";
 
 const actionBlockKey: Record<string, string> = {
@@ -25,6 +26,9 @@ export async function runStoredAction(
   }
   if (actionKey === "regenerate-mediation" || actionKey === "fit-40-minutes" || actionKey === "simplify-materials") {
     return applyMediationAction(prisma, sessionId, planId, owned.scenarioId, actionKey);
+  }
+  if (actionKey === "balance-assessment-load") {
+    return balanceAssessmentLoad(prisma, sessionId, planId, owned.scenarioId);
   }
   const blockKey = actionBlockKey[actionKey];
   if (!blockKey || !owned.scenarioId) {
@@ -188,6 +192,96 @@ async function replaceFromActionList(
     return getPlan(prisma, sessionId, planId);
   }
   throw new AppError(409, "CONFLICT", "No hay otra variante guardada para este bloque.");
+}
+
+function evidenceWrite(planId: string, blockKey: string, card: AssessmentLoadBody["scheduled"][number]) {
+  return {
+    planId,
+    blockKey,
+    kind: card.kind,
+    position: card.position,
+    title: card.title,
+    measures: card.measures,
+    when: card.when,
+    instrument: card.instrument,
+    expectedLearning: card.expectedLearning,
+    occursOn: occursOnDate(card.occursOn),
+  };
+}
+
+async function balanceAssessmentLoad(
+  prisma: PrismaClient,
+  sessionId: string | undefined,
+  planId: string,
+  scenarioId: string | null,
+) {
+  if (!scenarioId) {
+    throw new AppError(404, "NOT_FOUND", "No hay una acción guardada con ese nombre.");
+  }
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const items = await prisma.rubricItem.findMany({ where: { planId }, orderBy: { position: "asc" } });
+    const names = items.map((item) => item.name);
+    const cursor = await prisma.planBlock.findUnique({
+      where: { planId_blockKey: { planId, blockKey: "assessment-load" } },
+    });
+    if (!cursor) {
+      throw new AppError(404, "NOT_FOUND", "No hay una acción guardada con ese nombre.");
+    }
+    const stored = await prisma.suggestionVariant.findMany({
+      where: { scenarioId, blockKey: "assessment-load" },
+      orderBy: { variant: "asc" },
+    });
+    const match = stored
+      .filter((row) => row.variant !== cursor.variant)
+      .sort((left, right) => {
+        const leftDistance = (left.variant - cursor.variant + stored.length) % stored.length;
+        const rightDistance = (right.variant - cursor.variant + stored.length) % stored.length;
+        return leftDistance - rightDistance;
+      })
+      .map((row) => ({ row, load: parseAssessmentLoad(row.body) }))
+      .find((candidate) => candidate.load && sameRubricNames(candidate.load.rubricNames, names));
+    if (!match?.load) {
+      throw new AppError(409, "CONFLICT", NO_STORED_LOAD);
+    }
+    const load = match.load;
+    const claimed = await prisma.$transaction(async (tx) => {
+      const updated = await tx.planBlock.updateMany({
+        where: { id: cursor.id, variant: cursor.variant },
+        data: { variant: match.row.variant, body: match.row.body, status: "SUGGESTED" },
+      });
+      if (updated.count === 0) {
+        return false;
+      }
+      await tx.evidence.deleteMany({ where: { planId, kind: "SCHEDULED" } });
+      await tx.evidence.createMany({
+        data: load.scheduled.map((card) => evidenceWrite(planId, card.blockKey, card)),
+      });
+      for (const card of load.scheduled) {
+        await tx.planBlock.updateMany({
+          where: { planId, blockKey: card.blockKey },
+          data: {
+            body: JSON.stringify(parseEvidenceCard(JSON.stringify(card)) ?? card),
+            variant: match.row.variant,
+            status: "SUGGESTED",
+          },
+        });
+      }
+      if (load.updatesRubric) {
+        for (const row of load.rubric) {
+          await tx.rubricItem.updateMany({
+            where: { planId, name: row.name },
+            data: { count: row.count, percentage: row.percentage },
+          });
+        }
+      }
+      return true;
+    });
+    if (!claimed) {
+      return getPlan(prisma, sessionId, planId);
+    }
+    return getPlan(prisma, sessionId, planId);
+  }
+  throw new AppError(409, "CONFLICT", NO_STORED_LOAD);
 }
 
 function isClaimRetry(error: unknown): boolean {

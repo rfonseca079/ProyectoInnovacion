@@ -40,3 +40,4 @@ rules:
   tasks:
     - Include the mandatory steps in docs/openspec-tasks-mandatory-steps.md
     - Break work into small, testable steps
+    - For each new behavior, write two consecutive tasks. The first writes the failing test, forbids production edits, and records the observed failure. The second implements the minimum production change so that same test passes, and starts only after the first task is checked. Do not merge them into one "implement and verify" task.
