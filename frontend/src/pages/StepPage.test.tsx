@@ -49,6 +49,26 @@ describe("StepPage address", () => {
     expect(screen.queryByRole("button", { name: "Continuar" })).toBeInTheDocument();
   });
 
+  it("shows the saved configuration instead of raw suggestion blocks", async () => {
+    vi.mocked(getPlan).mockResolvedValue({
+      ...juanitaPlan(),
+      cycle: "I_II",
+      modality: "IN_PERSON",
+      regionalDirectorate: "Dirección Regional San José",
+      studentCount: 28,
+      weeklyLessons: 5,
+      blocks: [{ blockKey: "program-extract", status: "SUGGESTED", variant: 1, body: '{"kind":"FORMATIVE"}' }],
+    });
+    renderStep("0");
+    expect(await screen.findByRole("group", { name: "Contexto curricular" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Datos del grupo" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Ciclo")).toHaveValue("I_II");
+    expect(screen.getByLabelText("Sección o grupo")).toHaveValue("A");
+    expect(screen.getByLabelText("Cantidad de estudiantes")).toHaveValue("28");
+    expect(screen.queryByText('{"kind":"FORMATIVE"}')).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Iniciar planeamiento con IA" })).not.toBeInTheDocument();
+  });
+
   it("returns a step above 8 to the highest visited step", async () => {
     vi.mocked(getPlan).mockResolvedValue({ ...juanitaPlan(), highestVisitedStep: 8, currentStep: 8 });
     renderStep("9");

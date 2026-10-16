@@ -58,7 +58,6 @@ export function EvidenceStepPage({
   calendarDays,
   onSave,
   onBalance,
-  onAccept,
   onRegenerate,
   onReadyChange,
   actionMessage = "",
@@ -68,7 +67,6 @@ export function EvidenceStepPage({
   calendarDays: { date: string; kind: string; label: string }[];
   onSave: (blockKey: string, body: string) => Promise<void>;
   onBalance: () => void | Promise<void>;
-  onAccept: (blockKey: string) => void;
   onRegenerate: (blockKey: string) => void;
   onReadyChange?: (ready: boolean) => void;
   actionMessage?: string;
@@ -127,7 +125,6 @@ export function EvidenceStepPage({
                   <label key={field.key}>
                     {field.label}
                     <input
-                      id={field.key === "measures" ? `measures-${card.blockKey}` : undefined}
                       aria-label={`${field.label} de ${card.title}`}
                       value={card[field.key]}
                       onChange={(event) => updateCard(card.blockKey, { [field.key]: event.target.value }, false)}
@@ -147,12 +144,6 @@ export function EvidenceStepPage({
                 </label>
                 {warning ? <p className="evidence-warning">{warning}</p> : null}
                 <div className="card-actions">
-                  <button type="button" onClick={() => onAccept(card.blockKey)}>
-                    Aceptar sugerencia
-                  </button>
-                  <button type="button" onClick={() => document.getElementById(`measures-${card.blockKey}`)?.focus()}>
-                    Editar
-                  </button>
                   <button type="button" onClick={() => onRegenerate(card.blockKey)}>
                     Regenerar
                   </button>

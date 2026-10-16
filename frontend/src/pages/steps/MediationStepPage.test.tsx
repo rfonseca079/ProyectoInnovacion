@@ -65,6 +65,24 @@ const outside = JSON.stringify([
 const planId = "11111111-1111-4111-8111-111111111111";
 
 describe("MediationStepPage", () => {
+  it("shows each outside task in its own group", () => {
+    render(
+      <MediationStepPage
+        blocks={[
+          { blockKey: "mediation-in-class", body: inClass },
+          { blockKey: "mediation-outside", body: outside },
+        ]}
+        weeks={[{ position: 2, title: "Fracciones equivalentes" }]}
+        onSaveInClass={async () => undefined}
+        onSaveOutside={async () => undefined}
+        onRegenerate={() => undefined}
+        onFit40={() => undefined}
+        onSimplify={() => undefined}
+      />,
+    );
+    expect(screen.getByRole("group", { name: "Trabajo extraclase 1" })).toBeInTheDocument();
+  });
+
   it("shows both tables for the active mathematics week", async () => {
     const onFit40 = vi.fn();
     render(

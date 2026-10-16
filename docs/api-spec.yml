@@ -651,6 +651,22 @@ components:
               type: integer
             notifyEvaluationChanges:
               type: boolean
+            cycle:
+              type: string
+              enum: [I_II, III, DIVERSIFIED]
+            modality:
+              type: string
+              enum: [IN_PERSON, VIRTUAL, HYBRID]
+            regionalDirectorate:
+              type: string
+            teacherName:
+              type: string
+            section:
+              type: string
+            studentCount:
+              type: integer
+            weeklyLessons:
+              type: integer
             blocks:
               type: array
               items:

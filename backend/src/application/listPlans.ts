@@ -76,6 +76,11 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
     adjustmentApplied: plan.adjustmentApplied,
     notifyEvaluationChanges: plan.notifyEvaluationChanges,
     schoolName: plan.schoolName,
+    cycle: plan.cycle,
+    modality: plan.modality,
+    regionalDirectorate: plan.regionalDirectorate,
+    studentCount: plan.studentCount,
+    weeklyLessons: plan.weeklyLessons,
     blocks: plan.blocks.map((block) => ({
       blockKey: block.blockKey,
       status: block.status,

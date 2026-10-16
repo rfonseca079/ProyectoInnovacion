@@ -9,6 +9,12 @@ export type PlanDetail = PlanSummary & {
   highestVisitedStep: number;
   adjustmentApplied?: boolean;
   notifyEvaluationChanges?: boolean;
+  section?: string;
+  cycle?: string;
+  modality?: string;
+  regionalDirectorate?: string;
+  studentCount?: number;
+  weeklyLessons?: number;
   blocks: { blockKey: string; status: string; variant: number; body: string; preview?: string }[];
   calendarDays?: { date: string; kind: string; label: string }[];
   weeks?: {

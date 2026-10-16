@@ -52,6 +52,16 @@ describe("autosave", () => {
     const again = await request(app).get(`/api/plans/${juanitaPlanId}`).set("Cookie", juanita);
     expect(again.body.section).toBe("4.° B");
 
+    expect(again.body).toEqual(
+      expect.objectContaining({
+        cycle: "I_II",
+        modality: "IN_PERSON",
+        regionalDirectorate: "Dirección Regional San José",
+        studentCount: 28,
+        weeklyLessons: 5,
+      }),
+    );
+
     const carlos = await cookie("carlos.mora@demo.mep.cr");
     const hidden = await request(app).patch(`/api/plans/${juanitaPlanId}`).set("Cookie", carlos).send({ section: "ajeno" });
     expect(hidden.status).toBe(404);

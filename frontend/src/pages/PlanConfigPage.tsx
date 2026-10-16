@@ -115,7 +115,7 @@ export function PlanConfigPage({
         Number(draft.month)
       ],
     draft.section,
-  ].filter(Boolean);
+  ].filter((chip): chip is string => Boolean(chip));
 
   return (
     <>
@@ -124,99 +124,114 @@ export function PlanConfigPage({
         <h2>Nuevo planeamiento</h2>
         <p>Defina el contexto curricular. La IA usará estos datos para sugerir el resto.</p>
         <form onSubmit={handleSubmit} className="config-form">
-          <label>
-            Ciclo
-            <select aria-label="Ciclo" value={draft.cycle} onChange={(event) => setField("cycle", event.target.value)}>
-              <option value="">Seleccione</option>
-              <option value="I_II">I y II Ciclos</option>
-              <option value="III">III Ciclo</option>
-              <option value="DIVERSIFIED">Educación Diversificada</option>
-            </select>
-          </label>
-          <label>
-            Nivel
-            <select aria-label="Nivel" value={draft.gradeLevel} onChange={(event) => setField("gradeLevel", event.target.value)}>
-              <option value="">Seleccione</option>
-              {(grades[draft.cycle] ?? []).map((grade) => (
-                <option key={grade} value={grade}>
-                  {grade}.° año
-                </option>
+          <div className="config-columns">
+            <fieldset>
+              <legend>Contexto curricular</legend>
+              <label className="field">
+                <span>Ciclo</span>
+                <select aria-label="Ciclo" value={draft.cycle} onChange={(event) => setField("cycle", event.target.value)}>
+                  <option value="">Seleccione</option>
+                  <option value="I_II">I y II Ciclos</option>
+                  <option value="III">III Ciclo</option>
+                  <option value="DIVERSIFIED">Educación Diversificada</option>
+                </select>
+              </label>
+              <label className="field">
+                <span>Nivel</span>
+                <select aria-label="Nivel" value={draft.gradeLevel} onChange={(event) => setField("gradeLevel", event.target.value)}>
+                  <option value="">Seleccione</option>
+                  {(grades[draft.cycle] ?? []).map((grade) => (
+                    <option key={grade} value={grade}>
+                      {grade}.° año
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>Asignatura</span>
+                <select aria-label="Asignatura" value={draft.subject} onChange={(event) => setField("subject", event.target.value)}>
+                  <option value="">Seleccione</option>
+                  <option value="MATH">Matemática</option>
+                  <option value="SPANISH">Español</option>
+                  <option value="SCIENCE">Ciencias</option>
+                  <option value="SOCIAL_STUDIES">Estudios Sociales</option>
+                </select>
+              </label>
+              <label className="field">
+                <span>Modalidad</span>
+                <select aria-label="Modalidad" value={draft.modality} onChange={(event) => setField("modality", event.target.value)}>
+                  <option value="">Seleccione</option>
+                  <option value="IN_PERSON">Presencial</option>
+                  <option value="VIRTUAL">Virtual</option>
+                  <option value="HYBRID">Híbrida</option>
+                </select>
+              </label>
+              <label className="field">
+                <span>Curso lectivo</span>
+                <input aria-label="Curso lectivo" value={draft.schoolYear} onChange={(event) => setField("schoolYear", event.target.value)} />
+              </label>
+              <label className="field">
+                <span>Mes</span>
+                <select aria-label="Mes" value={draft.month} onChange={(event) => setField("month", event.target.value)}>
+                  <option value="">Seleccione</option>
+                  {["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"].map(
+                    (name, index) => (
+                      <option key={name} value={index + 1}>
+                        {name}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>Datos del grupo</legend>
+              <label className="field">
+                <span>Centro educativo</span>
+                <input aria-label="Centro educativo" value={draft.schoolName} onChange={(event) => setField("schoolName", event.target.value)} />
+              </label>
+              <label className="field">
+                <span>Dirección regional</span>
+                <input
+                  aria-label="Dirección regional"
+                  value={draft.regionalDirectorate}
+                  onChange={(event) => setField("regionalDirectorate", event.target.value)}
+                />
+              </label>
+              <label className="field">
+                <span>Nombre docente</span>
+                <input aria-label="Nombre docente" value={draft.teacherName} onChange={(event) => setField("teacherName", event.target.value)} />
+              </label>
+              <label className="field">
+                <span>Sección o grupo</span>
+                <input aria-label="Sección o grupo" value={draft.section} onChange={(event) => setField("section", event.target.value)} />
+              </label>
+              <label className="field">
+                <span>Cantidad de estudiantes</span>
+                <input
+                  aria-label="Cantidad de estudiantes"
+                  value={draft.studentCount}
+                  onChange={(event) => setField("studentCount", event.target.value)}
+                />
+              </label>
+              <label className="field">
+                <span>Lecciones semanales</span>
+                <input
+                  aria-label="Lecciones semanales"
+                  value={draft.weeklyLessons}
+                  onChange={(event) => setField("weeklyLessons", event.target.value)}
+                />
+              </label>
+            </fieldset>
+          </div>
+          <section className="config-summary">
+            <h3>Resumen listo para iniciar</h3>
+            <ul className="chips">
+              {chips.map((chip) => (
+                <li key={chip}>{chip}</li>
               ))}
-            </select>
-          </label>
-          <label>
-            Asignatura
-            <select aria-label="Asignatura" value={draft.subject} onChange={(event) => setField("subject", event.target.value)}>
-              <option value="">Seleccione</option>
-              <option value="MATH">Matemática</option>
-              <option value="SPANISH">Español</option>
-              <option value="SCIENCE">Ciencias</option>
-              <option value="SOCIAL_STUDIES">Estudios Sociales</option>
-            </select>
-          </label>
-          <label>
-            Modalidad
-            <select aria-label="Modalidad" value={draft.modality} onChange={(event) => setField("modality", event.target.value)}>
-              <option value="">Seleccione</option>
-              <option value="IN_PERSON">Presencial</option>
-              <option value="VIRTUAL">Virtual</option>
-              <option value="HYBRID">Híbrida</option>
-            </select>
-          </label>
-          <label>
-            Curso lectivo
-            <input aria-label="Curso lectivo" value={draft.schoolYear} onChange={(event) => setField("schoolYear", event.target.value)} />
-          </label>
-          <label>
-            Mes
-            <select aria-label="Mes" value={draft.month} onChange={(event) => setField("month", event.target.value)}>
-              <option value="">Seleccione</option>
-              {["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"].map(
-                (name, index) => (
-                  <option key={name} value={index + 1}>
-                    {name}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
-          <label>
-            Centro educativo
-            <input aria-label="Centro educativo" value={draft.schoolName} onChange={(event) => setField("schoolName", event.target.value)} />
-          </label>
-          <label>
-            Dirección regional
-            <input
-              aria-label="Dirección regional"
-              value={draft.regionalDirectorate}
-              onChange={(event) => setField("regionalDirectorate", event.target.value)}
-            />
-          </label>
-          <label>
-            Nombre docente
-            <input aria-label="Nombre docente" value={draft.teacherName} onChange={(event) => setField("teacherName", event.target.value)} />
-          </label>
-          <label>
-            Sección o grupo
-            <input aria-label="Sección o grupo" value={draft.section} onChange={(event) => setField("section", event.target.value)} />
-          </label>
-          <label>
-            Cantidad de estudiantes
-            <input
-              aria-label="Cantidad de estudiantes"
-              value={draft.studentCount}
-              onChange={(event) => setField("studentCount", event.target.value)}
-            />
-          </label>
-          <label>
-            Lecciones semanales
-            <input
-              aria-label="Lecciones semanales"
-              value={draft.weeklyLessons}
-              onChange={(event) => setField("weeklyLessons", event.target.value)}
-            />
-          </label>
-          <p className="chips">{chips.join(" · ")}</p>
+            </ul>
+          </section>
           {cycleMessage ? <p role="alert">{cycleMessage}</p> : null}
           {error ? <p role="alert">{error}</p> : null}
           <button className="primary" type="submit" disabled={!valid || submitting}>

@@ -34,7 +34,6 @@ describe("EvidenceStepPage", () => {
         calendarDays={[]}
         onSave={async () => undefined}
         onBalance={() => undefined}
-        onAccept={() => undefined}
         onRegenerate={() => undefined}
       />,
     );
@@ -42,6 +41,9 @@ describe("EvidenceStepPage", () => {
     expect(screen.getByRole("heading", { name: "Evaluaciones calendarizadas" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Quiz 1" })).toBeInTheDocument();
     expect(screen.getByDisplayValue("viernes 13 de marzo, semana 2")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Aceptar sugerencia" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Editar" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Regenerar" }).length).toBeGreaterThan(0);
   });
 
   it("shows the non-teaching-day warning and still counts both columns as complete", () => {
@@ -52,7 +54,6 @@ describe("EvidenceStepPage", () => {
         calendarDays={[{ date: "2026-03-30", kind: "HOLIDAY", label: "Feriado" }]}
         onSave={async () => undefined}
         onBalance={() => undefined}
-        onAccept={() => undefined}
         onRegenerate={() => undefined}
       />,
     );
@@ -68,7 +69,6 @@ describe("EvidenceStepPage", () => {
         calendarDays={[{ date: "2026-03-06", kind: "SUSPENDED", label: "Consejo de docentes" }]}
         onSave={async () => undefined}
         onBalance={() => undefined}
-        onAccept={() => undefined}
         onRegenerate={() => undefined}
       />,
     );
@@ -84,7 +84,6 @@ describe("EvidenceStepPage", () => {
         calendarDays={[{ date: "2026-03-30", kind: "HOLIDAY", label: "Asueto" }]}
         onSave={async () => undefined}
         onBalance={() => undefined}
-        onAccept={() => undefined}
         onRegenerate={() => undefined}
       />,
     );
@@ -103,7 +102,6 @@ describe("EvidenceStepPage", () => {
         calendarDays={[]}
         onSave={async () => undefined}
         onBalance={onBalance}
-        onAccept={() => undefined}
         onRegenerate={() => undefined}
       />,
     );

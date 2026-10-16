@@ -10,6 +10,13 @@ const juanita = {
 };
 
 describe("PlanConfigPage", () => {
+  it("groups the new-plan fields into curriculum, group, and a ready summary", () => {
+    render(<PlanConfigPage teacher={juanita} onLogout={() => undefined} onCreate={async () => undefined} />);
+    expect(screen.getByRole("group", { name: "Contexto curricular" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Datos del grupo" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Resumen listo para iniciar" })).toBeInTheDocument();
+  });
+
   it("keeps Iniciar planeamiento con IA disabled while month is empty", () => {
     render(<PlanConfigPage teacher={juanita} onLogout={() => undefined} onCreate={async () => undefined} />);
     expect(screen.getByRole("button", { name: "Iniciar planeamiento con IA" })).toBeDisabled();

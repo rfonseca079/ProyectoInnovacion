@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
-import { AutosaveField, SaveFooter } from "../components/AutosaveField";
+import { SaveFooter } from "../components/AutosaveField";
 import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
 import { applyAdjustments, continuePlan, downloadWeekPdf, fetchPlanPdf, getMepDocument, getPlan, patchMepDocument, patchPlan, PlanDetail, saveClassSession } from "../services/planService";
 import { acceptSuggestion, balanceAssessmentLoad, duplicateStructure, fitFortyMinutes, generateImplications, generateWeekSessions, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
 import { AdjustmentStepPage } from "./steps/AdjustmentStepPage";
+import { ConfigurationStepPage } from "./steps/ConfigurationStepPage";
 import { EvidenceStepPage, isEvidenceStepReady, NO_STORED_LOAD } from "./steps/EvidenceStepPage";
 import { GroupStepPage, isGroupStepReady } from "./steps/GroupStepPage";
 import { isMediationStepReady, MediationStepPage } from "./steps/MediationStepPage";
@@ -496,9 +497,6 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
                 setActionMessage(error instanceof Error ? error.message : NO_STORED_LOAD);
               })
           }
-          onAccept={(blockKey) => {
-            acceptShown(blockKey);
-          }}
           onRegenerate={(blockKey) => {
             void pendingSave.current
               .then(() => regenerateSuggestion(planId, blockKey))
@@ -635,24 +633,24 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
             void regenerateSuggestion(planId, blockKey).then(storeSuggestion).catch(showSuggestionError);
           }}
         />
-      ) : (
-        <main className="page">
-          {plan.section ? (
-            <AutosaveField
-              key={plan.section}
-              initialValue={plan.section}
-              onStatus={setSaveState}
-              onSave={async (value) => {
-                await patchPlan(planId, { section: value });
-              }}
-            />
-          ) : null}
-          {notice ? <p>{notice}</p> : null}
-          {plan.blocks.map((block) => (
-            <p key={block.blockKey}>{block.body}</p>
-          ))}
-        </main>
-      )}
+      ) : step === 0 ? (
+        <ConfigurationStepPage
+          plan={plan}
+          notice={notice}
+          onSave={(patch) =>
+            trackSave(
+              patchPlan(planId, patch)
+                .then(() => {
+                  setPlan((current) => (current ? { ...current, ...patch } : current));
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            )
+          }
+        />
+      ) : null}
       <SaveFooter state={saveState} />
     </WizardChrome>
   );

@@ -178,43 +178,46 @@ export function MediationStepPage({
         </tbody>
       </table>
       <h3>Fuera del aula</h3>
-      {outside.map((item, index) => (
-        <div key={`${item.task}-${index}`}>
-          <label>
-            Trabajo
-            <input
-              aria-label={`Trabajo ${index + 1}`}
-              value={item.task}
-              onChange={(event) => updateOutside(index, "task", event.target.value)}
-              onBlur={() => {
-                void onSaveOutside(JSON.stringify(outsideRef.current));
-              }}
-            />
-          </label>
-          <label>
-            Propósito
-            <input
-              aria-label={`Propósito ${index + 1}`}
-              value={item.purpose}
-              onChange={(event) => updateOutside(index, "purpose", event.target.value)}
-              onBlur={() => {
-                void onSaveOutside(JSON.stringify(outsideRef.current));
-              }}
-            />
-          </label>
-          <label>
-            Duración estimada
-            <input
-              aria-label={`Duración estimada ${index + 1}`}
-              value={item.estimatedDuration}
-              onChange={(event) => updateOutside(index, "estimatedDuration", event.target.value)}
-              onBlur={() => {
-                void onSaveOutside(JSON.stringify(outsideRef.current));
-              }}
-            />
-          </label>
-        </div>
-      ))}
+      <div className="outside-tasks">
+        {outside.map((item, index) => (
+          <fieldset key={`${item.task}-${index}`} className="outside-task">
+            <legend>{`Trabajo extraclase ${index + 1}`}</legend>
+            <label className="field">
+              <span>Trabajo</span>
+              <textarea
+                aria-label={`Trabajo ${index + 1}`}
+                value={item.task}
+                onChange={(event) => updateOutside(index, "task", event.target.value)}
+                onBlur={() => {
+                  void onSaveOutside(JSON.stringify(outsideRef.current));
+                }}
+              />
+            </label>
+            <label className="field">
+              <span>Propósito</span>
+              <textarea
+                aria-label={`Propósito ${index + 1}`}
+                value={item.purpose}
+                onChange={(event) => updateOutside(index, "purpose", event.target.value)}
+                onBlur={() => {
+                  void onSaveOutside(JSON.stringify(outsideRef.current));
+                }}
+              />
+            </label>
+            <label className="field">
+              <span>Duración estimada</span>
+              <input
+                aria-label={`Duración estimada ${index + 1}`}
+                value={item.estimatedDuration}
+                onChange={(event) => updateOutside(index, "estimatedDuration", event.target.value)}
+                onBlur={() => {
+                  void onSaveOutside(JSON.stringify(outsideRef.current));
+                }}
+              />
+            </label>
+          </fieldset>
+        ))}
+      </div>
       {message ? <p role="alert">{message}</p> : null}
       {actionMessage ? <p role="alert">{actionMessage}</p> : null}
       <div className="card-actions">
