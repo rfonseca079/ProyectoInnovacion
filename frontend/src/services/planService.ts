@@ -1,4 +1,5 @@
 import { PlanDraft } from "../pages/PlanConfigPage";
+import { MepDocumentView } from "../pages/steps/MepStepPage";
 import { PlanSummary } from "./planLabels";
 
 export type PlanDetail = PlanSummary & {
@@ -126,6 +127,27 @@ export async function saveClassSession(
     throw new Error("No se pudo guardar el borrador. Intente de nuevo.");
   }
   return response.json() as Promise<PlanDetail>;
+}
+
+export async function getMepDocument(planId: string): Promise<MepDocumentView> {
+  const response = await fetch(`${apiUrl}/api/plans/${planId}/document`, { credentials: "include" });
+  if (!response.ok) {
+    throw new Error("No se pudo abrir el documento.");
+  }
+  return response.json() as Promise<MepDocumentView>;
+}
+
+export async function patchMepDocument(planId: string, patch: Partial<MepDocumentView>): Promise<MepDocumentView> {
+  const response = await fetch(`${apiUrl}/api/plans/${planId}/document`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  if (!response.ok) {
+    throw new Error("No se pudo guardar el documento.");
+  }
+  return response.json() as Promise<MepDocumentView>;
 }
 
 export async function downloadWeekPdf(planId: string, weekNumber: number): Promise<void> {

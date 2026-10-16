@@ -1,4 +1,4 @@
-import { Plan, PrismaClient, RubricItem } from "@prisma/client";
+import { MepDocument, MepRow, Plan, PrismaClient, RubricItem } from "@prisma/client";
 import { AppError, PLAN_FORBIDDEN } from "../domain/errors";
 import { isCompleteEvidence } from "../domain/evidenceCard";
 import { getPlan } from "./listPlans";
@@ -14,6 +14,7 @@ type PlanWithRubric = Plan & {
   blocks: { blockKey: string; body: string }[];
   evidence: { kind: "FORMATIVE" | "SCHEDULED"; measures: string; when: string; instrument: string; expectedLearning: string }[];
   classSessions: { weekPosition: number; expectedLearning: string; start: string; development: string; close: string }[];
+  mepDocument: (MepDocument & { rows: MepRow[] }) | null;
 };
 
 function blockText(blocks: { blockKey: string; body: string }[], blockKey: string): string {
@@ -100,7 +101,31 @@ function validationProblem(plan: PlanWithRubric, step: number): string | null {
   if (step === 6) {
     return sessionsStepProblem(plan);
   }
+  if (step === 7) {
+    return mepStepProblem(plan.mepDocument);
+  }
   return STEP_NOT_READY;
+}
+
+function mepStepProblem(document: (MepDocument & { rows: MepRow[] }) | null): string | null {
+  if (!document || document.rows.length < 2) {
+    return STEP_NOT_READY;
+  }
+  const header = [
+    document.regionalDirectorate,
+    document.schoolName,
+    document.teacherName,
+    document.subjectLabel,
+    document.gradeLabel,
+    document.periodicity,
+    document.competencies,
+    document.observations,
+  ];
+  const headerReady = header.every((value) => value.trim().length > 0) && document.schoolYear > 0;
+  const rowsReady = document.rows.every(
+    (row) => row.expectedLearning.trim() && row.mediationStrategy.trim() && row.indicator.trim(),
+  );
+  return headerReady && rowsReady ? null : STEP_NOT_READY;
 }
 
 function sessionsStepProblem(plan: PlanWithRubric): string | null {
@@ -162,7 +187,7 @@ export async function continueStep(
   }
   const plan = await prisma.plan.findFirst({
     where: { id: planId },
-    include: { rubricItems: true, weeks: true, blocks: true, evidence: true, classSessions: true },
+    include: { rubricItems: true, weeks: true, blocks: true, evidence: true, classSessions: true, mepDocument: { include: { rows: true } } },
   });
   if (!plan) {
     throw new AppError(404, "NOT_FOUND", PLAN_FORBIDDEN);

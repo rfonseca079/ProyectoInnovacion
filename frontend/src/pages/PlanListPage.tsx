@@ -5,12 +5,13 @@ import { AutosaveField, SaveFooter } from "../components/AutosaveField";
 import { WizardChrome, isOpenableWizardStep } from "../components/WizardChrome";
 import { planAccessMessage } from "../services/authService";
 import { planRowText, PlanSummary, subjectLabel } from "../services/planLabels";
-import { continuePlan, downloadWeekPdf, getPlan, patchPlan, PlanDetail, saveClassSession } from "../services/planService";
+import { continuePlan, downloadWeekPdf, getMepDocument, getPlan, patchMepDocument, patchPlan, PlanDetail, saveClassSession } from "../services/planService";
 import { acceptSuggestion, balanceAssessmentLoad, duplicateStructure, fitFortyMinutes, generateImplications, generateWeekSessions, reanalyzeProgram, redistributeEvaluation, regenerateMediation, regenerateSuggestion, simplifyMaterials } from "../services/suggestionService";
 import { EvidenceStepPage, isEvidenceStepReady, NO_STORED_LOAD } from "./steps/EvidenceStepPage";
 import { GroupStepPage, isGroupStepReady } from "./steps/GroupStepPage";
 import { isMediationStepReady, MediationStepPage } from "./steps/MediationStepPage";
 import { isProgramStepReady, ProgramStepPage } from "./steps/ProgramStepPage";
+import { emptyDocumentField, MepDocumentView, MepStepPage } from "./steps/MepStepPage";
 import { isSessionsStepReady, SessionsStepPage } from "./steps/SessionsStepPage";
 import { isUnitsStepReady, UnitsStepPage } from "./steps/UnitsStepPage";
 
@@ -93,6 +94,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
   const [mediationReady, setMediationReady] = useState<boolean | null>(null);
   const [evidenceReady, setEvidenceReady] = useState<boolean | null>(null);
   const [sessionsReady, setSessionsReady] = useState<boolean | null>(null);
+  const [mepDocument, setMepDocument] = useState<MepDocumentView | null>(null);
   const pendingSave = useRef(Promise.resolve());
   const reportUnitsReady = useCallback((ready: boolean) => {
     setUnitsReady(ready);
@@ -130,6 +132,17 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
         setDeniedMessage(error instanceof Error ? error.message : "No tiene acceso a este planeamiento.");
       });
   }, [planId]);
+
+  useEffect(() => {
+    if (step !== 7) {
+      return;
+    }
+    getMepDocument(planId)
+      .then(setMepDocument)
+      .catch(() => {
+        setMepDocument(null);
+      });
+  }, [planId, step]);
 
   if (deniedMessage) {
     return (
@@ -180,6 +193,7 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
         (step === 3 && !(groupReady ?? isGroupStepReady(plan.blocks))) ||
         (step === 4 && !(mediationReady ?? isMediationStepReady(plan.blocks))) ||
         (step === 5 && !(evidenceReady ?? isEvidenceStepReady(plan.evidence ?? []))) ||
+        (step === 7 && (mepDocument === null || emptyDocumentField(mepDocument) !== null)) ||
         (step === 6 && !(sessionsReady ?? isSessionsStepReady(
           (plan.weeks ?? []).map((week) => ({
             position: week.position,
@@ -564,6 +578,24 @@ export function StepPage({ teacherName, onLogout }: { teacherName: string; onLog
               });
           }}
           actionMessage={actionMessage}
+        />
+      ) : step === 7 && mepDocument ? (
+        <MepStepPage
+          document={mepDocument}
+          status={plan.status}
+          onSave={(patch) => {
+            void trackSave(
+              patchMepDocument(planId, patch)
+                .then(setMepDocument)
+                .then(() => {
+                  setSaveState("saved");
+                })
+                .catch(() => {
+                  setSaveState("error");
+                }),
+            );
+          }}
+          onDownload={() => undefined}
         />
       ) : (
         <main className="page">

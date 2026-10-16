@@ -59,6 +59,7 @@ export async function getPlan(prisma: PrismaClient, sessionId: string | undefine
     section: plan.section,
     scenarioId: plan.scenarioId,
     usedFallback: plan.usedFallback,
+    adjustmentApplied: plan.adjustmentApplied,
     schoolName: plan.schoolName,
     blocks: plan.blocks.map((block) => ({
       blockKey: block.blockKey,

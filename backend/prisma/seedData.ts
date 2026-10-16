@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { evidenceCardJson, scenarioEvidence, StoredEvidenceCard } from "./evidenceSeed";
+import { seedMepTemplate } from "./mepSeed";
 import { activeWeekPosition, copyPlanSessions, seedWeekSessionVariants } from "./sessionSeed";
 
 export const DEMO_PASSWORD = "Demo2026";
@@ -853,6 +854,7 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       });
     }
     await seedWeekSessionVariants(prisma, scenario.id);
+    await seedMepTemplate(prisma, scenario.id);
   }
 
   for (const plan of seededPlans) {

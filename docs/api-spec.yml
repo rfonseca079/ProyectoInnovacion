@@ -343,6 +343,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlanDetail'
+  /api/plans/{planId}/document:
+    get:
+      tags: [Documents]
+      summary: Build the MEP document on first open, then return the saved document
+      operationId: readMepDocument
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '200':
+          description: Saved institutional document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MepDocument'
+        '404':
+          description: Not found, or owned by another teacher
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [Documents]
+      summary: Save Editar campos changes on the stored document
+      operationId: updateMepDocument
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MepDocumentPatch'
+      responses:
+        '200':
+          description: Document saved, including when a required field is empty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MepDocument'
+        '404':
+          description: There is no saved document yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/plans/{planId}/document/pdf:
     get:
       tags: [Documents]
@@ -516,6 +561,78 @@ components:
           minimum: 1
           maximum: 3
         body: {}
+    MepRow:
+      type: object
+      required: [position, expectedLearning, mediationStrategy, indicator]
+      properties:
+        position:
+          type: integer
+        expectedLearning:
+          type: string
+        mediationStrategy:
+          type: string
+        indicator:
+          type: string
+    MepDocument:
+      type: object
+      required: [regionalDirectorate, schoolName, teacherName, subjectLabel, gradeLabel, schoolYear, periodicity, competencies, observations, instruments, rows]
+      properties:
+        regionalDirectorate:
+          type: string
+        schoolName:
+          type: string
+        teacherName:
+          type: string
+        subjectLabel:
+          type: string
+        gradeLabel:
+          type: string
+        schoolYear:
+          type: integer
+        periodicity:
+          type: string
+        competencies:
+          type: string
+        observations:
+          type: string
+        instruments:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/MepRow'
+    MepDocumentPatch:
+      type: object
+      description: Partial Editar campos save. Any listed field may be sent, including an empty string.
+      properties:
+        regionalDirectorate:
+          type: string
+        schoolName:
+          type: string
+        teacherName:
+          type: string
+        subjectLabel:
+          type: string
+        gradeLabel:
+          type: string
+        schoolYear:
+          type: integer
+        periodicity:
+          type: string
+        competencies:
+          type: string
+        observations:
+          type: string
+        instruments:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/MepRow'
     PlanDetail:
       allOf:
         - $ref: '#/components/schemas/PlanSummary'
@@ -525,6 +642,8 @@ components:
             scenarioId:
               type: string
             usedFallback:
+              type: boolean
+            adjustmentApplied:
               type: boolean
             highestVisitedStep:
               type: integer
