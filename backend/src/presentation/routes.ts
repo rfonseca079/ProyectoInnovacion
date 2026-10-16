@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { currentTeacher, loginTeacher } from "../application/loginTeacher";
+import { readMepDocument, updateMepDocument } from "../application/buildMepDocument";
 import { continueStep } from "../application/continueStep";
 import { createPlan, updatePlanConfiguration } from "../application/createPlan";
 import { downloadWeekPdf } from "../application/downloadWeekPdf";
@@ -142,6 +143,22 @@ export function apiRouter(prisma: PrismaClient): Router {
         req.body ?? {},
       );
       res.json(plan);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.patch("/plans/:planId/document", async (req, res, next) => {
+    try {
+      res.json(await updateMepDocument(prisma, readSessionId(req), String(req.params.planId), req.body ?? {}));
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get("/plans/:planId/document", async (req, res, next) => {
+    try {
+      res.json(await readMepDocument(prisma, readSessionId(req), String(req.params.planId)));
     } catch (error) {
       next(error);
     }

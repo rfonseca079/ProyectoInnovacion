@@ -78,6 +78,7 @@ model Plan {
   studentCount         Int
   weeklyLessons        Int
   status               PlanStatus
+  adjustmentApplied    Boolean    @default(false)
   currentStep          Int
   highestVisitedStep   Int
   scenarioId           String?
@@ -90,6 +91,7 @@ model Plan {
   weeks                Week[]
   evidence             Evidence[]
   classSessions        ClassSession[]
+  mepDocument          MepDocument?
 }
 
 model Week {
@@ -201,6 +203,35 @@ model Evidence {
 
   @@unique([planId, blockKey])
   @@unique([planId, kind, position])
+}
+
+model MepDocument {
+  id                  String   @id @default(uuid())
+  planId              String   @unique
+  plan                Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  regionalDirectorate String
+  schoolName          String
+  teacherName         String
+  subjectLabel        String
+  gradeLabel          String
+  schoolYear          Int
+  periodicity         String
+  competencies        String
+  observations        String
+  instruments         String[]
+  rows                MepRow[]
+}
+
+model MepRow {
+  id                String      @id @default(uuid())
+  documentId        String
+  document          MepDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  position          Int
+  expectedLearning  String
+  mediationStrategy String
+  indicator         String
+
+  @@unique([documentId, position])
 }
 
 model Session {

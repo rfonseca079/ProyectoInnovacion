@@ -338,6 +338,49 @@ input {
   max-width: 720px;
 }
 
+.mep-document {
+  width: 920px;
+  margin-top: 24px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #c5cec8;
+  box-shadow: 0 8px 24px rgba(28, 36, 40, 0.08);
+}
+
+.mep-document dl {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 8px 16px;
+}
+
+.mep-document dt {
+  font-weight: 700;
+}
+
+.mep-document dd {
+  margin: 0;
+}
+
+.mep-document table {
+  width: 100%;
+  margin-top: 24px;
+  border-collapse: collapse;
+}
+
+.mep-document th,
+.mep-document td {
+  border: 1px solid #c5cec8;
+  padding: 8px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.mep-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 button:disabled {
   opacity: 0.45;
   cursor: default;

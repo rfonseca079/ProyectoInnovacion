@@ -178,7 +178,13 @@ Applying it writes the stored texts into that week's sessions and into the MEP d
 
 ## MepDocument
 
-Consolidated view built from the plan snapshot plus scenario template rows. `edit-fields` updates the stored header, table cells, and observations. PDF generation reads this saved document. Required document fields must be non-empty before download.
+Consolidated document built the first time step 7 opens. Later views read the saved row, so Editar campos can diverge from earlier steps until an adjustment rewrites it. The scenario template is the stored `mep-template` variant. Nothing is drafted at open time.
+
+The screen header shows `regionalDirectorate`, `schoolName`, `teacherName`, `subjectLabel`, `gradeLabel`, `schoolYear`, and `periodicity` (Mensual, with the month). It also shows `competencies` from that template. The body is at least two rows of `expectedLearning`, `mediationStrategy`, and `indicator`. Instruments from step 5 and `observations` appear below. If `teacher-notes` is `EDITED`, observations use that body instead of the template sentence. If `mediation-in-class` is `EDITED`, the first strategy is the activity names joined with "; ", or the body itself when it is plain text. The raw JSON is never the cell. An edited class session on the active week supplies the first expected learning. An edited formative evidence card supplies the first indicator from that card's expected learning. Curso lectivo is an editable header field.
+
+`PATCH /api/plans/:planId/document` saves the header, table cells, and observations. An empty required field is stored and does not delete the document. Download stays blocked until that field has text. Continuar from a complete step 7 opens step 8 and leaves `Plan.adjustmentApplied` false.
+
+Mathematics stores the competencies Ciudadanía responsable y solidaria and Competencias para la vida. The Spanish template includes «Lectura en voz alta del cuento de la semana». The science template includes «Observación guiada de la célula».
 
 ## Relationships
 
