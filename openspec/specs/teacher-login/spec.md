@@ -2,16 +2,16 @@
 
 ## Purpose
 
-Lets a seeded teacher enter Planificador AI with email and password and keeps every other account out of their plans.
+Lets a seeded teacher enter EduAcompaña with email and password and keeps every other account out of their plans.
 
 ## Requirements
 
 ### Requirement: Login form
-The system SHALL show a desktop login screen titled Planificador AI with the fields Correo and Contraseña and the button Entrar. The screen MUST NOT offer registration, password recovery, or guest entry.
+The system SHALL show a desktop login screen titled EduAcompaña with the fields Correo and Contraseña and the button Entrar. The screen MUST NOT offer registration, password recovery, or guest entry.
 
 #### Scenario: Login screen contents
 - **WHEN** a person opens the login screen
-- **THEN** the screen shows Planificador AI, Correo, Contraseña, and Entrar, and it does not show registration, recovery, or guest actions
+- **THEN** the screen shows EduAcompaña, Correo, Contraseña, and Entrar, and it does not show registration, recovery, or guest actions
 
 ### Requirement: Empty credentials
 The system SHALL refuse login when email or password is empty and MUST show the message "Ingrese su correo y su contraseña."

@@ -9,12 +9,12 @@ Como docente quiero definir lo que haremos dentro y fuera del aula para dejar cl
 
 ## Contexto
 
-Paso 4 de 8. Título: **Qué haremos para aprender**. Apoyo: «Defina el rol docente, el rol estudiantil, tiempos y materiales. También el trabajo extraclase.» Juanita Pérez entra a este paso cuando abre su borrador.
+Paso 4 de 8. Título: **Qué haremos para aprender**. Apoyo: «Defina el rol de la persona docente, el rol del estudiantado, los tiempos y los materiales. También el trabajo extraclase.» Juanita Pérez entra a este paso cuando abre su borrador.
 
 ## Criterios de aceptación
 
 1. La pantalla trabaja sobre la semana activa guardada en el escenario. En Matemática de marzo esa semana es la semana 2, Fracciones equivalentes.
-2. La mediación dentro del aula se muestra en filas con actividad, lo que hace la docente, lo que hace el estudiantado, tiempo y materiales.
+2. La mediación dentro del aula se muestra en filas con actividad, lo que hace la persona docente, lo que hace el estudiantado, tiempo y materiales.
 3. La mediación fuera del aula lista los trabajos extraclase, cada uno con su propósito de aprendizaje.
 4. Esas filas y los extraclase se pueden editar. El cambio se guarda solo.
 5. **Regenerar mediación** carga el siguiente conjunto guardado de actividades y extraclase.

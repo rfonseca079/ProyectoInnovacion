@@ -9,13 +9,13 @@ Como docente quiero registrar lo que sí ocurrió en la clase y aplicar un ajust
 
 ## Contexto
 
-Paso 8 de 8. Título: **Ajuste lo planeado según lo ocurrido**. Apoyo: «Casi nunca se avanza exactamente como se planeó. Registre y replanifique.» María Solís abre su planeamiento en este paso, con el ajuste todavía sin aplicar. Juanita llega aquí después de continuar desde el formato MEP.
+Paso 8 de 8. Título: **Ajuste lo planeado según lo ocurrido**. Apoyo: «Puede registrar lo ocurrido y redistribuir las actividades para adaptarlas al tiempo disponible.» María Solís abre su planeamiento en este paso, con el ajuste todavía sin aplicar. Juanita llega aquí después de continuar desde el formato MEP.
 
 ## Criterios de aceptación
 
 1. La zona izquierda muestra, para la sesión guardada como referencia, lo planeado, lo ejecutado, los aprendizajes logrados, los pendientes y la evidencia recogida. Esos campos se pueden editar y se guardan solos.
 2. La zona derecha muestra tres tarjetas de ajuste. Se aceptan, editan y regeneran según US-16.
-3. La bitácora de la docente es editable y se guarda sola.
+3. La bitácora de la persona docente es editable y se guarda sola.
 4. Un esquema corto de la semana muestra el efecto del ajuste. Antes de aplicarlo, muestra la semana original. Después de aplicarlo, muestra la semana actualizada con el texto guardado para ese ajuste.
 5. El interruptor **Notificar cambios en evaluaciones calendarizadas** inicia apagado. El sistema guarda si queda encendido o apagado. No envía ninguna notificación.
 6. **Aplicar ajustes al planeamiento** escribe en las sesiones de esa semana y en la tabla del formato MEP los textos del conjunto guardado `ajuste-semana` del escenario. Las tarjetas que la docente haya editado antes de aplicar usan ese texto editado en lugar del texto base del conjunto.

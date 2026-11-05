@@ -87,7 +87,7 @@ export function UnitsStepPage({
     <main className="page units-step">
       <h2>Organice unidades y defina la evaluación</h2>
       {notice ? <p>{notice}</p> : null}
-      <p>La IA propone la secuencia. Usted define cada rubro y su porcentaje.</p>
+      <p>Esta distribución es una propuesta. Puede modificarla según las necesidades de su grupo.</p>
       <section>
         <h3>Secuencia del mes</h3>
         <div className="week-row">

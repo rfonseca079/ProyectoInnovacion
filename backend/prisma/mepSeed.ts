@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { CIENCIAS_SEXTO_SCENARIO_ID } from "./cienciasSextoSeed";
 
 export type MepRowTemplate = {
   expectedLearning: string;
@@ -59,6 +60,28 @@ export const mepTemplates: Record<string, MepTemplate> = {
         expectedLearning: "comparar la célula animal y la vegetal",
         mediationStrategy: "contraste en parejas a partir de las láminas",
         indicator: "nombra una diferencia visible entre las dos células",
+      },
+    ],
+  },
+  [CIENCIAS_SEXTO_SCENARIO_ID]: {
+    competencies: "Ciudadanía responsable y solidaria",
+    observations:
+      "Las reflexiones ¿Qué funcionó?, ¿Qué no funcionó? y ¿Qué puedo mejorar? siguen en blanco. Se mantiene la adecuación curricular.",
+    rows: [
+      {
+        expectedLearning: "identificar los componentes del sistema nervioso y sus funciones",
+        mediationStrategy: "El Mensajero Humano, parpadeo, maqueta de cerebro y neurona",
+        indicator: "determina los componentes con una maqueta",
+      },
+      {
+        expectedLearning: "describir medidas preventivas en el hogar, el centro educativo y la comunidad",
+        mediationStrategy: "Afiche, cómic o campaña preventiva y videos sobre el cuidado y las drogas",
+        indicator: "menciona tres medidas preventivas en un afiche",
+      },
+      {
+        expectedLearning: "reconocer las glándulas del sistema endocrino y su relación con el sistema nervioso",
+        mediationStrategy: "Juego ¿Quién soy?, historia Los cambios de Mariana y ficha médica",
+        indicator: "identifica las glándulas y propone hábitos de cuidado",
       },
     ],
   },

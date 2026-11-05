@@ -9,11 +9,11 @@ Como docente quiero iniciar sesión con mi correo y mi contraseña para entrar a
 
 ## Contexto
 
-Planificador AI es un demo de escritorio, en español de Costa Rica, para docentes de primaria y secundaria. No hay registro ni recuperación de contraseña: las cuentas ya existen. Ninguna acción del producto llama a un modelo de lenguaje; los textos de ayuda salen de datos guardados (US-16).
+EduAcompaña es un demo de escritorio, en español de Costa Rica, para docentes de primaria y secundaria. No hay registro ni recuperación de contraseña: las cuentas ya existen. Ninguna acción del producto llama a un modelo de lenguaje; los textos de ayuda salen de datos guardados (US-16).
 
 ## Criterios de aceptación
 
-1. La pantalla de acceso muestra el nombre **Planificador AI**, los campos **Correo** y **Contraseña**, y el botón **Entrar**.
+1. La pantalla de acceso muestra el nombre **EduAcompaña**, los campos **Correo** y **Contraseña**, y el botón **Entrar**.
 2. No aparecen opciones de crear cuenta, recuperar contraseña ni entrar como invitado.
 3. Si el correo o la contraseña están vacíos, **Entrar** no abre sesión y el sistema indica: «Ingrese su correo y su contraseña.»
 4. Si el correo no existe o la contraseña no coincide, no se abre sesión y el mensaje es el mismo en ambos casos: «Correo o contraseña incorrectos.»

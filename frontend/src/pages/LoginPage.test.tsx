@@ -4,7 +4,7 @@ import { LoginPage } from "./LoginPage";
 describe("LoginPage", () => {
   it("shows Entrar and does not offer registration or recovery", () => {
     render(<LoginPage onSuccess={() => undefined} />);
-    expect(screen.getByRole("heading", { name: "Planificador AI" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "EduAcompaña" })).toBeInTheDocument();
     expect(screen.getByText("Correo")).toBeInTheDocument();
     expect(screen.getByText("Contraseña")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();

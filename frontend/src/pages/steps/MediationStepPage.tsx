@@ -18,8 +18,8 @@ type MediationBlock = { blockKey: string; body: string };
 
 const rowFields = [
   { key: "activity", label: "Actividad" },
-  { key: "teacherRole", label: "Hace la docente" },
-  { key: "studentRole", label: "Hacen los estudiantes" },
+  { key: "teacherRole", label: "Hace la persona docente" },
+  { key: "studentRole", label: "Hace el estudiantado" },
   { key: "minutes", label: "Tiempo" },
   { key: "materials", label: "Materiales" },
 ] as const;
@@ -147,7 +147,7 @@ export function MediationStepPage({
     <main className="page mediation-step">
       <h2>Qué haremos para aprender</h2>
       {notice ? <p>{notice}</p> : null}
-      <p>Defina el rol docente, el rol estudiantil, tiempos y materiales. También el trabajo extraclase.</p>
+      <p>Defina el rol de la persona docente, el rol del estudiantado, los tiempos y los materiales. También el trabajo extraclase.</p>
       {activeWeek ? <h3>{`Semana ${activeWeek.position} — ${activeWeek.title}`}</h3> : null}
       <h3>Dentro del aula</h3>
       <table className="rubric-table">

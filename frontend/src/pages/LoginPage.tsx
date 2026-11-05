@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { BrandMark } from "../components/BrandMark";
 import { login } from "../services/authService";
 
 type LoginPageProps = {
@@ -24,8 +25,8 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
   return (
     <main className="login-screen">
       <form className="login-card" onSubmit={handleSubmit}>
-        <h1 className="wordmark">Planificador AI</h1>
-        <p className="lede">Ingrese con su cuenta de docente.</p>
+        <BrandMark />
+        <p className="lede">Organiza tu trabajo y comienza a planificar con mayor claridad.</p>
         {error ? (
           <p className="form-error" role="alert">
             {error}

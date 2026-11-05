@@ -13,7 +13,7 @@ El wizard tiene un encabezado, una barra de pasos y un pie comunes. El ancho de 
 
 ## Criterios de aceptación
 
-1. El encabezado muestra **Planificador AI** a la izquierda y, a la derecha, el contexto guardado: asignatura, nivel, centro educativo y nombre docente.
+1. El encabezado muestra **EduAcompaña** a la izquierda y, a la derecha, el contexto guardado: asignatura, nivel, centro educativo y nombre docente.
 2. El encabezado incluye **Mis planeamientos** y **Cerrar sesión**. **Mis planeamientos** vuelve a la lista sin descartar el borrador ya guardado.
 3. La barra muestra, en este orden: **0 Configuración**, **1 Programa y calendario**, **2 Unidades y evaluación**, **3 Grupo**, **4 Mediación**, **5 Evidencias de aprendizaje**, **6 Sesiones**, **7 Formato MEP / PDF**, **8 Ajuste post-clase**.
 4. En los pasos 1 a 8 se lee **Paso X de 8**. En Configuración no aparece ese indicador.

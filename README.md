@@ -23,7 +23,7 @@ Lorenzo Jesus Rodriguez Vargas
 
 ### 0.2. Nombre del proyecto
 
-Planificador AI
+EduAcompaña
 
 ### 0.3. Descripción breve del proyecto
 
@@ -41,7 +41,7 @@ https://github.com/rfonseca079/ProyectoInnovacion
 
 ## 1. Descripción general del producto
 
-Planificador AI guía el planeamiento en nueve pasos, del contexto curricular al ajuste después de la clase. El idioma de la interfaz es español de Costa Rica. El ancho de referencia es 1440 px. No hay versión para teléfono.
+EduAcompaña guía el planeamiento en nueve pasos, del contexto curricular al ajuste después de la clase. El idioma de la interfaz es español de Costa Rica. El ancho de referencia es 1440 px. No hay versión para teléfono.
 
 Cada docente entra con correo y contraseña de una cuenta ya creada. Ve solo sus planeamientos, puede abrir uno o crear otro, y el borrador se guarda solo. Al final el sistema arma un documento tipo plantilla MEP y genera el PDF con lo que quedó guardado.
 
@@ -72,11 +72,11 @@ Las 16 propuestas, archivadas en `openspec/changes/archive/`, cubren este alcanc
 
 Cada tarjeta muestra «Sugerido por IA», «Aceptada» o «Editada». Regenerar recorre las variantes 1, 2 y 3. Si la tarjeta sigue sugerida, el campo visible cambia. Si ya fue aceptada o editada, el texto de la docente se mantiene hasta que acepte la variante nueva; al recargar, esa variante sigue pendiente. Un botón con nombre, como Reanalizar programa o Generar las 5 sesiones con IA, sí reemplaza el texto visible y vuelve a marcar la tarjeta como sugerida. Cada semana del escenario tiene su conjunto guardado, también las que no son la semana activa. Si no queda otra variante, el paso muestra «No hay otra sugerencia guardada para este bloque.»
 
-Cuentas de ejemplo: Juanita Pérez, Carlos Mora y María Solís. El detalle y la contraseña de demostración están en `docs/development_guide.md`.
+Cuentas de ejemplo: Juanita Pérez, Carlos Mora, María Solís y Andrea Brenes Ch. El detalle y la contraseña de demostración están en `docs/development_guide.md`.
 
 ### 1.3. Diseño y experiencia de usuario
 
-La estructura visual y los textos de ejemplo están en `stitch.md`. Encabezado con **Planificador AI** y el contexto del planeamiento. Barra de pasos fija. Pie con **Borrador guardado automáticamente**. Las sugerencias son tarjetas dentro del paso, no un chat lateral.
+La estructura visual y los textos de ejemplo están en `stitch.md`. Encabezado con **EduAcompaña** y el contexto del planeamiento. Barra de pasos fija. Pie con **Borrador guardado automáticamente**. Las sugerencias son tarjetas dentro del paso, no un chat lateral.
 
 ### 1.4. Instrucciones de instalación
 

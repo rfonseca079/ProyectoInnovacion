@@ -1,6 +1,17 @@
 :root {
-  color: #1c2428;
-  background: #f3f5f4;
+  --ink: #243b53;
+  --muted: #4a6270;
+  --teal: #2f7d78;
+  --mint: #e7f3ef;
+  --cream: #f5f0e6;
+  --gold: #e5a84b;
+  --white: #ffffff;
+  --line: #d5e4de;
+  --error: #8a2b2b;
+  --warning: #8a3b12;
+  --ok: #1b7a32;
+  color: var(--ink);
+  background: var(--cream);
   font-family: "Segoe UI", "Source Sans 3", sans-serif;
 }
 
@@ -15,8 +26,15 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
 }
 
 .desktop-frame {
@@ -34,20 +52,29 @@ select {
 .login-card {
   width: 420px;
   padding: 40px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--white);
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 
-.wordmark {
-  margin: 0 0 8px;
-  color: #0f3d4c;
-  font-size: 28px;
+.brand {
+  margin: 0;
+}
+
+.brand img {
+  display: block;
+  height: 56px;
+  width: auto;
+}
+
+.login-card .brand img {
+  height: 92px;
+  margin: 0 auto 8px;
 }
 
 .lede {
   margin: 0 0 28px;
-  color: #4d5b61;
+  color: var(--muted);
 }
 
 .field {
@@ -65,7 +92,7 @@ select {
 .field input {
   height: 42px;
   padding: 0 12px;
-  border: 1px solid #c5d0cb;
+  border: 1px solid var(--line);
   border-radius: 6px;
 }
 
@@ -74,29 +101,25 @@ select {
   height: 44px;
   border: 0;
   border-radius: 6px;
-  background: #0f3d4c;
-  color: #ffffff;
+  background: var(--teal);
+  color: var(--white);
   cursor: pointer;
 }
 
 .form-error {
   margin: 0 0 16px;
-  color: #8a2b2b;
+  color: var(--error);
 }
 
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
+  height: 88px;
   padding: 0 32px;
-  background: #0f3d4c;
-  color: #ffffff;
-}
-
-.topbar h1 {
-  margin: 0;
-  font-size: 22px;
+  background: var(--white);
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
 }
 
 .topbar-actions {
@@ -106,7 +129,7 @@ select {
 }
 
 .topbar a {
-  color: #ffffff;
+  color: var(--ink);
 }
 
 .plan-context {
@@ -117,8 +140,8 @@ select {
 
 .step-bar {
   padding: 16px 32px 0;
-  background: #ffffff;
-  border-bottom: 1px solid #d5ddd8;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
 }
 
 .step-bar ol {
@@ -135,13 +158,19 @@ select {
   display: inline-block;
   padding: 8px 10px;
   border-radius: 6px;
-  background: #e7eeeb;
+  background: var(--mint);
   color: inherit;
   text-decoration: none;
 }
 
+.step-bar a.step-current {
+  background: var(--white);
+  box-shadow: inset 0 -3px 0 var(--gold);
+  font-weight: 700;
+}
+
 .step-bar span {
-  color: #7b878c;
+  color: var(--muted);
 }
 
 .wizard-footer {
@@ -156,21 +185,26 @@ select {
   height: 40px;
   padding: 0 16px;
   border-radius: 6px;
-  border: 1px solid #0f3d4c;
-  background: #ffffff;
-  color: #0f3d4c;
+  border: 1px solid var(--teal);
+  background: var(--white);
+  color: var(--ink);
   text-decoration: none;
   line-height: 40px;
   cursor: pointer;
 }
 
+.wizard-footer button {
+  background: var(--teal);
+  color: var(--white);
+}
+
 .topbar button {
   height: 36px;
   padding: 0 14px;
-  border: 1px solid #ffffff;
+  border: 1px solid var(--teal);
   border-radius: 6px;
-  background: transparent;
-  color: #ffffff;
+  background: var(--teal);
+  color: var(--white);
   cursor: pointer;
 }
 
@@ -180,6 +214,7 @@ select {
 
 .page h2 {
   margin-top: 0;
+  color: var(--ink);
 }
 
 .config-form {
@@ -195,14 +230,14 @@ select {
 .config-form fieldset {
   margin: 0;
   padding: 20px 24px 8px;
-  border: 1px solid #d5ddd8;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--white);
 }
 
 .config-form legend {
   padding: 0 8px;
-  color: #0f3d4c;
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -211,17 +246,17 @@ select {
   width: 100%;
   height: 42px;
   padding: 0 12px;
-  border: 1px solid #c5d0cb;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--white);
 }
 
 .config-summary {
   margin-top: 24px;
   padding: 16px 20px;
   border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--mint);
+  border: 1px solid var(--line);
 }
 
 .config-summary h3 {
@@ -241,8 +276,8 @@ select {
 .chips li {
   padding: 6px 12px;
   border-radius: 999px;
-  background: #e7eeeb;
-  color: #0f3d4c;
+  background: var(--mint);
+  color: var(--ink);
   font-size: 14px;
 }
 
@@ -277,8 +312,8 @@ select {
   display: block;
   margin-bottom: 12px;
   padding: 16px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--white);
+  border: 1px solid var(--line);
   border-radius: 8px;
   color: inherit;
   text-decoration: none;
@@ -300,8 +335,8 @@ select {
 .day {
   min-height: 64px;
   padding: 8px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--white);
+  border: 1px solid var(--line);
   border-radius: 6px;
 }
 
@@ -321,8 +356,9 @@ select {
 .program-step section {
   margin-top: 24px;
   padding: 16px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--mint);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
   border-radius: 8px;
 }
 
@@ -357,7 +393,7 @@ select {
 .mediation-step .rubric-table th,
 .mediation-step .rubric-table td {
   padding: 8px 10px;
-  border-bottom: 1px solid #d5ddd8;
+  border-bottom: 1px solid var(--line);
   vertical-align: top;
   text-align: left;
 }
@@ -365,7 +401,7 @@ select {
 .mediation-step .rubric-table input {
   min-height: 40px;
   padding: 8px;
-  border: 1px solid #c5d0cb;
+  border: 1px solid var(--line);
   border-radius: 6px;
 }
 
@@ -377,14 +413,14 @@ select {
 .outside-task {
   margin: 0;
   padding: 8px 20px 4px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--white);
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 
 .outside-task legend {
   padding: 0 8px;
-  color: #0f3d4c;
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -392,7 +428,7 @@ select {
   width: 100%;
   min-height: 72px;
   padding: 8px 12px;
-  border: 1px solid #c5d0cb;
+  border: 1px solid var(--line);
   border-radius: 6px;
   resize: vertical;
 }
@@ -404,14 +440,14 @@ select {
 .mediation-step .card-actions button {
   height: 40px;
   padding: 0 16px;
-  border: 1px solid #0f3d4c;
+  border: 1px solid var(--teal);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--white);
   cursor: pointer;
 }
 
 .distribution-complete {
-  color: #1b7a32;
+  color: var(--ok);
   font-weight: 700;
 }
 
@@ -425,8 +461,8 @@ select {
 .evidence-card {
   margin-top: 16px;
   padding: 16px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--white);
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 
@@ -441,14 +477,14 @@ select {
 }
 
 .evidence-warning {
-  color: #8a3b12;
+  color: var(--warning);
 }
 
 .session-card {
   margin-top: 16px;
   padding: 16px;
-  background: #ffffff;
-  border: 1px solid #d5ddd8;
+  background: var(--white);
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 
@@ -469,27 +505,27 @@ select {
   width: 920px;
   margin-top: 24px;
   padding: 32px;
-  background: #ffffff;
-  border: 1px solid #c5cec8;
+  background: var(--white);
+  border: 1px solid var(--line);
   box-shadow: 0 8px 24px rgba(28, 36, 40, 0.08);
 }
 
 .mep-document dl {
   display: block;
   margin: 0;
-  border: 1px solid #c5cec8;
+  border: 1px solid var(--line);
 }
 
 .mep-document dl > div {
   display: grid;
   grid-template-columns: 280px 1fr;
-  border-bottom: 1px solid #e4ebe7;
+  border-bottom: 1px solid var(--line);
 }
 
 .mep-document dt {
   padding: 10px 12px;
   font-weight: 700;
-  background: #f7faf8;
+  background: var(--mint);
 }
 
 .mep-document dd {
@@ -507,7 +543,7 @@ select {
 
 .mep-document th,
 .mep-document td {
-  border: 1px solid #c5cec8;
+  border: 1px solid var(--line);
   padding: 10px;
   vertical-align: top;
   text-align: left;
@@ -520,7 +556,7 @@ select {
   width: 100%;
   min-height: 40px;
   padding: 8px;
-  border: 1px solid #c5d0cb;
+  border: 1px solid var(--line);
   border-radius: 6px;
 }
 
@@ -537,15 +573,16 @@ select {
 .mep-actions button {
   height: 40px;
   padding: 0 16px;
-  border: 1px solid #0f3d4c;
+  border: 1px solid var(--teal);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--white);
+  color: var(--ink);
   cursor: pointer;
 }
 
 .mep-actions button:last-of-type {
-  background: #0f3d4c;
-  color: #ffffff;
+  background: var(--teal);
+  color: var(--white);
 }
 
 .mep-preview {
@@ -553,8 +590,8 @@ select {
   width: 816px;
   height: 1120px;
   margin-top: 16px;
-  border: 1px solid #c5cec8;
-  background: #e7eeea;
+  border: 1px solid var(--line);
+  background: var(--mint);
 }
 
 .adjustment-layout {

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { CIENCIAS_SEXTO_SCENARIO_ID } from "./cienciasSextoSeed";
 
 export type StoredAdjustment = {
   planned: string;
@@ -102,6 +103,29 @@ export const adjustmentSets: Record<string, StoredAdjustment> = {
       mepRowPosition: 1,
       mediationStrategy: "Reprogramar el cierre de la observación de células al inicio de la siguiente lección.",
       indicator: "Retoma la observación de la célula en la lección siguiente.",
+    },
+  },
+  [CIENCIAS_SEXTO_SCENARIO_ID]: {
+    planned: "Recorrer focalización, exploración, contrastación y aplicación del sistema nervioso.",
+    executed: "Todavía no hay un registro de lo ocurrido en la clase.",
+    achieved: "Aún no se anota un aprendizaje logrado.",
+    pending: "Completar la maqueta y la exposición de los componentes.",
+    collectedEvidence: "La rúbrica de trabajo cotidiano está lista, sin desempeños anotados.",
+    teacherLog: "Las reflexiones del planeamiento siguen en blanco: ¿Qué funcionó? ¿Qué no funcionó? ¿Qué puedo mejorar?",
+    cards: [
+      "Retomar la maqueta al inicio de la lección siguiente si la exposición no alcanzó.",
+      "Mantener la adecuación: leer las opciones y dejar colorear las más claras.",
+      "Dejar los ejercicios 1 a 6 del folleto para la casa.",
+    ],
+    apply: {
+      weekPosition: 1,
+      sessionPosition: 1,
+      start: "Retomar El Mensajero Humano y la maqueta al inicio de la lección siguiente.",
+      development: "Exposición breve de los componentes del sistema nervioso.",
+      homework: "Ejercicios 1 a 6 del folleto.",
+      mepRowPosition: 1,
+      mediationStrategy: "Retomar El Mensajero Humano y la maqueta al inicio de la lección siguiente.",
+      indicator: "Expone los componentes del sistema nervioso en la lección siguiente.",
     },
   },
 };

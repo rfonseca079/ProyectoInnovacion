@@ -1,4 +1,4 @@
-Diseña una aplicación web de escritorio (desktop-first, 1440px de ancho, NO móvil, NO responsive móvil) llamada "Planificador AI". Es un producto serio e institucional para docentes de primaria y secundaria en Costa Rica (MEP). Idioma: español de Costa Rica. Sin pantalla de login.
+Diseña una aplicación web de escritorio (desktop-first, 1440px de ancho, NO móvil, NO responsive móvil) llamada "EduAcompaña". Es un producto serio e institucional para docentes de primaria y secundaria en Costa Rica (MEP). Idioma: español de Costa Rica. Sin pantalla de login.
 
 OBJETIVO DEL PRODUCTO
 Guiar a la persona docente en un flujo secuencial (wizard) para construir su planeamiento didáctico con ayuda de IA. La IA sugiere todo el contenido en tarjetas editables dentro de cada paso; el docente puede aceptar, editar o regenerar. Al final genera un PDF con formato tipo plantilla oficial MEP.
@@ -23,7 +23,7 @@ ESTILO VISUAL
 - Mucho espacio, jerarquía clara, formularios bien organizados.
 - La IA se ve como “asistente experto”: chips “Sugerido por IA”, botones “Regenerar”, “Aceptar sugerencia”, “Editar”.
 - Wizard con barra de progreso horizontal numerada (pasos) fija arriba bajo el header.
-- Header web: logo/wordmark “Planificador AI” a la izquierda; a la derecha contexto del planeamiento (Matemática · 4.° · Escuela República de Arabia Saudita · Juanita Pérez).
+- Header web: logo/wordmark “EduAcompaña” a la izquierda; a la derecha contexto del planeamiento (Matemática · 4.° · Escuela República de Arabia Saudita · Juanita Pérez).
 - Footer simple con “Borrador guardado automáticamente”.
 - NO cards decorativas innecesarias. Usar contenedores solo cuando ayuden a editar/aceptar sugerencias o agrupar formularios.
 - Incluir microinteracciones sugeridas en notas: hover en botones, progreso del wizard, aparición suave de sugerencias IA.
@@ -45,7 +45,7 @@ GENERAR SOLO ESTAS PANTALLAS COMPLETAS (desktop). No crear pantallas de adorno, 
 PANTALLA 1 — Configuración del planeamiento (previa)
 ============================================================
 Título: “Nuevo planeamiento”
-Subtítulo: “Defina el contexto curricular. La IA usará estos datos para sugerir el resto.”
+Subtítulo: “Defina el contexto curricular. Con esos datos se prepara una propuesta que puede modificar.”
 
 Formulario en dos columnas:
 Izquierda:
@@ -105,7 +105,7 @@ CTA: Continuar a Unidades y evaluación.
 PANTALLA 3 — Paso 2: Unidades, secuencia y rúbrica de evaluación
 ============================================================
 Título: “Organice unidades y defina la evaluación”
-Apoyo: “La IA propone la secuencia. Usted define cada rubro y su porcentaje.”
+Apoyo: “Esta distribución es una propuesta. Puede modificarla según las necesidades de su grupo.”
 
 Arriba: timeline horizontal de 4 semanas de marzo con unidades:
 - Semana 1: Fracción como parte-todo
@@ -130,7 +130,7 @@ Sugerencia IA: justificación breve del orden didáctico y de los pesos.
 PANTALLA 4 — Paso 3: Diagnóstico del grupo
 ============================================================
 Título: “Conozca a su grupo”
-Apoyo: “Complete el perfil del 4.° A. La IA ajustará mediación y evaluaciones.”
+Apoyo: “Complete el perfil del grupo. Después puede adaptar la mediación y las evaluaciones.”
 
 Formulario + tarjetas (datos ejemplo ya llenos):
 - Conocimientos previos: dominio de números naturales y nociones básicas de mitad/cuarto; dificultad con lenguaje matemático.
@@ -146,12 +146,12 @@ Botón IA: “Generar implicaciones pedagógicas”. Muestra 3 tarjetas editable
 PANTALLA 5 — Paso 4: Mediación dentro y fuera del aula
 ============================================================
 Título: “Qué haremos para aprender”
-Apoyo: “Defina el rol docente, el rol estudiantil, tiempos y materiales. También el trabajo extraclase.”
+Apoyo: “Defina el rol de la persona docente, el rol del estudiantado, los tiempos y los materiales. También el trabajo extraclase.”
 
 Para la Unidad/Semana activa (Semana 2 — Fracciones equivalentes), mostrar:
 
 A) Dentro del aula (tabla o bloques por momento):
-Columnas: Actividad | Hace la docente | Hacen los estudiantes | Tiempo | Materiales
+Columnas: Actividad | Hace la persona docente | Hace el estudiantado | Tiempo | Materiales
 Filas ejemplo:
 - Activación con pizza/fichas | modela | manipulan y verbalizan | 10 min | círculos fraccionarios
 - Construcción de equivalentes | guía preguntas | representan 1/2 = 2/4 = 3/6 | 25 min | fichas, mini pizarras
@@ -250,7 +250,7 @@ UI debe verse inequívocamente como consolidación formal, no como otro formular
 PANTALLA 9 — Paso 8: Después de dar la clase — ajuste del plan
 ============================================================
 Título: “Ajuste lo planeado según lo ocurrido”
-Apoyo: “Casi nunca se avanza exactamente como se planeó. Registre y replanifique.”
+Apoyo: “Puede registrar lo ocurrido y redistribuir las actividades para adaptarlas al tiempo disponible.”
 
 Layout:
 Izquierda — “Lo planeado vs lo ejecutado” para la sesión del lunes 9 de marzo:

@@ -11,6 +11,7 @@ describe("test database", () => {
     expect(process.env.DATABASE_URL).toContain("test");
     const emails = (await prisma.teacher.findMany({ orderBy: { email: "asc" } })).map((teacher) => teacher.email);
     expect(emails).toEqual([
+      "andrea.brenes@demo.mep.cr",
       "carlos.mora@demo.mep.cr",
       "juanita.perez@demo.mep.cr",
       "maria.solis@demo.mep.cr",

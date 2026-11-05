@@ -13,7 +13,7 @@ Corresponde a la pantalla «Nuevo planeamiento» de `stitch.md`. Esta pantalla e
 
 ## Criterios de aceptación
 
-1. El título es **Nuevo planeamiento** y el apoyo es: «Defina el contexto curricular. La IA usará estos datos para sugerir el resto.»
+1. El título es **Nuevo planeamiento** y el apoyo es: «Defina el contexto curricular. Con esos datos se prepara una propuesta que puede modificar.»
 2. El nombre de la docente, el centro educativo y la dirección regional llegan escritos con los datos de su cuenta. Puede corregirlos para este planeamiento.
 3. Los demás campos empiezan vacíos. El resumen en chips se actualiza con lo que ya eligió.
 4. El botón **Iniciar planeamiento con IA** solo se habilita cuando todos los campos obligatorios son válidos.

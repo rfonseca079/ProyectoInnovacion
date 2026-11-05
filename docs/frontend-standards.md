@@ -1,5 +1,5 @@
 ---
-description: Frontend standards for the Planificador AI desktop web app. React, TypeScript, and Vite. No mobile layout and no Bootstrap.
+description: Frontend standards for the EduAcompaña desktop web app. React, TypeScript, and Vite. No mobile layout and no Bootstrap.
 globs: ["frontend/src/**/*.{ts,tsx}", "frontend/package.json", "frontend/vite.config.ts"]
 alwaysApply: true
 ---
@@ -40,7 +40,7 @@ frontend/src/
 
 - Teacher-facing labels, errors, and PDF-related messages are Costa Rican Spanish, using the exact button names from the user stories.
 - Code, component names, and service names stay in English.
-- Header: wordmark **Planificador AI**, plan context, **Mis planeamientos**, and **Cerrar sesión**.
+- Header: EduAcompaña logo, plan context, **Mis planeamientos**, and **Cerrar sesión**.
 - Steps 1–7 show **Atrás** and **Continuar**. Step 8 uses the adjustment actions from US-15.
 - A step that has not been visited is visible and not clickable.
 - The page footer shows **Borrador guardado automáticamente** after a successful save, and the failure sentence from US-05 when the save fails.

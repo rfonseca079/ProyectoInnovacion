@@ -7,7 +7,7 @@ export const groupFields = [
   { key: "resources", label: "Recursos del aula" },
   { key: "pace", label: "Ritmo del grupo" },
   { key: "supports", label: "Apoyos requeridos" },
-  { key: "teacher-notes", label: "Observaciones de la docente" },
+  { key: "teacher-notes", label: "Observaciones de la persona docente" },
 ] as const;
 
 const implicationCards = [
@@ -80,7 +80,7 @@ export function GroupStepPage({
     <main className="page group-step">
       <h2>Conozca a su grupo</h2>
       {notice ? <p>{notice}</p> : null}
-      <p>Complete el perfil del grupo. La IA ajustará mediación y evaluaciones.</p>
+      <p>Complete el perfil del grupo. Después puede adaptar la mediación y las evaluaciones.</p>
       {groupFields.map((field) => (
         <label key={field.key}>
           {field.label}

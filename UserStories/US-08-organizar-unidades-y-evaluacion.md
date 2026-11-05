@@ -9,7 +9,7 @@ Como docente quiero ordenar las unidades del mes y definir el porcentaje de cada
 
 ## Contexto
 
-Paso 2 de 8. Título: **Organice unidades y defina la evaluación**. Apoyo: «La IA propone la secuencia. Usted define cada rubro y su porcentaje.» Las sugerencias siguen US-16.
+Paso 2 de 8. Título: **Organice unidades y defina la evaluación**. Apoyo: «Esta distribución es una propuesta. Puede modificarla según las necesidades de su grupo.» Las sugerencias siguen US-16.
 
 ## Criterios de aceptación
 

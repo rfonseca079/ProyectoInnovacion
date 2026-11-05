@@ -5,7 +5,7 @@ alwaysApply: true
 
 ## 0. Project context
 
-Planificador AI is a desktop-first web demo for primary and secondary teachers in Costa Rica (MEP). It guides a teacher through a planning wizard and downloads a MEP-style PDF.
+EduAcompaña is a desktop-first web demo for primary and secondary teachers in Costa Rica (MEP). It guides a teacher through a planning wizard and downloads a MEP-style PDF.
 
 - Product requirements live in `UserStories/` and the visual structure lives in `stitch.md`.
 - There is no real language model. Every action described as AI reads suggestion variants already stored in the database.
