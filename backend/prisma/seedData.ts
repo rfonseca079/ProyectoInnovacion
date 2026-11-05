@@ -1,6 +1,16 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { copyAdjustmentBlocks, seedAdjustmentVariants } from "./adjustmentSeed";
+import {
+  CIENCIAS_SEXTO_SCENARIO_ID,
+  cienciasSextoGroup,
+  cienciasSextoInClass,
+  cienciasSextoOutside,
+  cienciasSextoPlanId,
+  cienciasSextoStepOne,
+  cienciasSextoTeacher,
+  cienciasSextoUnits,
+} from "./cienciasSextoSeed";
 import { evidenceCardJson, scenarioEvidence, StoredEvidenceCard } from "./evidenceSeed";
 import { seedMepTemplate } from "./mepSeed";
 import { activeWeekPosition, copyPlanSessions, seedWeekSessionVariants } from "./sessionSeed";
@@ -26,6 +36,7 @@ export const seededTeachers = [
     schoolName: "Liceo Experimental de San Pedro",
     regionalDirectorate: "Dirección Regional San José",
   },
+  cienciasSextoTeacher,
 ];
 
 export function assertSeedAllowed(nodeEnv: string | undefined): void {
@@ -116,6 +127,7 @@ export const scenarioUnits: Record<
       "Los cuatro rubros quedan parejos para no cargar una sola semana.",
     ],
   },
+  [CIENCIAS_SEXTO_SCENARIO_ID]: cienciasSextoUnits,
 };
 
 export const groupProfileKeys = [
@@ -275,6 +287,7 @@ export const scenarioGroup: Record<string, Record<string, string[]>> = {
       "Dejar una pregunta de observación para quien requiere más tiempo.",
     ],
   },
+  [CIENCIAS_SEXTO_SCENARIO_ID]: cienciasSextoGroup,
 };
 
 const scenarios = [
@@ -391,6 +404,15 @@ const scenarios = [
       ],
     },
     days: [{ date: "2026-02-06", kind: "TEACHING" as const, label: "Observación de la célula" }],
+  },
+  {
+    id: CIENCIAS_SEXTO_SCENARIO_ID,
+    schoolYear: 2026,
+    subject: "SCIENCE" as const,
+    gradeLevel: 6,
+    month: 2,
+    blocks: cienciasSextoStepOne,
+    days: [],
   },
 ];
 
@@ -583,6 +605,7 @@ export const scenarioMediation: Record<string, ReturnType<typeof mediationSet>> 
   "mat-4-marzo-2026": mediationSet(mathInClass, mathOutside, "Relato corto de una pizza repartida"),
   "esp-2-abril-2026": mediationSet(spanishInClass, spanishOutside, "Lectura en voz alta de otro cuento"),
   "cie-7-febrero-2026": mediationSet(scienceInClass, scienceOutside, "Observación de imágenes de otra célula"),
+  [CIENCIAS_SEXTO_SCENARIO_ID]: mediationSet(cienciasSextoInClass, cienciasSextoOutside, "Mesa redonda sobre las funciones del sistema nervioso"),
 };
 
 const seededPlans = [
@@ -624,6 +647,21 @@ const seededPlans = [
     highestVisitedStep: 8,
     updatedAt: new Date("2026-02-18T18:00:00.000Z"),
     scenarioId: "cie-7-febrero-2026",
+  },
+  {
+    id: cienciasSextoPlanId,
+    email: cienciasSextoTeacher.email,
+    cycle: "I_II" as const,
+    gradeLevel: 6,
+    subject: "SCIENCE" as const,
+    month: 2,
+    status: "DRAFT" as const,
+    currentStep: 1,
+    highestVisitedStep: 1,
+    updatedAt: new Date("2026-02-02T18:00:00.000Z"),
+    scenarioId: CIENCIAS_SEXTO_SCENARIO_ID,
+    section: "6.°",
+    studentCount: 22,
   },
 ];
 
@@ -872,8 +910,8 @@ export async function seedTeachers(prisma: PrismaClient, nodeEnv: string | undef
       schoolName: teacher.schoolName,
       regionalDirectorate: teacher.regionalDirectorate,
       teacherName: teacher.fullName,
-      section: "A",
-      studentCount: 28,
+      section: "section" in plan && typeof plan.section === "string" ? plan.section : "A",
+      studentCount: "studentCount" in plan && typeof plan.studentCount === "number" ? plan.studentCount : 28,
       weeklyLessons: 5,
       status: plan.status,
       currentStep: plan.currentStep,

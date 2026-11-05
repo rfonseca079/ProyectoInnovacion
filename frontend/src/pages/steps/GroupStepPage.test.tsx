@@ -51,7 +51,7 @@ describe("GroupStepPage", () => {
     expect(screen.getByLabelText("Recursos del aula")).toBeInTheDocument();
     expect(screen.getByLabelText("Ritmo del grupo")).toBeInTheDocument();
     expect(screen.getByLabelText("Apoyos requeridos")).toBeInTheDocument();
-    expect(screen.getByLabelText("Observaciones de la docente")).toBeInTheDocument();
+    expect(screen.getByLabelText("Observaciones de la persona docente")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /adecuacion/i })).not.toBeInTheDocument();
   });
 
@@ -66,7 +66,7 @@ describe("GroupStepPage", () => {
         onRegenerate={() => undefined}
       />,
     );
-    fireEvent.change(screen.getByLabelText("Observaciones de la docente"), { target: { value: "Texto nuevo sin guardar" } });
+    fireEvent.change(screen.getByLabelText("Observaciones de la persona docente"), { target: { value: "Texto nuevo sin guardar" } });
     const savedBlocks = blocks.map((block) =>
       block.blockKey === "prior-knowledge" ? { ...block, body: "Guardado desde el servidor" } : block,
     );
@@ -80,7 +80,7 @@ describe("GroupStepPage", () => {
         onRegenerate={() => undefined}
       />,
     );
-    expect(screen.getByLabelText("Observaciones de la docente")).toHaveValue("Texto nuevo sin guardar");
+    expect(screen.getByLabelText("Observaciones de la persona docente")).toHaveValue("Texto nuevo sin guardar");
     expect(screen.getByLabelText("Conocimientos previos")).toHaveValue("Guardado desde el servidor");
   });
 
@@ -125,8 +125,8 @@ describe("GroupStepPage", () => {
       </MemoryRouter>,
     );
     expect(await screen.findByRole("button", { name: "Continuar" })).toBeEnabled();
-    fireEvent.change(screen.getByLabelText("Observaciones de la docente"), { target: { value: " " } });
+    fireEvent.change(screen.getByLabelText("Observaciones de la persona docente"), { target: { value: " " } });
     expect(screen.getByRole("button", { name: "Continuar" })).toBeDisabled();
-    expect(screen.getByRole("alert")).toHaveTextContent("Complete el campo Observaciones de la docente.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Complete el campo Observaciones de la persona docente.");
   });
 });

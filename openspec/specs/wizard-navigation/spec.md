@@ -7,7 +7,7 @@ Lets a teacher move through the nine planning steps in order and reopen only the
 ## Requirements
 
 ### Requirement: Shared chrome
-The header SHALL show Planificador AI, the saved subject, grade, school, and teacher name, plus Mis planeamientos and Cerrar sesión. Mis planeamientos MUST return to the list without discarding a saved draft. The bar MUST list the nine step names from US-06 in order. Steps 1 through 8 MUST show "Paso X de 8". Configuration MUST NOT show that indicator.
+The header SHALL show EduAcompaña, the saved subject, grade, school, and teacher name, plus Mis planeamientos and Cerrar sesión. Mis planeamientos MUST return to the list without discarding a saved draft. The bar MUST list the nine step names from US-06 in order. Steps 1 through 8 MUST show "Paso X de 8". Configuration MUST NOT show that indicator.
 
 #### Scenario: Header context
 - **WHEN** the teacher is inside a saved plan

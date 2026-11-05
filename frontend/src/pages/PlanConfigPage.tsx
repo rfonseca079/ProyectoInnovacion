@@ -122,7 +122,7 @@ export function PlanConfigPage({
       <AppHeader teacherName={teacher.fullName} onLogout={onLogout} />
       <main className="page">
         <h2>Nuevo planeamiento</h2>
-        <p>Defina el contexto curricular. La IA usará estos datos para sugerir el resto.</p>
+        <p>Defina el contexto curricular. Con esos datos se prepara una propuesta que puede modificar.</p>
         <form onSubmit={handleSubmit} className="config-form">
           <div className="config-columns">
             <fieldset>

@@ -57,7 +57,7 @@ class PlanPdfLayout {
   paintTitle(continued: boolean): void {
     const height = 28;
     const boxBottom = this.cursor - height;
-    this.commands.push(`0.059 0.239 0.298 rg ${margin} ${boxBottom} ${contentWidth} ${height} re f`);
+    this.commands.push(`0.184 0.490 0.471 rg ${margin} ${boxBottom} ${contentWidth} ${height} re f`);
     this.commands.push("0 0 0 rg");
     this.commands.push(showText(margin + 12, boxBottom + 9, 12, "Planeamiento didáctico", true, "1 1 1 rg"));
     if (continued) {

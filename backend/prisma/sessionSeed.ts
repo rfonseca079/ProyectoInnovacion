@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { CIENCIAS_SEXTO_SCENARIO_ID } from "./cienciasSextoSeed";
 
 export type StoredClassSession = {
   position: number;
@@ -191,16 +192,25 @@ const scienceWeeks: StoredClassSession[][] = [
   briefWeek("Observación de la célula", "2026-02-23"),
 ];
 
+const cienciasSextoWeeks: StoredClassSession[][] = [
+  phraseWeek("Identificar los componentes del sistema nervioso con El Mensajero Humano.", "2026-02-02")[0],
+  briefWeek("Medidas preventivas y consumo de drogas", "2026-02-09"),
+  briefWeek("Sistema endocrino y glándulas", "2026-02-16"),
+  briefWeek("Enfermedades del sistema endocrino", "2026-02-23"),
+];
+
 const activeSets: Record<string, StoredClassSession[][]> = {
   "mat-4-marzo-2026": mathWeek2(),
   "esp-2-abril-2026": phraseWeek("Lectura en voz alta del cuento de la semana", "2026-04-06"),
   "cie-7-febrero-2026": phraseWeek("Observación guiada de la célula", "2026-02-02"),
+  [CIENCIAS_SEXTO_SCENARIO_ID]: phraseWeek("Identificar los componentes del sistema nervioso con El Mensajero Humano.", "2026-02-02"),
 };
 
 const weekRows: Record<string, StoredClassSession[][]> = {
   "mat-4-marzo-2026": mathWeeks,
   "esp-2-abril-2026": spanishWeeks,
   "cie-7-febrero-2026": scienceWeeks,
+  [CIENCIAS_SEXTO_SCENARIO_ID]: cienciasSextoWeeks,
 };
 
 function toRow(planId: string, weekPosition: number, session: StoredClassSession) {

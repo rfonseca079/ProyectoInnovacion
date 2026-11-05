@@ -102,8 +102,8 @@ describe("MediationStepPage", () => {
     expect(screen.getByRole("heading", { name: "Qué haremos para aprender" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Semana 2 — Fracciones equivalentes" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Actividad" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Hace la docente" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Hacen los estudiantes" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Hace la persona docente" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Hace el estudiantado" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Tiempo" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Materiales" })).toBeInTheDocument();
     expect(screen.getByDisplayValue("Activación con fichas")).toBeInTheDocument();

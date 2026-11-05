@@ -33,6 +33,7 @@ function renderChrome(step: number, highestVisitedStep = 4) {
 describe("WizardChrome", () => {
   it("hides the step indicator on configuration and shows the nine labels", () => {
     renderChrome(0);
+    expect(screen.getByRole("heading", { name: "EduAcompaña" })).toBeInTheDocument();
     expect(screen.queryByText(/Paso \d de 8/)).not.toBeInTheDocument();
     expect(screen.getByText("Matemática")).toBeInTheDocument();
     expect(screen.getByText("4.° año")).toBeInTheDocument();
@@ -57,6 +58,7 @@ describe("WizardChrome", () => {
   it("shows Paso X de 8 on a working step", () => {
     renderChrome(4);
     expect(screen.getByText("Paso 4 de 8")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "4 Mediación" })).toHaveAttribute("aria-current", "page");
   });
 
   it("keeps an unvisited step visible and not clickable", () => {

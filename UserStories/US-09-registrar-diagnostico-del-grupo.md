@@ -9,11 +9,11 @@ Como docente quiero registrar cómo llega mi grupo para que las sugerencias de m
 
 ## Contexto
 
-Paso 3 de 8. Título: **Conozca a su grupo**. Apoyo: «Complete el perfil del grupo. La IA ajustará mediación y evaluaciones.» En este demo el ajuste consiste en mostrar textos ya asociados a ese escenario, no en producir un diagnóstico nuevo.
+Paso 3 de 8. Título: **Conozca a su grupo**. Apoyo: «Complete el perfil del grupo. Después puede adaptar la mediación y las evaluaciones.» En este demo el ajuste consiste en mostrar textos ya asociados a ese escenario, no en producir un diagnóstico nuevo.
 
 ## Criterios de aceptación
 
-1. El formulario incluye conocimientos previos, áreas de dificultad, recursos del aula, ritmo del grupo, apoyos requeridos y observaciones de la docente.
+1. El formulario incluye conocimientos previos, áreas de dificultad, recursos del aula, ritmo del grupo, apoyos requeridos y observaciones de la persona docente.
 2. Esos seis campos son obligatorios para continuar. Si uno queda vacío, **Continuar** no avanza y señala el campo.
 3. Los apoyos se redactan como apoyo general de aula. La pantalla no tiene una sección de adecuaciones curriculares formales ni pide datos sensibles del estudiantado.
 4. **Generar implicaciones pedagógicas** muestra tres tarjetas guardadas: manipulativos, andamiaje y diferenciación ligera. Si ya están visibles, el botón pasa al siguiente conjunto guardado.

@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { BrandMark } from "./BrandMark";
 
 export function isOpenableWizardStep(step: number, highestVisitedStep: number): boolean {
   return Number.isInteger(step) && step >= 0 && step <= 8 && step <= highestVisitedStep;
@@ -49,7 +50,7 @@ export function WizardChrome({
   return (
     <>
       <header className="topbar">
-        <h1>Planificador AI</h1>
+        <BrandMark />
         <p className="plan-context">
           <span>{subjectLabel}</span>
           <span>{gradeLevel}.° año</span>
@@ -70,7 +71,13 @@ export function WizardChrome({
             if (index <= highestVisitedStep) {
               return (
                 <li key={name}>
-                  <Link to={`/plans/${planId}/steps/${index}`}>{name}</Link>
+                  <Link
+                    to={`/plans/${planId}/steps/${index}`}
+                    className={index === step ? "step-current" : undefined}
+                    aria-current={index === step ? "page" : undefined}
+                  >
+                    {name}
+                  </Link>
                 </li>
               );
             }

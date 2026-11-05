@@ -1,3 +1,5 @@
+import { BrandMark } from "./BrandMark";
+
 type AppHeaderProps = {
   teacherName?: string;
   onLogout?: () => void;
@@ -6,7 +8,7 @@ type AppHeaderProps = {
 export function AppHeader({ teacherName, onLogout }: AppHeaderProps) {
   return (
     <header className="topbar">
-      <h1>Planificador AI</h1>
+      <BrandMark />
       <div className="topbar-actions">
         {teacherName ? <span>{teacherName}</span> : null}
         {onLogout ? (

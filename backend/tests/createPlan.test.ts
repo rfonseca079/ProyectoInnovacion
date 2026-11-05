@@ -29,6 +29,7 @@ describe("plan creation", () => {
             "11111111-1111-4111-8111-111111111111",
             "22222222-2222-4222-8222-222222222222",
             "33333333-3333-4333-8333-333333333333",
+            "44444444-4444-4444-8444-444444444444",
           ],
         },
       },
@@ -58,6 +59,33 @@ describe("plan creation", () => {
       .send({ ...juanitaPlan, subject: "SOCIAL_STUDIES", section: "social" });
     expect(fallback.body.scenarioId).toBe("mat-4-marzo-2026");
     expect(fallback.body.usedFallback).toBe(true);
+  });
+
+  it("maps science grade 6 in February to the Timoleón Morera Soto documents", async () => {
+    const session = await cookie();
+    const created = await request(app)
+      .post("/api/plans")
+      .set("Cookie", session)
+      .send({
+        ...juanitaPlan,
+        gradeLevel: 6,
+        subject: "SCIENCE",
+        month: 2,
+        section: "sexto",
+        schoolName: "Escuela Timoleón Morera Soto",
+        regionalDirectorate: "Dirección Regional Alajuela",
+        teacherName: "Andrea Brenes Ch",
+      });
+    expect(created.status).toBe(201);
+    expect(created.body.scenarioId).toBe("cie-6-febrero-2026");
+    expect(created.body.usedFallback).toBe(false);
+    const text = created.body.blocks.map((block: { body: string }) => block.body).join(" ");
+    expect(text).toContain("sistema nervioso");
+    expect(text).toContain("Timoleón Morera Soto");
+    expect(text).toContain("Comité de Evaluación");
+    expect(text).toContain("Mensajero Humano");
+    expect(text).not.toContain("Lussiana");
+    expect(text).not.toContain("Fabian Santamaria");
   });
 
   it("rejects grade 4 in diversified education", async () => {

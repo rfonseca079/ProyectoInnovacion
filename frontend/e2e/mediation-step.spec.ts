@@ -18,8 +18,8 @@ test("Juanita lands on step 4 and sees the in-class columns", async ({ page }) =
   await expect(page).toHaveURL(new RegExp(`/plans/${planId}/steps/4$`));
   await expect(page.getByRole("heading", { name: "Qué haremos para aprender" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Actividad" })).toBeVisible();
-  await expect(page.getByRole("columnheader", { name: "Hace la docente" })).toBeVisible();
-  await expect(page.getByRole("columnheader", { name: "Hacen los estudiantes" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Hace la persona docente" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Hace el estudiantado" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Tiempo" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "Materiales" })).toBeVisible();
   await page.getByRole("button", { name: "Cerrar sesión" }).click();

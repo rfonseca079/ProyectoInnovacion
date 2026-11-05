@@ -77,7 +77,7 @@ export function AdjustmentStepPage({
     <main className="page adjustment-step">
       <h2>Ajuste lo planeado según lo ocurrido</h2>
       {notice ? <p>{notice}</p> : null}
-      <p>Casi nunca se avanza exactamente como se planeó. Registre y replanifique.</p>
+      <p>Puede registrar lo ocurrido y redistribuir las actividades para adaptarlas al tiempo disponible.</p>
       <div className="adjustment-layout">
         <section aria-label="Sesión de referencia">
           <h3>Sesión de referencia</h3>
@@ -115,9 +115,9 @@ export function AdjustmentStepPage({
           ))}
         </section>
         <label className="adjustment-log">
-          Bitácora de la docente
+          Bitácora de la persona docente
           <textarea
-            aria-label="Bitácora de la docente"
+            aria-label="Bitácora de la persona docente"
             defaultValue={blockBody(blocks, "adjustment-log")}
             onBlur={(event) => {
               void onSaveField("adjustment-log", event.target.value);

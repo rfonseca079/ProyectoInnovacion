@@ -1,3 +1,5 @@
+import { CIENCIAS_SEXTO_SCENARIO_ID } from "./cienciasSextoSeed";
+
 export type StoredEvidenceCard = {
   blockKey: string;
   kind: "FORMATIVE" | "SCHEDULED";
@@ -226,6 +228,48 @@ const scienceScheduled = [
   ),
 ];
 
+const cienciasSextoRubric: StoredRubric[] = [
+  { name: "Componentes del sistema nervioso", count: 1, percentage: 17 },
+  { name: "Medidas preventivas", count: 1, percentage: 17 },
+  { name: "Consecuencias del consumo de drogas", count: 1, percentage: 17 },
+  { name: "Glándulas del sistema endocrino", count: 1, percentage: 17 },
+  { name: "Relación nervioso y endocrino", count: 1, percentage: 16 },
+  { name: "Equilibrio y cuidado de la salud", count: 1, percentage: 16 },
+];
+
+const cienciasSextoScheduled = [
+  scheduled(
+    "evidence-scheduled-1",
+    1,
+    "Primera prueba de Ciencias",
+    "Prueba básica de sexto, según la circular del Comité de Evaluación. No enviar tareas en esa ventana.",
+    "Martes 1 de setiembre de 2026",
+    "Prueba escrita",
+    "Identifica componentes del sistema nervioso y medidas preventivas.",
+    "2026-09-01",
+  ),
+  scheduled(
+    "evidence-scheduled-2",
+    2,
+    "Pruebas estandarizadas de sexto",
+    "Cronograma distinto de sexto. No coinciden con tareas.",
+    "Del 13 al 16 de octubre de 2026",
+    "Prueba estandarizada",
+    "Sigue el cronograma de sexto del MEP.",
+    "2026-10-13",
+  ),
+  scheduled(
+    "evidence-scheduled-3",
+    3,
+    "Segunda prueba de Ciencias de sexto",
+    "Después de las pruebas estandarizadas. El viernes 30 de octubre queda para reprogramar.",
+    "Lunes 26 de octubre de 2026",
+    "Prueba escrita",
+    "Relaciona el sistema nervioso y el endocrino.",
+    "2026-10-26",
+  ),
+];
+
 function shifted(cards: StoredEvidenceCard[], occursOn: string, when: string): StoredEvidenceCard[] {
   return cards.map((card, index) => (index === 0 ? { ...card, occursOn, when } : { ...card }));
 }
@@ -287,6 +331,33 @@ export const scenarioEvidence: Record<string, ScenarioEvidence> = {
       load(scienceRubric, scienceScheduled),
       load(scienceRubric, shifted(scienceScheduled, "2026-02-20", "Febrero, semana 3")),
       load(scienceRubric, shifted(scienceScheduled, "2026-02-20", "Febrero, semana 3")),
+    ],
+  },
+  [CIENCIAS_SEXTO_SCENARIO_ID]: {
+    formative: formativeVariants([
+      formative(
+        "evidence-formative-1",
+        1,
+        "Maqueta del sistema nervioso",
+        "Determina los componentes del sistema nervioso con la maqueta. En nivel Inicial los reconoce con apoyo.",
+        "Contrastación",
+        "Maqueta y exposición breve",
+        "Identifica cerebro, médula espinal y nervios.",
+      ),
+      formative(
+        "evidence-formative-2",
+        2,
+        "Mesa redonda y afiche preventivo",
+        "Señala funciones del sistema nervioso y menciona medidas en el hogar, el centro educativo y la comunidad.",
+        "Aplicación",
+        "Mesa redonda y afiche",
+        "Describe medidas preventivas y consecuencias del consumo de drogas.",
+      ),
+    ]),
+    loads: [
+      load(cienciasSextoRubric, cienciasSextoScheduled),
+      load(cienciasSextoRubric, cienciasSextoScheduled.map((card, index) => (index === 0 ? { ...card, when: "Se mueve si el Comité de Evaluación y el docente guía confirman otra fecha." } : card))),
+      load(cienciasSextoRubric, cienciasSextoScheduled),
     ],
   },
 };

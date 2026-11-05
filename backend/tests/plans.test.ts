@@ -19,7 +19,7 @@ describe("plan list", () => {
   it("seeds one plan per teacher", async () => {
     const plans = await prisma.plan.findMany();
     const teachers = await prisma.teacher.findMany();
-    expect(plans).toHaveLength(3);
+    expect(plans).toHaveLength(teachers.length);
     expect(new Set(plans.map((plan) => plan.teacherId)).size).toBe(teachers.length);
   });
 

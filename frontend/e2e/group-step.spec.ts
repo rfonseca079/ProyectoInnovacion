@@ -18,11 +18,11 @@ test("clearing observations keeps Continuar on step 3", async ({ page }) => {
   await page.goto(`/plans/${planId}/steps/3`);
   await expect(page.getByRole("heading", { name: "Conozca a su grupo" })).toBeVisible();
   await expect(page.getByRole("heading", { name: /adecuacion/i })).toHaveCount(0);
-  await page.getByLabel("Observaciones de la docente").fill(" ");
+  await page.getByLabel("Observaciones de la persona docente").fill(" ");
   await expect(page.getByRole("button", { name: "Continuar" })).toBeDisabled();
-  await expect(page.getByText("Complete el campo Observaciones de la docente.")).toBeVisible();
+  await expect(page.getByText("Complete el campo Observaciones de la persona docente.")).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`/plans/${planId}/steps/3$`));
-  await page.getByLabel("Observaciones de la docente").fill(observations);
+  await page.getByLabel("Observaciones de la persona docente").fill(observations);
   await expect(page.getByRole("button", { name: "Continuar" })).toBeEnabled();
   expect(hosts.filter((host) => modelHost.test(host))).toEqual([]);
 });

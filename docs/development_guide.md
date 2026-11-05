@@ -45,6 +45,7 @@ The seed creates these teachers. The shared demo password is `Demo2026`.
 | Juanita Pérez | juanita.perez@demo.mep.cr | Draft on step 4, scenario `mat-4-marzo-2026` |
 | Carlos Mora | carlos.mora@demo.mep.cr | Ready for delivery on step 7, scenario `esp-2-abril-2026` |
 | María Solís | maria.solis@demo.mep.cr | Step 8 before adjustments, scenario `cie-7-febrero-2026` |
+| Andrea Brenes Ch | andrea.brenes@demo.mep.cr | Draft on step 1, scenario `cie-6-febrero-2026`, from the grade 6 science documents |
 
 ## 4. What this demo must not call
 
